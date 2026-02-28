@@ -203,8 +203,14 @@ while true; do
         continue
     fi
 
-    # 任务完成
+    # 任务完成，自动提交变更
     echo "[worker-\$WORKER_ID] 任务完成: \$task_name"
+    cd "\$WORKTREE_DIR"
+    if [ -n "\$(git status --porcelain 2>/dev/null)" ]; then
+        git add -A
+        git commit -m "worker-\$WORKER_ID: \$task_name" --no-verify 2>/dev/null || true
+        echo "[worker-\$WORKER_ID] 已提交变更"
+    fi
     mkdir -p "\$QUEUE_DIR/done"
     mv "\$task" "\$QUEUE_DIR/done/\$task_name"
 done
