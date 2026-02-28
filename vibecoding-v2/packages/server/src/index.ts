@@ -2,6 +2,9 @@ import { loadConfig } from './config.js';
 import { initDb } from './db/index.js';
 import { buildServer } from './server.js';
 import { syncReposFromConfig } from './routes/repos.js';
+import { initTaskQueue } from './services/task-queue.js';
+import { recoverOnStartup } from './services/recovery.js';
+import { Scheduler } from './services/scheduler.js';
 import { resolve } from 'node:path';
 import { mkdirSync } from 'node:fs';
 
@@ -16,9 +19,30 @@ async function main() {
   // Sync repos from config into DB
   await syncReposFromConfig(config);
 
+  // Init task queue
+  initTaskQueue(config);
+
+  // Recover from previous crash
+  await recoverOnStartup(config);
+
   // Build and start server
   const app = await buildServer(config);
   await app.listen({ port: config.server.port, host: config.server.host });
+
+  // Start scheduler
+  const scheduler = new Scheduler(config);
+  scheduler.start();
+  console.log('Scheduler started');
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    console.log('Shutting down...');
+    scheduler.stop();
+    await app.close();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 main().catch((err) => {
