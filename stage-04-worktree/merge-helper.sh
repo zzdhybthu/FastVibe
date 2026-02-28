@@ -310,12 +310,13 @@ cmd_merge_all() {
             continue
         fi
 
-        # 冲突测试
-        local test_result=0
-        git merge --no-commit --no-ff "$branch" >/dev/null 2>&1 || test_result=$?
+        # 冲突测试: 尝试合并，检查是否有真正的冲突文件 (unmerged entries)
+        git merge --no-commit --no-ff "$branch" >/dev/null 2>&1 || true
+        local unmerged
+        unmerged="$(git diff --name-only --diff-filter=U 2>/dev/null | wc -l | tr -d ' ')"
         git merge --abort 2>/dev/null || git reset --merge 2>/dev/null || true
 
-        if [ "$test_result" -ne 0 ]; then
+        if [ "$unmerged" -gt 0 ]; then
             has_conflicts+=("$branch")
         else
             merge_candidates+=("$branch")
