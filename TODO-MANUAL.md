@@ -97,13 +97,13 @@ mkdir -p ~/Desktop/vibe/VibeCoding/.claude
 cp stage-02-container/settings-template.json .claude/settings.json
 ```
 
-### 自动备份 (可选)
+### WIP 自动快照 (可选)
 
 ```bash
-# 添加 cron job，每小时备份一次
+# 添加 cron job，每 15 分钟自动保存未提交修改到 git stash
 crontab -e
 # 添加这行:
-0 * * * * ~/Desktop/vibe/VibeCoding/stage-02-container/backup.sh ~/Desktop/vibe/VibeCoding
+*/15 * * * * ~/Desktop/vibe/VibeCoding/stage-02-container/backup.sh ~/Desktop/vibe/VibeCoding
 ```
 
 ---
