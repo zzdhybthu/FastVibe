@@ -31,8 +31,19 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 brew install claude-code
 # 后备: npm install -g @anthropic-ai/claude-code
 
-# 同步 API 代理配置
+# 同步配置到服务器
+# 注意: settings.json 含 API key 明文，多人共用服务器建议分离敏感信息
 scp ~/.claude/settings.json user@linux-server:~/.claude/settings.json
+
+# 关于插件:
+# - @claude-plugins-official 官方插件会在 CC 启动时自动下载，无需手动安装
+# - Playwright 插件需要额外安装浏览器 (如果服务器上要用):
+#   npx playwright install chromium
+#
+# 安全建议: 服务器上可以只保留非敏感配置，API key 用环境变量注入:
+#   export ANTHROPIC_API_KEY="sk-xxx"
+#   export ANTHROPIC_BASE_URL="https://api9.xhub.chat"
+# 然后从服务器的 settings.json 中删除 env 段
 
 # 确认 Docker 已安装且当前用户在 docker 组
 docker --version
