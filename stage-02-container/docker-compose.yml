@@ -1,0 +1,14 @@
+services:
+  claude-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-dev
+    volumes:
+      - ..:/workspace
+      - ~/.claude:/root/.claude:ro
+    network_mode: host
+    environment:
+      - TERM=xterm-256color
+    stdin_open: true
+    tty: true

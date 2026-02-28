@@ -1,0 +1,32 @@
+# Project Progress
+
+## Current Status
+
+{{CURRENT_STATUS}}
+
+## Recent Changes
+
+<!-- Format: YYYY-MM-DD | Description -->
+<!-- Newest entries at the top -->
+
+| Date       | Description                          |
+|------------|--------------------------------------|
+| {{TODAY}}  | Initial project setup and scaffolding |
+
+## Lessons Learned
+
+<!-- Important discoveries, gotchas, and decisions worth remembering across sessions -->
+
+- _No entries yet. Add findings here as the project progresses._
+
+## Active Issues
+
+<!-- Current blockers and unresolved problems -->
+
+- _No active issues._
+
+## Next Steps
+
+<!-- Ordered by priority, highest first -->
+
+- [ ] _Define initial tasks here_
