@@ -32,7 +32,7 @@ stage-10-practices/ - 管理实践文档
 ## Workflow Rules
 1. 开始工作前必须读 PROGRESS.md
 2. 完成任务后更新 PROGRESS.md
-3. 每次有意义的变更都要 commit
+3. 每次有意义的变更都要 commit，commit 后自动 push
 4. 同样的错误不要再犯
 5. 使用 `shared/cc_wrapper.sh` 调用 CC，不要直接调用
 
