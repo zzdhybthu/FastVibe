@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # setup-mac.sh - Mac 环境检查脚本
-# 检查 VibeCoding 项目所需工具是否已安装，给出 brew install 建议
+# 检查 VibeCoding 项目所需工具是否已安装，给出安装建议
+# 工具偏好: fnm 管理 node, pnpm 替代 npm, brew 管理全局 CLI (如 claude)
 set -euo pipefail
 
 # ── 颜色定义 ──────────────────────────────────────────────
@@ -9,28 +10,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
-
-# ── 工具列表: 名称 -> brew 安装命令 ─────────────────────────
-declare -A TOOLS=(
-    [claude]="claude"
-    [git]="git"
-    [tmux]="tmux"
-    [docker]="docker"
-    [python3]="python3"
-    [node]="node"
-    [npm]="npm"
-)
-
-# brew 包名可能和命令名不同
-declare -A BREW_PKG=(
-    [claude]=""          # Claude Code CLI 通过 npm 安装
-    [git]="git"
-    [tmux]="tmux"
-    [docker]="--cask docker"
-    [python3]="python3"
-    [node]="node"
-    [npm]="node"         # npm 随 node 一起安装
-)
 
 # ── 平台检查 ─────────────────────────────────────────────
 if [[ "$(uname -s)" != "Darwin" ]]; then
@@ -64,18 +43,19 @@ MISSING_LIST=()
 echo -e "${BOLD}[工具检查]${NC}"
 echo "--------------------------------------------"
 
-for tool in claude git tmux docker python3 node npm; do
+# 检查工具列表: claude, git, tmux, docker, python3, fnm, node, pnpm
+for tool in claude git tmux docker python3 fnm node pnpm; do
     printf "  %-12s" "$tool"
     if command -v "$tool" &>/dev/null; then
-        # 获取版本信息
         case "$tool" in
             claude)  ver="$($tool --version 2>/dev/null || echo 'unknown')" ;;
             git)     ver="$(git --version 2>/dev/null | awk '{print $3}')" ;;
             tmux)    ver="$(tmux -V 2>/dev/null | awk '{print $2}')" ;;
             docker)  ver="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')" ;;
             python3) ver="$(python3 --version 2>/dev/null | awk '{print $2}')" ;;
+            fnm)     ver="$(fnm --version 2>/dev/null | awk '{print $2}')" ;;
             node)    ver="$(node --version 2>/dev/null)" ;;
-            npm)     ver="$(npm --version 2>/dev/null)" ;;
+            pnpm)    ver="$(pnpm --version 2>/dev/null)" ;;
             *)       ver="unknown" ;;
         esac
         echo -e "${GREEN}OK${NC}  (v${ver})"
@@ -99,15 +79,34 @@ if [ ${MISSING_COUNT} -gt 0 ]; then
     echo -e "${YELLOW}以下工具缺失，请按建议安装:${NC}"
     echo ""
     for tool in "${MISSING_LIST[@]}"; do
-        brew_pkg="${BREW_PKG[$tool]:-}"
-        if [ "$tool" = "claude" ]; then
-            echo -e "  ${BOLD}$tool${NC} (Claude Code CLI):"
-            echo -e "    ${YELLOW}npm install -g @anthropic-ai/claude-code${NC}"
-            echo -e "    (需要先安装 Node.js/npm)"
-        elif [ -n "$brew_pkg" ]; then
-            echo -e "  ${BOLD}$tool${NC}:"
-            echo -e "    ${YELLOW}brew install $brew_pkg${NC}"
-        fi
+        case "$tool" in
+            claude)
+                echo -e "  ${BOLD}$tool${NC} (Claude Code CLI):"
+                echo -e "    ${YELLOW}brew install claude-code${NC}"
+                ;;
+            fnm)
+                echo -e "  ${BOLD}$tool${NC} (Fast Node Manager):"
+                echo -e "    ${YELLOW}brew install fnm${NC}"
+                echo -e "    然后在 shell 配置中添加: eval \"\$(fnm env --use-on-cd)\""
+                ;;
+            node)
+                echo -e "  ${BOLD}$tool${NC} (Node.js, 通过 fnm 管理):"
+                echo -e "    ${YELLOW}fnm install --lts && fnm default lts-latest${NC}"
+                echo -e "    (需要先安装 fnm)"
+                ;;
+            pnpm)
+                echo -e "  ${BOLD}$tool${NC} (pnpm 包管理器):"
+                echo -e "    ${YELLOW}brew install pnpm${NC}"
+                ;;
+            docker)
+                echo -e "  ${BOLD}$tool${NC}:"
+                echo -e "    ${YELLOW}brew install --cask docker${NC}"
+                ;;
+            *)
+                echo -e "  ${BOLD}$tool${NC}:"
+                echo -e "    ${YELLOW}brew install $tool${NC}"
+                ;;
+        esac
     done
     echo ""
     echo -e "${RED}环境检查未通过，请安装缺失工具后重新运行此脚本。${NC}"

@@ -47,8 +47,11 @@ check_tool() {
             node)
                 ver="$(node --version 2>/dev/null | tr -d 'v')"
                 ;;
-            npm)
-                ver="$(npm --version 2>/dev/null)"
+            fnm)
+                ver="$(fnm --version 2>/dev/null | awk '{print $2}')"
+                ;;
+            pnpm)
+                ver="$(pnpm --version 2>/dev/null)"
                 ;;
             *)
                 ver="$($tool --version 2>/dev/null | head -1 || echo 'unknown')"
@@ -97,7 +100,7 @@ echo ""
 # ── 检查所有工具 ─────────────────────────────────────────
 echo -e "${BOLD}[依赖检查]${NC}"
 
-TOOLS=(claude git tmux docker python3 node npm)
+TOOLS=(claude git tmux docker python3 fnm node pnpm)
 for tool in "${TOOLS[@]}"; do
     check_tool "$tool"
 done

@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code globally
+# Install Claude Code globally (容器内用 npm，宿主机用 brew)
 RUN npm install -g @anthropic-ai/claude-code
 
 # Set working directory

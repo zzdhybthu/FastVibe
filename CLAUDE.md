@@ -23,6 +23,11 @@ stage-10-practices/ - 管理实践文档
 - API 代理: `api9.xhub.chat` (已配置于 `~/.claude/settings.json`)
 - 平台: Mac (Apple M1 Pro, macOS 12.7.6) + Linux 远程服务器
 
+## Tool Preferences
+- Node.js 版本管理: fnm (不用 nvm/brew 管 node)
+- 包管理器: pnpm (不用 npm)
+- 全局 CLI 工具 (claude 等): 通过 brew 安装 (不用 npm -g / pnpm -g)
+
 ## Workflow Rules
 1. 开始工作前必须读 PROGRESS.md
 2. 完成任务后更新 PROGRESS.md

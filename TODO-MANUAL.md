@@ -19,8 +19,17 @@ cd ~/Desktop/vibe/VibeCoding
 ## 2. 远程 Linux 服务器设置
 
 ```bash
-# 安装 Claude Code CLI
-npm install -g @anthropic-ai/claude-code
+# 安装 fnm (Fast Node Manager)
+curl -fsSL https://fnm.vercel.app/install | bash
+source ~/.bashrc  # 或重启 shell
+fnm install --lts && fnm default lts-latest
+
+# 安装 pnpm
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# 安装 Claude Code CLI (推荐 brew，或 npm 后备)
+brew install claude-code
+# 后备: npm install -g @anthropic-ai/claude-code
 
 # 同步 API 代理配置
 scp ~/.claude/settings.json user@linux-server:~/.claude/settings.json

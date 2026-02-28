@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # setup-linux.sh - Linux (apt-based) 环境检查及安装脚本
-# 检查 VibeCoding 项目所需工具，提供 apt 安装命令
+# 检查 VibeCoding 项目所需工具，提供安装命令
+# 工具偏好: fnm 管理 node, pnpm 替代 npm, brew 管理全局 CLI (如 claude)
 set -euo pipefail
 
 # ── 颜色定义 ──────────────────────────────────────────────
@@ -29,15 +30,7 @@ echo -e "${BOLD}============================================${NC}"
 echo ""
 
 # ── 工具列表 ─────────────────────────────────────────────
-TOOLS=(claude git tmux docker python3 node npm)
-
-# apt 包名映射
-declare -A APT_PKG=(
-    [git]="git"
-    [tmux]="tmux"
-    [python3]="python3"
-)
-# node/npm 和 claude/docker 使用特殊安装方式
+TOOLS=(claude git tmux docker python3 fnm node pnpm)
 
 # ── 检查函数 ─────────────────────────────────────────────
 MISSING_COUNT=0
@@ -55,8 +48,9 @@ check_tool() {
             tmux)    ver="$(tmux -V 2>/dev/null | awk '{print $2}')" ;;
             docker)  ver="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')" ;;
             python3) ver="$(python3 --version 2>/dev/null | awk '{print $2}')" ;;
+            fnm)     ver="$(fnm --version 2>/dev/null | awk '{print $2}')" ;;
             node)    ver="$(node --version 2>/dev/null)" ;;
-            npm)     ver="$(npm --version 2>/dev/null)" ;;
+            pnpm)    ver="$(pnpm --version 2>/dev/null)" ;;
             *)       ver="unknown" ;;
         esac
         echo -e "${GREEN}OK${NC}  (v${ver})"
@@ -93,53 +87,67 @@ fi
 echo -e "${YELLOW}以下工具缺失，提供安装建议:${NC}"
 echo ""
 
-# 收集可通过 apt 安装的包
+# 收集安装类别
 APT_PACKAGES=()
+NEED_FNM=false
 NEED_NODE=false
+NEED_PNPM=false
 NEED_DOCKER=false
 NEED_CLAUDE=false
 
 for tool in "${MISSING_LIST[@]}"; do
     case "$tool" in
-        claude)
-            NEED_CLAUDE=true
-            ;;
-        node|npm)
-            NEED_NODE=true
-            ;;
-        docker)
-            NEED_DOCKER=true
-            ;;
-        *)
-            apt_pkg="${APT_PKG[$tool]:-$tool}"
-            APT_PACKAGES+=("$apt_pkg")
-            ;;
+        claude)  NEED_CLAUDE=true ;;
+        fnm)     NEED_FNM=true ;;
+        node)    NEED_NODE=true ;;
+        pnpm)    NEED_PNPM=true ;;
+        docker)  NEED_DOCKER=true ;;
+        *)       APT_PACKAGES+=("$tool") ;;
     esac
 done
 
+STEP=1
+
 # apt 基础包
 if [ ${#APT_PACKAGES[@]} -gt 0 ]; then
-    echo -e "${BOLD}1) 基础工具 (apt):${NC}"
+    echo -e "${BOLD}${STEP}) 基础工具 (apt):${NC}"
     echo -e "   ${YELLOW}sudo apt-get update && sudo apt-get install -y ${APT_PACKAGES[*]}${NC}"
     echo ""
+    ((STEP++))
 fi
 
-# Node.js (使用 NodeSource)
+# fnm (Fast Node Manager)
+if $NEED_FNM; then
+    echo -e "${BOLD}${STEP}) fnm (Fast Node Manager):${NC}"
+    echo -e "   ${YELLOW}curl -fsSL https://fnm.vercel.app/install | bash${NC}"
+    echo -e "   然后重启 shell 或 source 配置文件"
+    echo ""
+    ((STEP++))
+fi
+
+# Node.js (通过 fnm)
 if $NEED_NODE; then
-    echo -e "${BOLD}2) Node.js + npm (通过 NodeSource):${NC}"
-    echo -e "   ${YELLOW}# 安装 Node.js 20.x LTS (含 npm)${NC}"
-    echo -e "   ${YELLOW}curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -${NC}"
-    echo -e "   ${YELLOW}sudo apt-get install -y nodejs${NC}"
+    echo -e "${BOLD}${STEP}) Node.js (通过 fnm):${NC}"
+    echo -e "   ${YELLOW}fnm install --lts && fnm default lts-latest${NC}"
+    if $NEED_FNM; then
+        echo -e "   (需要先安装 fnm)"
+    fi
     echo ""
-    echo -e "   或者使用 nvm (推荐):"
-    echo -e "   ${YELLOW}curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash${NC}"
-    echo -e "   ${YELLOW}source ~/.bashrc && nvm install 20${NC}"
+    ((STEP++))
+fi
+
+# pnpm
+if $NEED_PNPM; then
+    echo -e "${BOLD}${STEP}) pnpm:${NC}"
+    echo -e "   ${YELLOW}curl -fsSL https://get.pnpm.io/install.sh | sh -${NC}"
+    echo -e "   或: ${YELLOW}corepack enable && corepack prepare pnpm@latest --activate${NC}"
     echo ""
+    ((STEP++))
 fi
 
 # Docker (官方安装方式)
 if $NEED_DOCKER; then
-    echo -e "${BOLD}3) Docker (官方安装方式):${NC}"
+    echo -e "${BOLD}${STEP}) Docker (官方安装方式):${NC}"
     echo -e "   ${YELLOW}# 卸载旧版本${NC}"
     echo -e "   ${YELLOW}sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true${NC}"
     echo ""
@@ -161,14 +169,16 @@ if $NEED_DOCKER; then
     echo -e "   ${YELLOW}sudo usermod -aG docker \$USER${NC}"
     echo -e "   ${YELLOW}# 重新登录后生效${NC}"
     echo ""
+    ((STEP++))
 fi
 
-# Claude Code CLI
+# Claude Code CLI (通过 brew 或 npm 作为后备)
 if $NEED_CLAUDE; then
-    echo -e "${BOLD}4) Claude Code CLI:${NC}"
-    echo -e "   ${YELLOW}npm install -g @anthropic-ai/claude-code${NC}"
-    echo -e "   (需要先安装 Node.js/npm)"
+    echo -e "${BOLD}${STEP}) Claude Code CLI:${NC}"
+    echo -e "   推荐 (brew): ${YELLOW}brew install claude-code${NC}"
+    echo -e "   后备 (npm):  ${YELLOW}npm install -g @anthropic-ai/claude-code${NC}"
     echo ""
+    ((STEP++))
 fi
 
 # ── 自动安装提示 ──────────────────────────────────────────
@@ -186,11 +196,30 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
         sudo apt-get install -y "${APT_PACKAGES[@]}"
     fi
 
+    # fnm
+    if $NEED_FNM; then
+        echo -e "${YELLOW}>> 安装 fnm...${NC}"
+        curl -fsSL https://fnm.vercel.app/install | bash
+        # 尝试加载 fnm
+        export PATH="$HOME/.local/share/fnm:$PATH"
+        eval "$(fnm env 2>/dev/null)" || true
+    fi
+
     # Node.js
     if $NEED_NODE; then
-        echo -e "${YELLOW}>> 安装 Node.js 20.x...${NC}"
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-        sudo apt-get install -y nodejs
+        if command -v fnm &>/dev/null; then
+            echo -e "${YELLOW}>> 通过 fnm 安装 Node.js LTS...${NC}"
+            fnm install --lts
+            fnm default lts-latest
+        else
+            echo -e "${RED}fnm 不可用，请先安装 fnm 后再安装 Node.js${NC}"
+        fi
+    fi
+
+    # pnpm
+    if $NEED_PNPM; then
+        echo -e "${YELLOW}>> 安装 pnpm...${NC}"
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
     fi
 
     # Docker
@@ -211,11 +240,14 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
 
     # Claude Code CLI
     if $NEED_CLAUDE; then
-        if command -v npm &>/dev/null; then
-            echo -e "${YELLOW}>> 安装 Claude Code CLI...${NC}"
-            sudo npm install -g @anthropic-ai/claude-code
+        if command -v brew &>/dev/null; then
+            echo -e "${YELLOW}>> 通过 brew 安装 Claude Code CLI...${NC}"
+            brew install claude-code
+        elif command -v npm &>/dev/null; then
+            echo -e "${YELLOW}>> 通过 npm 安装 Claude Code CLI (brew 不可用)...${NC}"
+            npm install -g @anthropic-ai/claude-code
         else
-            echo -e "${RED}npm 不可用，请先安装 Node.js 后再手动安装 Claude Code CLI${NC}"
+            echo -e "${RED}brew 和 npm 都不可用，请手动安装 Claude Code CLI${NC}"
         fi
     fi
 
