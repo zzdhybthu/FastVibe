@@ -186,31 +186,21 @@ while true; do
     task_name="\$(basename "\$task")"
     echo "[worker-\$WORKER_ID] 处理任务: \$task_name"
 
-    # 如果有 ralph-loop.sh 则使用它，否则直接用 cc_wrapper
-    if [ -f "$RALPH_LOOP" ]; then
-        bash "$RALPH_LOOP" --task "\$task" --workdir "\$WORKTREE_DIR" || {
+    # 读取任务内容并直接调用 cc_wrapper
+    local_prompt="\$(cat "\$task")"
+    if [ -f "$SCRIPT_DIR/../shared/cc_wrapper.sh" ]; then
+        source "$SCRIPT_DIR/../shared/cc_wrapper.sh"
+        cc_run_unsafe "\$local_prompt" || {
             echo "[worker-\$WORKER_ID] 任务失败: \$task_name"
             mkdir -p "\$QUEUE_DIR/failed"
             mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
             continue
         }
     else
-        # 回退: 直接读取任务内容并调用 cc_wrapper
-        local_prompt="\$(cat "\$task")"
-        if [ -f "$SCRIPT_DIR/../shared/cc_wrapper.sh" ]; then
-            source "$SCRIPT_DIR/../shared/cc_wrapper.sh"
-            cc_run "\$local_prompt" || {
-                echo "[worker-\$WORKER_ID] 任务失败: \$task_name"
-                mkdir -p "\$QUEUE_DIR/failed"
-                mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
-                continue
-            }
-        else
-            echo "[worker-\$WORKER_ID] WARNING: 找不到 cc_wrapper.sh，跳过任务"
-            mkdir -p "\$QUEUE_DIR/failed"
-            mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
-            continue
-        fi
+        echo "[worker-\$WORKER_ID] WARNING: 找不到 cc_wrapper.sh，跳过任务"
+        mkdir -p "\$QUEUE_DIR/failed"
+        mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
+        continue
     fi
 
     # 任务完成
