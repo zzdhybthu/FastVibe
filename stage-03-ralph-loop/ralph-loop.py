@@ -236,6 +236,7 @@ async def _execute_task(
             "--output-format", "stream-json",
             "--verbose",
             "--dangerously-skip-permissions",
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
