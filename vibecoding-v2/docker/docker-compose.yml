@@ -1,0 +1,6 @@
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    image: vibecoding-worker:latest
