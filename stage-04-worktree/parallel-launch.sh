@@ -206,10 +206,15 @@ while true; do
     # 任务完成，自动提交变更
     echo "[worker-\$WORKER_ID] 任务完成: \$task_name"
     cd "\$WORKTREE_DIR"
-    if [ -n "\$(git status --porcelain 2>/dev/null)" ]; then
-        git add -A
+    changed="\$(git status --porcelain 2>/dev/null || true)"
+    if [ -n "\$changed" ]; then
+        echo "[worker-\$WORKER_ID] 检测到变更，提交中..."
+        echo "\$changed"
+        git add -A 2>/dev/null || true
         git commit -m "worker-\$WORKER_ID: \$task_name" --no-verify 2>/dev/null || true
-        echo "[worker-\$WORKER_ID] 已提交变更"
+        echo "[worker-\$WORKER_ID] 已提交"
+    else
+        echo "[worker-\$WORKER_ID] 无文件变更"
     fi
     mkdir -p "\$QUEUE_DIR/done"
     mv "\$task" "\$QUEUE_DIR/done/\$task_name"
@@ -258,7 +263,7 @@ _launch_worker() {
         tmux kill-session -t "$session_name" 2>/dev/null || true
     fi
 
-    tmux new-session -d -s "$session_name" "bash '$worker_script'; echo 'Worker $worker_id 已完成. 按 Enter 关闭.'; read"
+    tmux new-session -d -s "$session_name" "bash '$worker_script'"
 
     _log "  Worker $worker_id 已启动 (tmux: $session_name)"
 }
