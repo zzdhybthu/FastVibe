@@ -1,0 +1,330 @@
+import { spawn } from 'node:child_process';
+import { eq } from 'drizzle-orm';
+import { query as sdkQuery } from '@anthropic-ai/claude-agent-sdk';
+import type { SDKMessage, SpawnedProcess, SpawnOptions } from '@anthropic-ai/claude-agent-sdk';
+import { getDb, schema } from '../db/index.js';
+import { eventBus } from '../ws/event-bus.js';
+import { createWorkerContainer, removeContainer } from './docker.js';
+import { createUserInteractionServer } from './user-interaction.js';
+import { buildPrompt, buildBranchName } from './prompt-builder.js';
+import type { AppConfig, Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
+
+// Map of taskId -> AbortController for cancellation
+const runningTasks = new Map<string, AbortController>();
+
+/**
+ * Get the AbortController for a running task.
+ */
+export function getAbortController(taskId: string): AbortController | undefined {
+  return runningTasks.get(taskId);
+}
+
+/**
+ * Log a message for a task — inserts into task_logs and broadcasts via eventBus.
+ */
+async function logTask(taskId: string, level: LogLevel, message: string): Promise<void> {
+  const db = getDb();
+  const timestamp = new Date().toISOString();
+
+  await db.insert(schema.taskLogs).values({
+    taskId,
+    level,
+    message,
+    timestamp,
+  });
+
+  const event: WsServerEvent = {
+    type: 'task:log',
+    taskId,
+    level,
+    message,
+    timestamp,
+  };
+  eventBus.emit('ws:broadcast', event);
+}
+
+/**
+ * Broadcast a task status change via eventBus.
+ */
+async function broadcastTaskStatus(taskId: string, repoId: string, status: TaskStatus): Promise<void> {
+  const db = getDb();
+  const task = await db.query.tasks.findFirst({
+    where: eq(schema.tasks.id, taskId),
+  });
+  if (!task) return;
+
+  const event: WsServerEvent = {
+    type: 'task:status',
+    taskId,
+    repoId,
+    status,
+    task: task as Task,
+  };
+  eventBus.emit('ws:broadcast', event);
+}
+
+/**
+ * Create a SpawnedProcess that runs a command inside a Docker container.
+ * This function is passed to the SDK as `spawnClaudeCodeProcess`.
+ */
+function createDockerExecSpawner(containerId: string) {
+  return (options: SpawnOptions): SpawnedProcess => {
+    // Build the docker exec command
+    // env -u CLAUDECODE removes the nesting guard
+    const dockerArgs = [
+      'exec',
+      '-i',
+      containerId,
+      'env',
+      '-u',
+      'CLAUDECODE',
+      options.command,
+      ...options.args,
+    ];
+
+    const child = spawn('docker', dockerArgs, {
+      cwd: options.cwd,
+      env: options.env as NodeJS.ProcessEnv,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    // Listen for abort signal
+    if (options.signal) {
+      options.signal.addEventListener('abort', () => {
+        child.kill('SIGTERM');
+      });
+    }
+
+    // The SDK expects a SpawnedProcess interface
+    const process: SpawnedProcess = {
+      stdin: child.stdin,
+      stdout: child.stdout,
+      get killed() {
+        return child.killed;
+      },
+      get exitCode() {
+        return child.exitCode;
+      },
+      kill(signal: NodeJS.Signals) {
+        return child.kill(signal);
+      },
+      on(event: string, listener: (...args: any[]) => void) {
+        child.on(event, listener);
+      },
+      once(event: string, listener: (...args: any[]) => void) {
+        child.once(event, listener);
+      },
+      off(event: string, listener: (...args: any[]) => void) {
+        child.off(event, listener);
+      },
+    };
+
+    return process;
+  };
+}
+
+/**
+ * Run a task using the Claude Agent SDK.
+ * This is the main entry point for task execution.
+ */
+export async function runTask(task: Task, repo: Repo, config: AppConfig): Promise<void> {
+  const db = getDb();
+  const abortController = new AbortController();
+  runningTasks.set(task.id, abortController);
+
+  let containerId: string | null = null;
+
+  try {
+    // 1. Update task status to RUNNING
+    const branchName = buildBranchName(task);
+    await db
+      .update(schema.tasks)
+      .set({
+        status: 'RUNNING' as TaskStatus,
+        startedAt: new Date().toISOString(),
+        branchName,
+      })
+      .where(eq(schema.tasks.id, task.id));
+
+    await broadcastTaskStatus(task.id, repo.id, 'RUNNING');
+    await logTask(task.id, 'info', `Task started. Branch: ${branchName}`);
+
+    // 2. Create Docker container
+    containerId = await createWorkerContainer(task.id, repo.path, config);
+    await db
+      .update(schema.tasks)
+      .set({ dockerContainerId: containerId })
+      .where(eq(schema.tasks.id, task.id));
+
+    await logTask(task.id, 'info', `Docker container created: ${containerId.slice(0, 12)}`);
+
+    // 3. Create user interaction MCP server
+    const mcpServer = createUserInteractionServer(task.id, repo.id, config);
+
+    // 4. Build prompt
+    const prompt = buildPrompt(task, repo);
+
+    // 5. Call the SDK
+    const conversation = sdkQuery({
+      prompt,
+      options: {
+        cwd: repo.path,
+        permissionMode: 'bypassPermissions',
+        allowDangerouslySkipPermissions: true,
+        settingSources: ['user', 'project'],
+        systemPrompt: {
+          type: 'preset',
+          preset: 'claude_code',
+          append: '你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。',
+        },
+        tools: { type: 'preset', preset: 'claude_code' },
+        thinking: task.thinkingEnabled
+          ? { type: 'enabled', budgetTokens: 10000 }
+          : { type: 'adaptive' },
+        model: config.claude.model,
+        maxBudgetUsd: config.claude.maxBudgetUsd,
+        abortController,
+        mcpServers: {
+          'user-interaction': mcpServer,
+        },
+        spawnClaudeCodeProcess: createDockerExecSpawner(containerId),
+      },
+    });
+
+    // 6. Stream and process SDK messages
+    for await (const message of conversation) {
+      if (abortController.signal.aborted) {
+        break;
+      }
+
+      await processSDKMessage(task.id, repo.id, message);
+    }
+
+    // If we got here without abort, task succeeded
+    // Check if the last result was already handled in processSDKMessage
+    const finalTask = await db.query.tasks.findFirst({
+      where: eq(schema.tasks.id, task.id),
+    });
+    if (finalTask && finalTask.status === 'RUNNING') {
+      // No explicit result message was received, mark as completed
+      await db
+        .update(schema.tasks)
+        .set({
+          status: 'COMPLETED' as TaskStatus,
+          completedAt: new Date().toISOString(),
+        })
+        .where(eq(schema.tasks.id, task.id));
+
+      await broadcastTaskStatus(task.id, repo.id, 'COMPLETED');
+      await logTask(task.id, 'info', 'Task completed');
+      eventBus.emit('task:completed', task.id);
+    }
+  } catch (err: any) {
+    // Check if this was a cancellation
+    if (abortController.signal.aborted) {
+      await logTask(task.id, 'info', 'Task was cancelled');
+      // Status already set to CANCELLED by cancelTask
+      return;
+    }
+
+    // Mark as FAILED
+    const errorMessage = err?.message || String(err);
+    await db
+      .update(schema.tasks)
+      .set({
+        status: 'FAILED' as TaskStatus,
+        errorMessage,
+        completedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.tasks.id, task.id));
+
+    await broadcastTaskStatus(task.id, repo.id, 'FAILED');
+    await logTask(task.id, 'error', `Task failed: ${errorMessage}`);
+    eventBus.emit('task:failed', task.id);
+  } finally {
+    // Clean up
+    runningTasks.delete(task.id);
+
+    // Remove Docker container
+    if (containerId) {
+      await removeContainer(containerId).catch((err) => {
+        console.error(`[task-runner] Error removing container for task ${task.id}:`, err);
+      });
+    }
+  }
+}
+
+/**
+ * Process a single SDK message from the conversation stream.
+ */
+async function processSDKMessage(taskId: string, repoId: string, message: SDKMessage): Promise<void> {
+  const db = getDb();
+
+  switch (message.type) {
+    case 'assistant': {
+      // Extract text content from the assistant message
+      const textBlocks = message.message.content
+        .filter((block: any) => block.type === 'text')
+        .map((block: any) => block.text);
+
+      if (textBlocks.length > 0) {
+        const text = textBlocks.join('\n');
+        // Truncate very long messages for the log
+        const logText = text.length > 2000 ? text.slice(0, 2000) + '... (truncated)' : text;
+        await logTask(taskId, 'info', logText);
+      }
+      break;
+    }
+
+    case 'result': {
+      if (message.subtype === 'success') {
+        // Task completed successfully
+        await db
+          .update(schema.tasks)
+          .set({
+            status: 'COMPLETED' as TaskStatus,
+            result: message.result,
+            costUsd: message.total_cost_usd,
+            completedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.tasks.id, taskId));
+
+        await broadcastTaskStatus(taskId, repoId, 'COMPLETED');
+        await logTask(taskId, 'info', `Task completed. Cost: $${message.total_cost_usd.toFixed(4)}, Turns: ${message.num_turns}`);
+        eventBus.emit('task:completed', taskId);
+      } else {
+        // Error result
+        const errorMsg = 'errors' in message && Array.isArray(message.errors)
+          ? message.errors.join('; ')
+          : `SDK error: ${message.subtype}`;
+
+        await db
+          .update(schema.tasks)
+          .set({
+            status: 'FAILED' as TaskStatus,
+            errorMessage: errorMsg,
+            costUsd: message.total_cost_usd,
+            completedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.tasks.id, taskId));
+
+        await broadcastTaskStatus(taskId, repoId, 'FAILED');
+        await logTask(taskId, 'error', `Task failed: ${errorMsg}`);
+        eventBus.emit('task:failed', taskId);
+      }
+      break;
+    }
+
+    case 'system': {
+      if (message.subtype === 'init') {
+        await logTask(taskId, 'debug', `SDK initialized. Model: ${message.model}, Tools: ${message.tools.length}`);
+      }
+      break;
+    }
+
+    default: {
+      // Other message types (stream_event, status, etc.) — ignore for now
+      break;
+    }
+  }
+}
