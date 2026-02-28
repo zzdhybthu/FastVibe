@@ -4,11 +4,13 @@ FROM node:22-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     python3 \
-    python3-pip \
     tmux \
     curl \
     jq \
     && rm -rf /var/lib/apt/lists/*
+
+# Install uv (Python 包/版本管理)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install Claude Code globally (容器内用 npm，宿主机用 brew)
 RUN npm install -g @anthropic-ai/claude-code

@@ -41,8 +41,8 @@ check_tool() {
             docker)
                 ver="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')"
                 ;;
-            python3)
-                ver="$(python3 --version 2>/dev/null | awk '{print $2}')"
+            uv)
+                ver="$(uv --version 2>/dev/null | awk '{print $2}')"
                 ;;
             node)
                 ver="$(node --version 2>/dev/null | tr -d 'v')"
@@ -100,7 +100,7 @@ echo ""
 # ── 检查所有工具 ─────────────────────────────────────────
 echo -e "${BOLD}[依赖检查]${NC}"
 
-TOOLS=(claude git tmux docker python3 fnm node pnpm)
+TOOLS=(claude git tmux docker uv fnm node pnpm)
 for tool in "${TOOLS[@]}"; do
     check_tool "$tool"
 done

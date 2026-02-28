@@ -54,8 +54,8 @@ sudo usermod -aG docker $USER
 # 确认 tmux 已安装
 tmux -V || sudo apt-get install -y tmux
 
-# 确认 python3 已安装
-python3 --version || sudo apt-get install -y python3 python3-pip
+# 确认 uv 已安装 (Python 版本/包管理)
+uv --version || curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 在 Linux 上也运行验证:
@@ -133,8 +133,8 @@ tmux new -s ralph
 ./stage-03-ralph-loop/ralph-loop.sh --once
 
 # 或 Python 版
-python3 stage-03-ralph-loop/ralph-loop.py add "创建一个 hello.py，打印 Hello World"
-python3 stage-03-ralph-loop/ralph-loop.py run --once
+uv run python stage-03-ralph-loop/ralph-loop.py add "创建一个 hello.py，打印 Hello World"
+uv run python stage-03-ralph-loop/ralph-loop.py run --once
 ```
 
 ---
@@ -173,7 +173,7 @@ tmux ls
 
 ```bash
 # 安装依赖
-pip3 install -r stage-06-web-ui/deploy/requirements.txt
+uv pip install -r stage-06-web-ui/deploy/requirements.txt
 
 # 启动服务器 (绑定 127.0.0.1:8420)
 ./stage-06-web-ui/deploy/start.sh
@@ -200,7 +200,7 @@ ssh -L 8420:localhost:8420 user@linux-server
 
 ```bash
 # 安装 faster-whisper (首次下载模型约 1GB)
-pip3 install faster-whisper
+uv pip install faster-whisper
 
 # 语音功能需集成到 Web UI，在 app.py 中添加:
 # from stage-08-voice.voice_handler import router as voice_router
@@ -215,19 +215,19 @@ pip3 install faster-whisper
 
 ```bash
 # 安装 PyYAML
-pip3 install pyyaml
+uv pip install pyyaml
 
 # 配置实例数量
 # 编辑 stage-07-orchestrator/config.yaml 中的 max_instances
 
 # 启动
-python3 stage-07-orchestrator/orchestrator.py start -n 3
+uv run python stage-07-orchestrator/orchestrator.py start -n 3
 
 # 查看状态
-python3 stage-07-orchestrator/orchestrator.py status
+uv run python stage-07-orchestrator/orchestrator.py status
 
 # 停止
-python3 stage-07-orchestrator/orchestrator.py stop
+uv run python stage-07-orchestrator/orchestrator.py stop
 ```
 
 ---
@@ -240,7 +240,7 @@ python3 stage-07-orchestrator/orchestrator.py stop
 # app.include_router(plan_router)
 
 # 或独立运行:
-python3 stage-09-plan-mode/plan_manager.py
+uv run python stage-09-plan-mode/plan_manager.py
 # 访问 http://localhost:8901
 ```
 
@@ -250,14 +250,14 @@ python3 stage-09-plan-mode/plan_manager.py
 
 | 包 | 用途 | 安装 |
 |----|------|------|
-| fastapi | Web UI 后端 | `pip3 install fastapi` |
-| uvicorn[standard] | ASGI 服务器 | `pip3 install uvicorn[standard]` |
-| websockets | WebSocket 支持 | `pip3 install websockets` |
-| aiofiles | 异步文件服务 | `pip3 install aiofiles` |
-| faster-whisper | 语音转录 | `pip3 install faster-whisper` |
-| pyyaml | 编排器配置 | `pip3 install pyyaml` |
+| fastapi | Web UI 后端 | `uv pip install fastapi` |
+| uvicorn[standard] | ASGI 服务器 | `uv pip install uvicorn[standard]` |
+| websockets | WebSocket 支持 | `uv pip install websockets` |
+| aiofiles | 异步文件服务 | `uv pip install aiofiles` |
+| faster-whisper | 语音转录 | `uv pip install faster-whisper` |
+| pyyaml | 编排器配置 | `uv pip install pyyaml` |
 
 一键安装全部:
 ```bash
-pip3 install fastapi "uvicorn[standard]" websockets aiofiles faster-whisper pyyaml
+uv pip install fastapi "uvicorn[standard]" websockets aiofiles faster-whisper pyyaml
 ```

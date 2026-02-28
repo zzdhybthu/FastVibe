@@ -26,6 +26,7 @@ stage-10-practices/ - 管理实践文档
 ## Tool Preferences
 - Node.js 版本管理: fnm (不用 nvm/brew 管 node)
 - 包管理器: pnpm (不用 npm)
+- Python 版本/包管理: uv (不用 pip/pip3/conda)
 - 全局 CLI 工具 (claude 等): 通过 brew 安装 (不用 npm -g / pnpm -g)
 
 ## Workflow Rules
@@ -37,5 +38,5 @@ stage-10-practices/ - 管理实践文档
 
 ## Code Style
 - Shell: bash, 使用 `set -euo pipefail`
-- Python: 3.9+, type hints, asyncio for async code
+- Python: 3.9+, type hints, asyncio for async code, uv 管理依赖
 - 日志统一使用 `shared/logging.py`

@@ -29,17 +29,17 @@ echo -e "${YELLOW}[1/3] Checking dependencies...${NC}"
 
 MISSING=0
 
-python3 -c "import fastapi" 2>/dev/null || {
+uv run python -c "import fastapi" 2>/dev/null || {
     echo -e "${RED}  [x] fastapi not found${NC}"
     MISSING=1
 }
 
-python3 -c "import uvicorn" 2>/dev/null || {
+uv run python -c "import uvicorn" 2>/dev/null || {
     echo -e "${RED}  [x] uvicorn not found${NC}"
     MISSING=1
 }
 
-python3 -c "import aiofiles" 2>/dev/null || {
+uv run python -c "import aiofiles" 2>/dev/null || {
     echo -e "${RED}  [x] aiofiles not found${NC}"
     MISSING=1
 }
@@ -47,7 +47,7 @@ python3 -c "import aiofiles" 2>/dev/null || {
 if [ "$MISSING" -eq 1 ]; then
     echo
     echo -e "${YELLOW}Installing missing dependencies...${NC}"
-    pip3 install -r "$SCRIPT_DIR/requirements.txt"
+    uv pip install -r "$SCRIPT_DIR/requirements.txt"
     echo
 fi
 
@@ -83,7 +83,7 @@ echo -e "${CYAN}--------------------------------------------${NC}"
 echo
 
 cd "$PROJECT_DIR"
-exec python3 -m uvicorn server.app:app \
+exec uv run python -m uvicorn server.app:app \
     --host "$HOST" \
     --port "$PORT" \
     --log-level info

@@ -2,8 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git *)",
-      "Bash(npm *)",
-      "Bash(python3 *)",
+      "Bash(pnpm *)",
+      "Bash(uv *)",
       "Bash(node *)",
       "Read(*)",
       "Write(*)",

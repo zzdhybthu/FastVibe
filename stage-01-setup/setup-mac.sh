@@ -43,8 +43,8 @@ MISSING_LIST=()
 echo -e "${BOLD}[工具检查]${NC}"
 echo "--------------------------------------------"
 
-# 检查工具列表: claude, git, tmux, docker, python3, fnm, node, pnpm
-for tool in claude git tmux docker python3 fnm node pnpm; do
+# 检查工具列表: claude, git, tmux, docker, uv, fnm, node, pnpm
+for tool in claude git tmux docker uv fnm node pnpm; do
     printf "  %-12s" "$tool"
     if command -v "$tool" &>/dev/null; then
         case "$tool" in
@@ -52,7 +52,7 @@ for tool in claude git tmux docker python3 fnm node pnpm; do
             git)     ver="$(git --version 2>/dev/null | awk '{print $3}')" ;;
             tmux)    ver="$(tmux -V 2>/dev/null | awk '{print $2}')" ;;
             docker)  ver="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')" ;;
-            python3) ver="$(python3 --version 2>/dev/null | awk '{print $2}')" ;;
+            uv)      ver="$(uv --version 2>/dev/null | awk '{print $2}')" ;;
             fnm)     ver="$(fnm --version 2>/dev/null | awk '{print $2}')" ;;
             node)    ver="$(node --version 2>/dev/null)" ;;
             pnpm)    ver="$(pnpm --version 2>/dev/null)" ;;
@@ -83,6 +83,10 @@ if [ ${MISSING_COUNT} -gt 0 ]; then
             claude)
                 echo -e "  ${BOLD}$tool${NC} (Claude Code CLI):"
                 echo -e "    ${YELLOW}brew install claude-code${NC}"
+                ;;
+            uv)
+                echo -e "  ${BOLD}$tool${NC} (Python 包/版本管理):"
+                echo -e "    ${YELLOW}brew install uv${NC}"
                 ;;
             fnm)
                 echo -e "  ${BOLD}$tool${NC} (Fast Node Manager):"

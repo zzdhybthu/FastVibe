@@ -73,11 +73,11 @@ if $AUTO_MODE; then
         exit 1
     fi
 
-    JSON=$(python3 "$SCANNER" --project-dir "$PROJECT_DIR")
+    JSON=$(uv run python "$SCANNER" --project-dir "$PROJECT_DIR")
 
-    # Extract fields with python3 (avoids jq dependency)
+    # Extract fields with python (avoids jq dependency)
     field() {
-        python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('$1',''))" <<< "$JSON"
+        uv run python -c "import sys,json; d=json.load(sys.stdin); print(d.get('$1',''))" <<< "$JSON"
     }
 
     PROJECT_NAME="$(field project_name)"

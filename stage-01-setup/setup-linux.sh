@@ -30,7 +30,7 @@ echo -e "${BOLD}============================================${NC}"
 echo ""
 
 # ── 工具列表 ─────────────────────────────────────────────
-TOOLS=(claude git tmux docker python3 fnm node pnpm)
+TOOLS=(claude git tmux docker uv fnm node pnpm)
 
 # ── 检查函数 ─────────────────────────────────────────────
 MISSING_COUNT=0
@@ -47,7 +47,7 @@ check_tool() {
             git)     ver="$(git --version 2>/dev/null | awk '{print $3}')" ;;
             tmux)    ver="$(tmux -V 2>/dev/null | awk '{print $2}')" ;;
             docker)  ver="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')" ;;
-            python3) ver="$(python3 --version 2>/dev/null | awk '{print $2}')" ;;
+            uv)      ver="$(uv --version 2>/dev/null | awk '{print $2}')" ;;
             fnm)     ver="$(fnm --version 2>/dev/null | awk '{print $2}')" ;;
             node)    ver="$(node --version 2>/dev/null)" ;;
             pnpm)    ver="$(pnpm --version 2>/dev/null)" ;;
@@ -89,6 +89,7 @@ echo ""
 
 # 收集安装类别
 APT_PACKAGES=()
+NEED_UV=false
 NEED_FNM=false
 NEED_NODE=false
 NEED_PNPM=false
@@ -98,6 +99,7 @@ NEED_CLAUDE=false
 for tool in "${MISSING_LIST[@]}"; do
     case "$tool" in
         claude)  NEED_CLAUDE=true ;;
+        uv)      NEED_UV=true ;;
         fnm)     NEED_FNM=true ;;
         node)    NEED_NODE=true ;;
         pnpm)    NEED_PNPM=true ;;
@@ -112,6 +114,15 @@ STEP=1
 if [ ${#APT_PACKAGES[@]} -gt 0 ]; then
     echo -e "${BOLD}${STEP}) 基础工具 (apt):${NC}"
     echo -e "   ${YELLOW}sudo apt-get update && sudo apt-get install -y ${APT_PACKAGES[*]}${NC}"
+    echo ""
+    ((STEP++))
+fi
+
+# uv (Python 版本/包管理)
+if $NEED_UV; then
+    echo -e "${BOLD}${STEP}) uv (Python 版本/包管理):${NC}"
+    echo -e "   ${YELLOW}curl -LsSf https://astral.sh/uv/install.sh | sh${NC}"
+    echo -e "   然后重启 shell 或 source 配置文件"
     echo ""
     ((STEP++))
 fi
@@ -194,6 +205,13 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}>> 安装 apt 包: ${APT_PACKAGES[*]}${NC}"
         sudo apt-get update
         sudo apt-get install -y "${APT_PACKAGES[@]}"
+    fi
+
+    # uv
+    if $NEED_UV; then
+        echo -e "${YELLOW}>> 安装 uv...${NC}"
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.local/bin:$PATH"
     fi
 
     # fnm
