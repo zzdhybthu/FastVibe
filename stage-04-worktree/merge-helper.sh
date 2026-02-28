@@ -119,9 +119,11 @@ cmd_status() {
         elif [ "$ahead" = "0" ]; then
             status="无变更"
         else
-            # 简单冲突检测
-            local conflict_result
-            conflict_result="$(git merge-tree "$MAIN_BRANCH" "$branch" "$branch" 2>/dev/null | grep -c '<<<<<<<' || echo "0")"
+            # 简单冲突检测 (v2 fix)
+            local conflict_result=0
+            local merge_base=""
+            merge_base="$(git merge-base "$MAIN_BRANCH" "$branch" 2>/dev/null)" || merge_base="$MAIN_BRANCH"
+            conflict_result="$(git merge-tree "$merge_base" "$MAIN_BRANCH" "$branch" 2>/dev/null | grep -c '<<<<<<<')" || conflict_result=0
             if [ "$conflict_result" -gt 0 ]; then
                 status="有冲突"
             else

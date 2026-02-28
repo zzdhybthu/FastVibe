@@ -211,8 +211,14 @@ while true; do
         echo "[worker-\$WORKER_ID] 检测到变更，提交中..."
         echo "\$changed"
         git add -A 2>/dev/null || true
-        git commit -m "worker-\$WORKER_ID: \$task_name" --no-verify 2>/dev/null || true
-        echo "[worker-\$WORKER_ID] 已提交"
+        # 使用 -c 确保 git identity 可用，避免静默失败
+        if git -c user.email="worker-\${WORKER_ID}@vibe.local" \
+               -c user.name="Vibe Worker \${WORKER_ID}" \
+               commit -m "worker-\$WORKER_ID: \$task_name" --no-verify 2>&1; then
+            echo "[worker-\$WORKER_ID] 已提交"
+        else
+            echo "[worker-\$WORKER_ID] WARNING: git commit 失败" >&2
+        fi
     else
         echo "[worker-\$WORKER_ID] 无文件变更"
     fi
