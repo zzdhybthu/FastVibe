@@ -136,6 +136,12 @@ export async function taskRoutes(app: FastifyInstance) {
     }
 
     const task = taskRows[0];
+
+    // Idempotent: if already in terminal status, return current state
+    if (TERMINAL_STATUSES.includes(task.status as TaskStatus)) {
+      return reply.send(task);
+    }
+
     if (!CANCELLABLE_STATUSES.includes(task.status as TaskStatus)) {
       return reply.code(400).send({
         error: `Cannot cancel task in status '${task.status}'. Must be one of: ${CANCELLABLE_STATUSES.join(', ')}`,
