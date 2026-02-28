@@ -1,6 +1,9 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import type { AppConfig } from '@vibecoding/shared';
+import { repoRoutes } from './routes/repos.js';
+import { taskRoutes } from './routes/tasks.js';
+import { interactionRoutes } from './routes/interactions.js';
 
 export async function buildServer(config: AppConfig) {
   const app = Fastify({ logger: true });
@@ -18,6 +21,11 @@ export async function buildServer(config: AppConfig) {
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
+
+  // Register API routes
+  await repoRoutes(app);
+  await taskRoutes(app);
+  await interactionRoutes(app);
 
   return app;
 }
