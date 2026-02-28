@@ -3,8 +3,8 @@
 # 解决 CLAUDECODE 环境变量导致的嵌套阻止问题
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/platform_detect.sh"
+_CC_WRAPPER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$_CC_WRAPPER_DIR/platform_detect.sh"
 
 # 默认配置
 CC_CMD="claude"
