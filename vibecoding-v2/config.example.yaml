@@ -1,0 +1,29 @@
+server:
+  port: 8420
+  host: '0.0.0.0'
+  authToken: 'change-me-to-a-secret-token'
+
+global:
+  maxTotalConcurrency: 5
+
+repos: []
+  # - path: '/home/user/my-project'
+  #   name: 'my-project'
+  #   mainBranch: 'main'
+  #   maxConcurrency: 3
+  #   git:
+  #     user: 'username'
+  #     email: 'user@example.com'
+
+docker:
+  image: 'vibecoding-worker:latest'
+  binds:
+    - '~/.claude:/root/.claude:ro'
+    - '~/.cache/uv:/root/.cache/uv'
+    - '~/.local/share/fnm:/root/.local/share/fnm'
+  networkMode: 'host'
+
+claude:
+  model: 'claude-sonnet-4-6'
+  maxBudgetUsd: 5.0
+  interactionTimeout: 1800
