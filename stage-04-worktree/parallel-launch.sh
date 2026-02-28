@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# parallel-launch.sh - 启动 N 个并行 worker
-# 每个 worker 在独立的 git worktree 中运行 ralph-loop
+# parallel-launch.sh - 一个任务一个 worktree，并行启动
+# 为每个待处理任务创建独立的 git worktree，支持并行度限制
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../shared/platform_detect.sh"
 
 # ── 默认配置 ──────────────────────────────────────────────────────
-WORKERS=3
+MAX_PARALLEL=3
 QUEUE_DIR="$SCRIPT_DIR/../stage-03-ralph-loop/task-queue"
 DRY_RUN=false
-RALPH_LOOP=""  # ralph-loop.sh 路径，自动检测
-TMUX_PREFIX="vibe-worker"
+TMUX_PREFIX="vibe-task"
 
 # ── 辅助函数 ──────────────────────────────────────────────────────
 _log() {
@@ -29,15 +28,6 @@ _check_deps() {
         missing+=("tmux")
     fi
 
-    if ! command -v flock &>/dev/null && ! command -v shlock &>/dev/null; then
-        # macOS 没有 flock，检查是否有替代
-        if is_mac; then
-            _log "macOS 检测到: 将使用 mkdir 锁代替 flock"
-        else
-            missing+=("flock")
-        fi
-    fi
-
     if ! command -v git &>/dev/null; then
         missing+=("git")
     fi
@@ -49,22 +39,6 @@ _check_deps() {
     fi
 }
 
-_find_ralph_loop() {
-    # 在常见位置搜索 ralph-loop.sh
-    local search_paths=(
-        "$SCRIPT_DIR/../stage-03-ralph-loop/ralph-loop.sh"
-        "$SCRIPT_DIR/../ralph-loop.sh"
-    )
-    for p in "${search_paths[@]}"; do
-        if [ -f "$p" ]; then
-            RALPH_LOOP="$(cd "$(dirname "$p")" && pwd)/$(basename "$p")"
-            return
-        fi
-    done
-    # 如果找不到，使用默认路径（可能需要用户创建）
-    RALPH_LOOP="$SCRIPT_DIR/../stage-03-ralph-loop/ralph-loop.sh"
-}
-
 _resolve_queue_dir() {
     # 确保 queue_dir 是绝对路径
     if [[ "$QUEUE_DIR" != /* ]]; then
@@ -72,8 +46,22 @@ _resolve_queue_dir() {
     fi
 }
 
+# 任务文件名 → 安全的 worktree 名称
+_sanitize_name() {
+    local name="$1"
+    name="${name%.*}"                                         # 去掉扩展名
+    name="$(echo "$name" | tr '[:upper:]' '[:lower:]')"      # 小写
+    name="$(echo "$name" | tr ' ' '-')"                      # 空格→连字符
+    name="$(echo "$name" | tr -cd 'a-z0-9_-')"              # 只保留安全字符
+    name="$(echo "$name" | sed 's/^-//;s/-$//')"             # 去掉首尾连字符
+    name="$(echo "$name" | sed 's/--*/-/g')"                 # 合并多个连字符
+    if [ -z "$name" ]; then
+        name="task-$(date +%s)"
+    fi
+    echo "$name"
+}
+
 # ── 跨平台锁机制 ─────────────────────────────────────────────────
-# 使用 mkdir 原子性实现跨平台文件锁
 LOCK_DIR=""
 
 _lock_acquire() {
@@ -92,7 +80,6 @@ _lock_acquire() {
         sleep 1
     done
 
-    # 记录 PID 方便调试
     echo $$ > "$LOCK_DIR/pid"
     return 0
 }
@@ -103,165 +90,167 @@ _lock_release() {
     fi
 }
 
-# 确保退出时释放锁
 trap '_lock_release' EXIT
 
-# ── 创建 worker 启动脚本 ──────────────────────────────────────────
-_create_worker_script() {
-    local worker_id="$1"
-    local wt_dir="$2"
-    local queue_dir="$3"
-    local script_path="${TMPDIR:-/tmp}/vibe-worker-${worker_id}-start.sh"
-
-    cat > "$script_path" <<WORKER_SCRIPT
-#!/usr/bin/env bash
-# Auto-generated worker script for worker-${worker_id}
-set -euo pipefail
-
-WORKER_ID="$worker_id"
-WORKTREE_DIR="$wt_dir"
-QUEUE_DIR="$queue_dir"
-LOCK_DIR="\${TMPDIR:-/tmp}/.vibe-task-queue.lock"
-
-cd "\$WORKTREE_DIR"
-
-echo "[worker-\$WORKER_ID] 启动于 \$(date '+%Y-%m-%d %H:%M:%S')"
-echo "[worker-\$WORKER_ID] 工作目录: \$WORKTREE_DIR"
-echo "[worker-\$WORKER_ID] 任务队列: \$QUEUE_DIR"
-
-# 使用 mkdir 锁来安全地获取任务
-acquire_task_lock() {
-    local retries=0
-    while ! mkdir "\$LOCK_DIR" 2>/dev/null; do
-        retries=\$((retries + 1))
-        if [ "\$retries" -ge 30 ]; then
-            return 1
-        fi
-        sleep 0.\$(( RANDOM % 5 + 1 ))
-    done
-    echo \$\$ > "\$LOCK_DIR/pid"
-    return 0
+# ── 辅助: 获取 worktree 目录 ─────────────────────────────────────
+_worktree_dir() {
+    local root
+    root="$(git rev-parse --show-toplevel 2>/dev/null)"
+    echo "$root/.claude-worktrees"
 }
 
-release_task_lock() {
-    rm -rf "\$LOCK_DIR"
-}
-
-# 从 pending 队列获取下一个任务（带锁）
-get_next_task() {
-    local task_file=""
-
-    if ! acquire_task_lock; then
+# ── 获取 pending 任务列表 ────────────────────────────────────────
+_get_pending_tasks() {
+    local tasks=()
+    local pending_dir="$QUEUE_DIR/pending"
+    if [ ! -d "$pending_dir" ]; then
         echo ""
         return
     fi
-
-    # 在锁内安全地获取任务
-    for f in "\$QUEUE_DIR/pending"/*.md "\$QUEUE_DIR/pending"/*.txt "\$QUEUE_DIR/pending"/*.task; do
-        if [ -f "\$f" ]; then
-            task_file="\$f"
-            local basename_f
-            basename_f="\$(basename "\$f")"
-            # 移动到 in-progress
-            mkdir -p "\$QUEUE_DIR/in-progress"
-            mv "\$f" "\$QUEUE_DIR/in-progress/\$basename_f"
-            task_file="\$QUEUE_DIR/in-progress/\$basename_f"
-            break
-        fi
+    for f in "$pending_dir"/*.md "$pending_dir"/*.txt "$pending_dir"/*.task; do
+        [ -f "$f" ] && tasks+=("$f")
     done
-
-    release_task_lock
-    echo "\$task_file"
+    # 输出每行一个，方便 readarray
+    printf '%s\n' "${tasks[@]+"${tasks[@]}"}"
 }
 
-# 主循环
-while true; do
-    task="\$(get_next_task)"
+# ── 确保 worktree 名称唯一 ──────────────────────────────────────
+_unique_name() {
+    local base_name="$1"
+    local name="$base_name"
+    local suffix=0
 
-    if [ -z "\$task" ]; then
-        echo "[worker-\$WORKER_ID] 没有更多任务，退出"
-        break
+    while [ -d "$(_worktree_dir)/$name" ] || \
+          git show-ref --verify --quiet "refs/heads/worker-$name" 2>/dev/null; do
+        suffix=$((suffix + 1))
+        name="${base_name}-${suffix}"
+    done
+    echo "$name"
+}
+
+# ── 创建单任务 worker 脚本 ───────────────────────────────────────
+_create_worker_script() {
+    local task_name="$1"
+    local wt_dir="$2"
+    local task_file="$3"     # in-progress 中的绝对路径
+    local queue_dir="$4"
+    local script_path="${TMPDIR:-/tmp}/vibe-task-${task_name}-start.sh"
+
+    # 计算 cc_wrapper 的绝对路径
+    local cc_wrapper_path="$SCRIPT_DIR/../shared/cc_wrapper.sh"
+    if [ -f "$cc_wrapper_path" ]; then
+        cc_wrapper_path="$(cd "$(dirname "$cc_wrapper_path")" && pwd)/$(basename "$cc_wrapper_path")"
     fi
 
-    task_name="\$(basename "\$task")"
-    echo "[worker-\$WORKER_ID] 处理任务: \$task_name"
+    cat > "$script_path" <<WORKER_SCRIPT
+#!/usr/bin/env bash
+# 单任务 worker 脚本 - task: ${task_name}
+set -euo pipefail
 
-    # 读取任务内容并直接调用 cc_wrapper
-    local_prompt="\$(cat "\$task")"
-    if [ -f "$SCRIPT_DIR/../shared/cc_wrapper.sh" ]; then
-        source "$SCRIPT_DIR/../shared/cc_wrapper.sh"
-        cc_run_unsafe "\$local_prompt" || {
-            echo "[worker-\$WORKER_ID] 任务失败: \$task_name"
-            mkdir -p "\$QUEUE_DIR/failed"
-            mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
-            continue
-        }
+TASK_NAME="$task_name"
+WORKTREE_DIR="$wt_dir"
+TASK_FILE="$task_file"
+QUEUE_DIR="$queue_dir"
+
+cd "\$WORKTREE_DIR"
+
+task_basename="\$(basename "\$TASK_FILE")"
+echo "[task-\$TASK_NAME] 启动于 \$(date '+%Y-%m-%d %H:%M:%S')"
+echo "[task-\$TASK_NAME] 工作目录: \$WORKTREE_DIR"
+echo "[task-\$TASK_NAME] 任务文件: \$TASK_FILE"
+
+# 读取任务内容
+local_prompt="\$(cat "\$TASK_FILE")"
+echo "[task-\$TASK_NAME] 任务内容: \${local_prompt:0:100}..."
+echo ""
+
+# 执行任务
+task_failed=false
+if [ -f "$cc_wrapper_path" ]; then
+    source "$cc_wrapper_path"
+    cc_run_unsafe "\$local_prompt" || {
+        echo "[task-\$TASK_NAME] 任务执行失败: \$task_basename"
+        task_failed=true
+    }
+else
+    echo "[task-\$TASK_NAME] WARNING: 找不到 cc_wrapper.sh，跳过执行"
+    task_failed=true
+fi
+
+if [ "\$task_failed" = true ]; then
+    mkdir -p "\$QUEUE_DIR/failed"
+    mv "\$TASK_FILE" "\$QUEUE_DIR/failed/\$task_basename" 2>/dev/null || true
+    echo "[task-\$TASK_NAME] 退出于 \$(date '+%Y-%m-%d %H:%M:%S')"
+    exit 1
+fi
+
+# 自动提交变更
+echo ""
+cd "\$WORKTREE_DIR"
+changed="\$(git status --porcelain 2>/dev/null || true)"
+if [ -n "\$changed" ]; then
+    echo "[task-\$TASK_NAME] 检测到变更，提交中..."
+    echo "\$changed"
+    git add -A 2>/dev/null || true
+    if git -c user.email="task-\${TASK_NAME}@vibe.local" \\
+           -c user.name="Vibe Task \${TASK_NAME}" \\
+           commit -m "task-\$TASK_NAME: \$task_basename" --no-verify 2>&1; then
+        echo "[task-\$TASK_NAME] 已提交"
     else
-        echo "[worker-\$WORKER_ID] WARNING: 找不到 cc_wrapper.sh，跳过任务"
-        mkdir -p "\$QUEUE_DIR/failed"
-        mv "\$task" "\$QUEUE_DIR/failed/\$task_name"
-        continue
+        echo "[task-\$TASK_NAME] WARNING: git commit 失败" >&2
     fi
+else
+    echo "[task-\$TASK_NAME] 无文件变更"
+fi
 
-    # 任务完成，自动提交变更
-    echo "[worker-\$WORKER_ID] 任务完成: \$task_name"
-    cd "\$WORKTREE_DIR"
-    changed="\$(git status --porcelain 2>/dev/null || true)"
-    if [ -n "\$changed" ]; then
-        echo "[worker-\$WORKER_ID] 检测到变更，提交中..."
-        echo "\$changed"
-        git add -A 2>/dev/null || true
-        # 使用 -c 确保 git identity 可用，避免静默失败
-        if git -c user.email="worker-\${WORKER_ID}@vibe.local" \
-               -c user.name="Vibe Worker \${WORKER_ID}" \
-               commit -m "worker-\$WORKER_ID: \$task_name" --no-verify 2>&1; then
-            echo "[worker-\$WORKER_ID] 已提交"
-        else
-            echo "[worker-\$WORKER_ID] WARNING: git commit 失败" >&2
-        fi
-    else
-        echo "[worker-\$WORKER_ID] 无文件变更"
-    fi
-    mkdir -p "\$QUEUE_DIR/done"
-    mv "\$task" "\$QUEUE_DIR/done/\$task_name"
-done
-
-echo "[worker-\$WORKER_ID] Worker 退出于 \$(date '+%Y-%m-%d %H:%M:%S')"
+# 移动到已完成
+mkdir -p "\$QUEUE_DIR/done"
+mv "\$TASK_FILE" "\$QUEUE_DIR/done/\$task_basename" 2>/dev/null || true
+echo "[task-\$TASK_NAME] 完成于 \$(date '+%Y-%m-%d %H:%M:%S')"
 WORKER_SCRIPT
 
     chmod +x "$script_path"
     echo "$script_path"
 }
 
-# ── 启动单个 worker ───────────────────────────────────────────────
-_launch_worker() {
-    local worker_id="$1"
-    local name="w${worker_id}"
-    local session_name="${TMUX_PREFIX}-${worker_id}"
+# ── 启动单个任务 ─────────────────────────────────────────────────
+_launch_task() {
+    local task_file="$1"
+    local task_basename
+    task_basename="$(basename "$task_file")"
+    local task_name
+    task_name="$(_sanitize_name "$task_basename")"
+    task_name="$(_unique_name "$task_name")"
+    local session_name="${TMUX_PREFIX}-${task_name}"
 
-    _log "── Worker $worker_id ──"
+    _log "── 任务: $task_basename ──"
 
-    # 使用锁确保 worktree 创建的串行化
+    # 创建 worktree (加锁串行化)
     _lock_acquire "worktree-create"
 
-    # 创建 worktree
     local wt_dir
-    wt_dir="$(bash "$SCRIPT_DIR/worktree-manager.sh" create "$name" 2>/dev/null | tail -1)"
+    wt_dir="$(bash "$SCRIPT_DIR/worktree-manager.sh" create "$task_name" 2>/dev/null | tail -1)"
 
     _lock_release
 
     if [ -z "$wt_dir" ] || [ ! -d "$wt_dir" ]; then
-        _err "创建 worktree '$name' 失败"
+        _err "创建 worktree '$task_name' 失败"
         return 1
     fi
 
+    # 移动任务到 in-progress
+    mkdir -p "$QUEUE_DIR/in-progress"
+    mv "$task_file" "$QUEUE_DIR/in-progress/$task_basename"
+    local task_in_progress="$QUEUE_DIR/in-progress/$task_basename"
+
     _log "  Worktree: $wt_dir"
-    _log "  分支: worker-$name"
+    _log "  分支: worker-$task_name"
+    _log "  任务文件: $task_basename"
     _log "  tmux session: $session_name"
 
-    # 创建 worker 启动脚本
+    # 创建单任务 worker 脚本
     local worker_script
-    worker_script="$(_create_worker_script "$worker_id" "$wt_dir" "$QUEUE_DIR")"
+    worker_script="$(_create_worker_script "$task_name" "$wt_dir" "$task_in_progress" "$QUEUE_DIR")"
 
     # 在 tmux 中启动
     if tmux has-session -t "$session_name" 2>/dev/null; then
@@ -271,21 +260,19 @@ _launch_worker() {
 
     tmux new-session -d -s "$session_name" "bash '$worker_script'"
 
-    _log "  Worker $worker_id 已启动 (tmux: $session_name)"
+    _log "  任务已启动 (tmux: $session_name)"
 }
 
 # ── 主启动流程 ────────────────────────────────────────────────────
 do_launch() {
     _check_deps
-    _find_ralph_loop
     _resolve_queue_dir
 
     _log "========================================"
-    _log "  并行 Worker 启动器"
+    _log "  并行任务启动器 (一任务一Worktree)"
     _log "========================================"
-    _log "Workers 数量: $WORKERS"
+    _log "最大并行数: $MAX_PARALLEL"
     _log "任务队列: $QUEUE_DIR"
-    _log "Ralph Loop: $RALPH_LOOP"
     _log "平台: $PLATFORM"
     _log ""
 
@@ -296,15 +283,28 @@ do_launch() {
         exit 1
     fi
 
-    # 统计 pending 任务数
-    local pending_count=0
-    if [ -d "$QUEUE_DIR/pending" ]; then
-        pending_count="$(find "$QUEUE_DIR/pending" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')"
+    # 收集 pending 任务
+    local tasks=()
+    local pending_dir="$QUEUE_DIR/pending"
+    if [ -d "$pending_dir" ]; then
+        for f in "$pending_dir"/*.md "$pending_dir"/*.txt "$pending_dir"/*.task; do
+            [ -f "$f" ] && tasks+=("$f")
+        done
     fi
-    _log "待处理任务数: $pending_count"
 
-    if [ "$pending_count" -eq 0 ]; then
-        _log "WARNING: 没有待处理的任务"
+    local total=${#tasks[@]}
+    _log "待处理任务数: $total"
+
+    if [ "$total" -eq 0 ]; then
+        _log "没有待处理的任务"
+        return
+    fi
+
+    # 受 MAX_PARALLEL 限制
+    local launch_count=$total
+    if [ "$launch_count" -gt "$MAX_PARALLEL" ]; then
+        launch_count=$MAX_PARALLEL
+        _log "受 --workers 限制，本次将启动 $launch_count 个任务"
     fi
 
     _log ""
@@ -312,37 +312,45 @@ do_launch() {
     if [ "$DRY_RUN" = true ]; then
         _log "=== DRY RUN 模式 ==="
         _log ""
-        for i in $(seq 1 "$WORKERS"); do
-            local name="w${i}"
-            local session_name="${TMUX_PREFIX}-${i}"
-            _log "Worker $i:"
-            _log "  将创建 worktree: $name (分支: worker-$name)"
-            _log "  将启动 tmux session: $session_name"
-            _log "  工作目录: $(_worktree_dir 2>/dev/null || echo '<git-root>/.claude-worktrees')/$name"
-            _log "  任务队列: $QUEUE_DIR"
+        for ((i = 0; i < launch_count; i++)); do
+            local task_file="${tasks[$i]}"
+            local task_basename
+            task_basename="$(basename "$task_file")"
+            local task_name
+            task_name="$(_sanitize_name "$task_basename")"
+            _log "任务 $((i + 1)):"
+            _log "  文件: $task_basename"
+            _log "  将创建 worktree: $task_name (分支: worker-$task_name)"
+            _log "  将启动 tmux session: ${TMUX_PREFIX}-${task_name}"
             _log ""
         done
+        if [ "$total" -gt "$launch_count" ]; then
+            _log "剩余 $((total - launch_count)) 个任务等待下次启动"
+        fi
         _log "=== DRY RUN 结束 (未执行任何操作) ==="
         return
     fi
 
     # 实际启动
-    for i in $(seq 1 "$WORKERS"); do
-        _launch_worker "$i" || {
-            _err "Worker $i 启动失败"
+    local launched=0
+    for ((i = 0; i < launch_count; i++)); do
+        _launch_task "${tasks[$i]}" && launched=$((launched + 1)) || {
+            _err "任务启动失败: $(basename "${tasks[$i]}")"
             continue
         }
     done
 
     _log ""
     _log "========================================"
-    _log "  所有 Worker 已启动!"
+    _log "  已启动 $launched 个任务!"
+    if [ "$total" -gt "$launch_count" ]; then
+        _log "  剩余 $((total - launch_count)) 个任务等待下次启动"
+    fi
     _log "========================================"
     _log ""
     _log "管理命令:"
-    _log "  tmux ls                        # 查看所有 session"
-    _log "  tmux attach -t ${TMUX_PREFIX}-1  # 连接到 worker 1"
-    _log "  tmux kill-session -t ${TMUX_PREFIX}-1  # 停止 worker 1"
+    _log "  tmux ls                                  # 查看所有 session"
+    _log "  tmux attach -t ${TMUX_PREFIX}-<task-name>  # 连接到任务"
     _log ""
     _log "Worktree 管理:"
     _log "  bash $SCRIPT_DIR/worktree-manager.sh list"
@@ -353,16 +361,9 @@ do_launch() {
     _log "  bash $SCRIPT_DIR/merge-helper.sh merge-all"
 }
 
-# ── 辅助: 获取 worktree 目录 (用于 dry-run) ──────────────────────
-_worktree_dir() {
-    local root
-    root="$(git rev-parse --show-toplevel 2>/dev/null)"
-    echo "$root/.claude-worktrees"
-}
-
-# ── 停止所有 worker ───────────────────────────────────────────────
+# ── 停止所有任务 ─────────────────────────────────────────────────
 cmd_stop() {
-    _log "停止所有 worker..."
+    _log "停止所有任务..."
     local count=0
     for session in $(tmux ls -F '#{session_name}' 2>/dev/null | grep "^${TMUX_PREFIX}-" || true); do
         _log "  关闭 tmux session: $session"
@@ -370,34 +371,37 @@ cmd_stop() {
         count=$((count + 1))
     done
     if [ "$count" -eq 0 ]; then
-        _log "没有运行中的 worker"
+        _log "没有运行中的任务"
     else
-        _log "已停止 $count 个 worker"
+        _log "已停止 $count 个任务"
     fi
 }
 
 # ── 用法 ──────────────────────────────────────────────────────────
 usage() {
     cat <<EOF
-并行 Worker 启动器 - 同时运行多个 Claude Code 实例
+并行任务启动器 - 一个任务一个 worktree
+
+每个待处理任务在独立的 git worktree 中运行，互不干扰。
+通过 --workers 控制最大并行数。
 
 用法: $(basename "$0") [options] [command]
 
 命令:
-  start (默认)    启动 N 个 worker
-  stop            停止所有运行中的 worker
+  start (默认)    为每个待处理任务创建独立 worktree 并启动
+  stop            停止所有运行中的任务
 
 选项:
-  --workers N     Worker 数量 (默认: 3)
+  --workers N     最大并行任务数 (默认: 3)
   --queue-dir P   任务队列目录 (默认: ../stage-03-ralph-loop/task-queue)
   --dry-run       只显示将要执行的操作，不实际执行
   -h, --help      显示此帮助
 
 示例:
-  $(basename "$0") --workers 5
-  $(basename "$0") --dry-run --workers 3
-  $(basename "$0") --queue-dir /path/to/queue
-  $(basename "$0") stop
+  $(basename "$0") --workers 5          # 最多 5 个任务并行
+  $(basename "$0") --dry-run            # 预览模式
+  $(basename "$0") --queue-dir /path    # 指定任务队列
+  $(basename "$0") stop                 # 停止所有任务
 EOF
 }
 
@@ -407,8 +411,8 @@ COMMAND="start"
 while [ $# -gt 0 ]; do
     case "$1" in
         --workers)
-            WORKERS="${2:-}"
-            if [ -z "$WORKERS" ] || ! [[ "$WORKERS" =~ ^[0-9]+$ ]] || [ "$WORKERS" -lt 1 ]; then
+            MAX_PARALLEL="${2:-}"
+            if [ -z "$MAX_PARALLEL" ] || ! [[ "$MAX_PARALLEL" =~ ^[0-9]+$ ]] || [ "$MAX_PARALLEL" -lt 1 ]; then
                 _err "--workers 需要正整数参数"
                 exit 1
             fi
