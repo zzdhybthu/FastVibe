@@ -253,7 +253,7 @@ async def _execute_task(
             stdout_bytes = b""
             stderr_bytes = f"TIMEOUT after {timeout}s".encode()
 
-        exit_code = proc.returncode or 1
+        exit_code = proc.returncode if proc.returncode is not None else 1
         output = (stdout_bytes.decode(errors="replace")
                   + "\n--- stderr ---\n"
                   + stderr_bytes.decode(errors="replace"))
