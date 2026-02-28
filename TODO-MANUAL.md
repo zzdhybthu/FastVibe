@@ -139,32 +139,93 @@ uv run python stage-03-ralph-loop/ralph-loop.py run --once
 
 ---
 
-## 7. 测试并行 Worker
+## 7. 测试并行 Worker (一任务一 Worktree)
+
+每个任务在独立的 git worktree 中运行，互不干扰。
+`--workers N` 控制最大并行数，超出的任务留在队列等下次启动。
+
+### 7.1 准备测试任务
 
 ```bash
-# 创建几个测试任务
+# 创建几个测试任务 (支持 .md / .txt / .task 格式)
 for i in 1 2 3 4 5; do
-  echo "# Task $i\n请创建 task${i}.txt，内容为 'Task $i done'" \
+  echo "请创建 task${i}.txt，内容为 'Task $i done'" \
     > stage-03-ralph-loop/task-queue/pending/task-${i}.md
 done
+```
 
-# 先 dry-run 确认
-./stage-04-worktree/parallel-launch.sh --workers 3 --dry-run
+### 7.2 Dry-run 预览
 
-# 实际启动
+```bash
+# 确认每个任务对应独立的 worktree 和分支
+./stage-04-worktree/parallel-launch.sh --dry-run --workers 3
+
+# 预期输出:
+#   任务 1:
+#     文件: task-1.md
+#     将创建 worktree: task-1 (分支: worker-task-1)
+#     将启动 tmux session: vibe-task-task-1
+#   任务 2: ...
+#   任务 3: ...
+#   剩余 2 个任务等待下次启动
+```
+
+验证要点:
+- 每个任务有独立的 worktree 名和分支名（以任务文件名命名）
+- `--workers 3` 时只启动前 3 个，剩余 2 个显示"等待下次启动"
+- tmux session 名为 `vibe-task-<任务名>`
+
+### 7.3 实际启动
+
+```bash
 ./stage-04-worktree/parallel-launch.sh --workers 3
+```
 
-# 查看 worker 状态
-tmux ls
+验证要点:
+- `tmux ls` 应显示 3 个 `vibe-task-*` session
+- `./stage-04-worktree/worktree-manager.sh list` 应显示 3 个独立 worktree
+- 每个 worktree 目录在 `.claude-worktrees/<任务名>/`
 
-# 完成后查看分支状态
+### 7.4 任务完成后
+
+```bash
+# 连接到某个任务查看进度
+tmux attach -t vibe-task-task-1
+
+# 查看所有任务分支状态
 ./stage-04-worktree/merge-helper.sh status
 
-# 合并结果
+# 预期: 每个任务一个 worker-<任务名> 分支，各有独立的 commit
+```
+
+### 7.5 合并与清理
+
+```bash
+# 逐个或批量合并
 ./stage-04-worktree/merge-helper.sh merge-all
 
-# 清理 worktree
+# 清理所有 worktree
 ./stage-04-worktree/worktree-manager.sh clean
+```
+
+### 7.6 处理剩余任务
+
+```bash
+# 前 3 个任务完成后，再次运行启动剩余任务
+./stage-04-worktree/parallel-launch.sh --workers 3
+# 此时队列中剩余 2 个任务会各自获得新的 worktree
+```
+
+### 7.7 特殊情况测试
+
+```bash
+# 任务名含特殊字符 → 自动消毒
+echo "test" > stage-03-ralph-loop/task-queue/pending/"My Task (v2).md"
+./stage-04-worktree/parallel-launch.sh --dry-run
+# 预期 worktree 名: my-task-v2
+
+# 停止所有运行中的任务
+./stage-04-worktree/parallel-launch.sh stop
 ```
 
 ---
