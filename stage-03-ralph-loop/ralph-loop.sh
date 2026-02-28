@@ -66,10 +66,7 @@ DONE_DIR="${QUEUE_DIR}/done"
 FAILED_DIR="${QUEUE_DIR}/failed"
 
 for d in "$PENDING_DIR" "$IN_PROGRESS_DIR" "$DONE_DIR" "$FAILED_DIR"; do
-    if [[ ! -d "$d" ]]; then
-        log "ERROR: 目录不存在: $d"
-        exit 1
-    fi
+    mkdir -p "$d"
 done
 
 LOCK_FILE="${QUEUE_DIR}/.ralph-loop.lock"
