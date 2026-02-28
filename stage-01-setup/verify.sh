@@ -135,10 +135,10 @@ else
     fi
 
     if [ -n "$TIMEOUT_CMD" ]; then
-        CC_OUTPUT=$($TIMEOUT_CMD 30 env -u CLAUDECODE claude -p "say hello" --output-format json 2>&1) || CC_EXIT_CODE=$?
+        CC_OUTPUT=$($TIMEOUT_CMD 30 env -u CLAUDECODE claude -p "say hello" --output-format json 2>&1 </dev/null) || CC_EXIT_CODE=$?
     else
         # 无 timeout 命令，直接运行
-        CC_OUTPUT=$(env -u CLAUDECODE claude -p "say hello" --output-format json 2>&1) || CC_EXIT_CODE=$?
+        CC_OUTPUT=$(env -u CLAUDECODE claude -p "say hello" --output-format json 2>&1 </dev/null) || CC_EXIT_CODE=$?
     fi
 
     if [ $CC_EXIT_CODE -eq 0 ] && [ -n "$CC_OUTPUT" ]; then
