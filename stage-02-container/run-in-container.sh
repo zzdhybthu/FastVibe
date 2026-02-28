@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check if image exists
+# Check if image exists (compose uses the explicit image name "claude-dev")
 IMAGE_EXISTS=$(docker images -q "$IMAGE_NAME" 2>/dev/null)
 
 if [[ "$FORCE_BUILD" == true ]] || [[ -z "$IMAGE_EXISTS" ]]; then

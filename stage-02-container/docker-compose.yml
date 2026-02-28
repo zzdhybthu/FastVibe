@@ -3,10 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: claude-dev
+    image: claude-dev
     volumes:
       - ..:/workspace
-      - ~/.claude:/root/.claude:ro
+      - ~/.claude:/root/.claude
+      - ~/.claude.json:/root/.claude.json
     network_mode: host
     environment:
       - TERM=xterm-256color
