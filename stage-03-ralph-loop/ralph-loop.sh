@@ -183,6 +183,7 @@ main() {
     done
 
     log "Ralph Loop 结束"
+    rm -f "$LOCK_FILE"
 }
 
 main

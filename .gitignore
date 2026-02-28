@@ -24,6 +24,7 @@ stage-03-ralph-loop/task-queue/pending/*.md
 stage-03-ralph-loop/task-queue/in-progress/*.md
 stage-03-ralph-loop/task-queue/done/*.md
 stage-03-ralph-loop/task-queue/failed/*.md
+stage-03-ralph-loop/task-queue/.ralph-loop.lock
 !stage-03-ralph-loop/task-queue/sample-task.md
 
 # Logs
