@@ -4,6 +4,8 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import type { TaskStatus } from '@vibecoding/shared';
 import { getDb, schema } from '../db/index.js';
+import { getTaskQueue } from '../services/task-queue.js';
+import { getAbortController } from '../services/task-runner.js';
 
 const TERMINAL_STATUSES: TaskStatus[] = ['COMPLETED', 'FAILED', 'CANCELLED'];
 const CANCELLABLE_STATUSES: TaskStatus[] = ['PENDING', 'QUEUED', 'RUNNING', 'AWAITING_INPUT'];
@@ -62,28 +64,13 @@ export async function taskRoutes(app: FastifyInstance) {
       // Auto-generate title from prompt if not provided
       const title = body.title || body.prompt.slice(0, 50) + (body.prompt.length > 50 ? '...' : '');
 
-      // Determine initial status based on predecessor
-      let status: TaskStatus = 'QUEUED';
-      if (body.predecessorTaskId) {
-        const predecessor = await db
-          .select()
-          .from(schema.tasks)
-          .where(eq(schema.tasks.id, body.predecessorTaskId));
-
-        if (predecessor.length > 0) {
-          const predStatus = predecessor[0].status as TaskStatus;
-          if (!TERMINAL_STATUSES.includes(predStatus)) {
-            status = 'PENDING';
-          }
-        }
-      }
-
+      // Always start as PENDING; enqueue() will transition to QUEUED if appropriate
       const newTask = {
         id: uuid(),
         repoId,
         title,
         prompt: body.prompt,
-        status,
+        status: 'PENDING' as TaskStatus,
         thinkingEnabled: body.thinkingEnabled,
         predecessorTaskId: body.predecessorTaskId ?? null,
         branchName: null,
@@ -99,7 +86,13 @@ export async function taskRoutes(app: FastifyInstance) {
       };
 
       await db.insert(schema.tasks).values(newTask);
-      return reply.code(201).send(newTask);
+
+      // Enqueue the task (transitions PENDING->QUEUED if predecessor is done, triggers scheduler)
+      await getTaskQueue().enqueue(newTask.id);
+
+      // Re-read to get updated status after enqueue
+      const inserted = await db.select().from(schema.tasks).where(eq(schema.tasks.id, newTask.id));
+      return reply.code(201).send(inserted[0] ?? newTask);
     },
   );
 
@@ -149,11 +142,16 @@ export async function taskRoutes(app: FastifyInstance) {
       });
     }
 
-    const now = new Date().toISOString();
-    await db
-      .update(schema.tasks)
-      .set({ status: 'CANCELLED', completedAt: now })
-      .where(eq(schema.tasks.id, id));
+    // Use TaskQueueService to cancel (handles status update + event emission)
+    const { wasRunning } = await getTaskQueue().cancelTask(id);
+
+    // If task was running, abort the SDK process
+    if (wasRunning) {
+      const abortController = getAbortController(id);
+      if (abortController) {
+        abortController.abort();
+      }
+    }
 
     const updated = await db.select().from(schema.tasks).where(eq(schema.tasks.id, id));
     return reply.send(updated[0]);
