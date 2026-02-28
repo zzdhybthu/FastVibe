@@ -14,6 +14,7 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.63",
     "@fastify/cors": "^11.0.0",
+    "@fastify/static": "^9.0.0",
     "@fastify/websocket": "^11.0.0",
     "@vibecoding/shared": "workspace:*",
     "better-sqlite3": "^11.0.0",

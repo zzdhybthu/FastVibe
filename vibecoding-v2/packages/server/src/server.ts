@@ -1,5 +1,8 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import type { AppConfig } from '@vibecoding/shared';
 import { repoRoutes } from './routes/repos.js';
 import { taskRoutes } from './routes/tasks.js';
@@ -30,6 +33,25 @@ export async function buildServer(config: AppConfig) {
 
   // Register WebSocket handler
   await registerWebSocket(app, config);
+
+  // Serve frontend static files in production
+  const webDistPath = resolve(import.meta.dirname, '../../web/dist');
+  if (existsSync(webDistPath)) {
+    await app.register(fastifyStatic, {
+      root: webDistPath,
+      prefix: '/',
+      wildcard: false,
+    });
+
+    // SPA fallback - serve index.html for all non-API, non-WS routes
+    app.setNotFoundHandler(async (request, reply) => {
+      if (request.url.startsWith('/api/') || request.url.startsWith('/ws')) {
+        reply.code(404).send({ error: 'Not found' });
+      } else {
+        return reply.sendFile('index.html');
+      }
+    });
+  }
 
   return app;
 }
