@@ -4,6 +4,7 @@ import type { AppConfig } from '@vibecoding/shared';
 import { repoRoutes } from './routes/repos.js';
 import { taskRoutes } from './routes/tasks.js';
 import { interactionRoutes } from './routes/interactions.js';
+import { registerWebSocket } from './ws/handler.js';
 
 export async function buildServer(config: AppConfig) {
   const app = Fastify({ logger: true });
@@ -26,6 +27,9 @@ export async function buildServer(config: AppConfig) {
   await repoRoutes(app);
   await taskRoutes(app);
   await interactionRoutes(app);
+
+  // Register WebSocket handler
+  await registerWebSocket(app, config);
 
   return app;
 }

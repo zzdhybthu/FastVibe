@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb, schema } from '../db/index.js';
+import { eventBus } from '../ws/event-bus.js';
 
 const answerSchema = z.object({
   answer: z.string().min(1),
@@ -48,6 +49,9 @@ export async function interactionRoutes(app: FastifyInstance) {
           answeredAt: now,
         })
         .where(eq(schema.taskInteractions.id, id));
+
+      // Notify event bus so the task runner can resume
+      eventBus.emit('interaction:answered', id, body.answer);
 
       // Return updated interaction
       const updated = await db
