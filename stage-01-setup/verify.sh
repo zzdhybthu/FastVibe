@@ -25,7 +25,7 @@ check_tool() {
     local tool="$1"
     local ver=""
     local status=""
-    ((TOTAL++))
+    ((TOTAL++)) || true
 
     if command -v "$tool" &>/dev/null; then
         case "$tool" in
@@ -58,11 +58,11 @@ check_tool() {
                 ;;
         esac
         status="OK"
-        ((PASSED++))
+        ((PASSED++)) || true
     else
         ver="-"
         status="FAIL"
-        ((FAILED++))
+        ((FAILED++)) || true
     fi
 
     RESULTS+=("${tool}|${ver}|${status}")
@@ -169,12 +169,12 @@ fi
 echo ""
 
 # ── API 状态计入总计 ─────────────────────────────────────
-((TOTAL++))
+((TOTAL++)) || true
 if [ "$CC_STATUS" = "OK" ]; then
-    ((PASSED++))
+    ((PASSED++)) || true
     RESULTS+=("cc-api|connected|OK")
 else
-    ((FAILED++))
+    ((FAILED++)) || true
     RESULTS+=("cc-api|-|FAIL")
 fi
 

@@ -59,11 +59,11 @@ for tool in claude git tmux docker uv fnm node pnpm; do
             *)       ver="unknown" ;;
         esac
         echo -e "${GREEN}OK${NC}  (v${ver})"
-        ((OK_COUNT++))
+        ((OK_COUNT++)) || true
     else
         echo -e "${RED}MISSING${NC}"
         MISSING_LIST+=("$tool")
-        ((MISSING_COUNT++))
+        ((MISSING_COUNT++)) || true
     fi
 done
 
