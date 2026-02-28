@@ -50,26 +50,35 @@ class CCProcess:
             "exit_code": self.exit_code,
         }
 
-    async def spawn(self) -> None:
+    async def spawn(self, cwd: Optional[str] = None) -> None:
         """Start the CC subprocess."""
         env = os.environ.copy()
         # Remove CLAUDECODE env var to avoid conflicts
         env.pop("CLAUDECODE", None)
+
+        # Default to git repo root as working directory
+        if cwd is None:
+            cwd = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "..")
+            )
 
         self.status = ProcessStatus.RUNNING
         self.started_at = datetime.utcnow().isoformat()
 
         await self.output_queue.put(
             f"[{self.started_at}] Starting task: {self.title or self.prompt[:60]}\n"
+            f"[INFO] Working directory: {cwd}\n"
         )
 
         try:
             self._process = await asyncio.create_subprocess_exec(
                 "env", "-u", "CLAUDECODE",
-                "claude", "--print", self.prompt,
+                "claude", "--print", "--dangerously-skip-permissions",
+                self.prompt,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 env=env,
+                cwd=cwd,
             )
             # Start reading output in background
             asyncio.create_task(self._stream_output())
