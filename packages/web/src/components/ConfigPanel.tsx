@@ -23,10 +23,10 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-th-border-strong bg-th-surface shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-100">设置</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-th-border bg-th-surface px-6 py-4">
+          <h2 className="text-lg font-semibold text-ink">设置</h2>
           <button onClick={onClose} className="btn-ghost p-1.5">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -38,7 +38,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           {/* Repo management */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">仓库管理</h3>
+              <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider">仓库管理</h3>
               <button
                 onClick={() => { setShowAddForm(true); setEditingRepoId(null); }}
                 className="btn-primary text-xs"
@@ -64,7 +64,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             {/* Repo list */}
             <div className="space-y-2">
               {repos.length === 0 && !showAddForm ? (
-                <p className="text-sm text-slate-500 py-4 text-center">暂无仓库，点击上方按钮添加</p>
+                <p className="text-sm text-ink-hint py-4 text-center">暂无仓库，点击上方按钮添加</p>
               ) : (
                 repos.map((repo) => (
                   <div key={repo.id}>
@@ -86,20 +86,20 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                       <div className="card flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-slate-200">{repo.name}</span>
-                            <span className="badge border border-slate-700 bg-slate-800 text-slate-500">
+                            <span className="text-sm font-medium text-ink-2">{repo.name}</span>
+                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
                               {repo.mainBranch}
                             </span>
-                            <span className="badge border border-slate-700 bg-slate-800 text-slate-500">
+                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
                               并发: {repo.maxConcurrency}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-500 truncate mt-0.5 font-mono">{repo.path}</p>
+                          <p className="text-xs text-ink-hint truncate mt-0.5 font-mono">{repo.path}</p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => { setEditingRepoId(repo.id); setShowAddForm(false); }}
-                            className="btn-ghost p-1.5 text-slate-500 hover:text-brand-400"
+                            className="btn-ghost p-1.5 text-ink-hint hover:text-brand-400"
                             title="编辑"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -112,7 +112,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                                 await deleteRepo(repo.id);
                               }
                             }}
-                            className="btn-ghost p-1.5 text-slate-500 hover:text-red-400"
+                            className="btn-ghost p-1.5 text-ink-hint hover:text-red-400"
                             title="删除"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -130,10 +130,10 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
 
           {/* About */}
           <section>
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">关于</h3>
-            <div className="card text-sm text-slate-400 space-y-1">
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">关于</h3>
+            <div className="card text-sm text-ink-muted space-y-1">
               <p>VibeCoding 编排中心 v0.1.0</p>
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-ink-faint">
                 基于胡渊鸣《我给 10 个 Claude Code 打工》构建的并行化开发工具
               </p>
             </div>
@@ -187,7 +187,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
     <form onSubmit={handleSubmit} className="card border-brand-500/30 space-y-3 mb-2">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-slate-500 mb-1">仓库名称 *</label>
+          <label className="block text-xs text-ink-hint mb-1">仓库名称 *</label>
           <input
             className="input text-sm"
             placeholder="my-project"
@@ -196,7 +196,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">本地路径 *</label>
+          <label className="block text-xs text-ink-hint mb-1">本地路径 *</label>
           <input
             className="input text-sm font-mono"
             placeholder="/home/user/project"
@@ -205,7 +205,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">主分支</label>
+          <label className="block text-xs text-ink-hint mb-1">主分支</label>
           <input
             className="input text-sm"
             placeholder="main"
@@ -214,7 +214,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">最大并发</label>
+          <label className="block text-xs text-ink-hint mb-1">最大并发</label>
           <input
             type="number"
             className="input text-sm"

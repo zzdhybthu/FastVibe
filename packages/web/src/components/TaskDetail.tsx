@@ -60,7 +60,7 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
               </span>
             )}
           </div>
-          <h2 className="text-lg font-semibold text-slate-100">
+          <h2 className="text-lg font-semibold text-ink">
             {taskDetail.title || '未命名任务'}
           </h2>
         </div>
@@ -73,8 +73,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
 
       {/* Prompt */}
       <div>
-        <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">提示词</h3>
-        <div className="rounded-lg bg-slate-800/50 border border-slate-700/50 p-3 text-sm text-slate-300 whitespace-pre-wrap font-mono">
+        <h3 className="text-xs font-medium text-ink-hint uppercase tracking-wider mb-1">提示词</h3>
+        <div className="rounded-lg bg-th-input border border-th-border-strong p-3 text-sm text-ink-3 whitespace-pre-wrap font-mono">
           {taskDetail.prompt}
         </div>
       </div>
@@ -82,27 +82,27 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {/* Info grid */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <span className="text-xs text-slate-500">创建时间</span>
-          <p className="text-sm text-slate-300">{formatDateTime(taskDetail.createdAt)}</p>
+          <span className="text-xs text-ink-hint">创建时间</span>
+          <p className="text-sm text-ink-3">{formatDateTime(taskDetail.createdAt)}</p>
         </div>
         <div>
-          <span className="text-xs text-slate-500">开始时间</span>
-          <p className="text-sm text-slate-300">{formatDateTime(taskDetail.startedAt)}</p>
+          <span className="text-xs text-ink-hint">开始时间</span>
+          <p className="text-sm text-ink-3">{formatDateTime(taskDetail.startedAt)}</p>
         </div>
         <div>
-          <span className="text-xs text-slate-500">耗时</span>
-          <p className="text-sm text-slate-300">{formatDuration(taskDetail.startedAt, taskDetail.completedAt)}</p>
+          <span className="text-xs text-ink-hint">耗时</span>
+          <p className="text-sm text-ink-3">{formatDuration(taskDetail.startedAt, taskDetail.completedAt)}</p>
         </div>
         <div>
-          <span className="text-xs text-slate-500">费用</span>
-          <p className="text-sm text-slate-300">
+          <span className="text-xs text-ink-hint">费用</span>
+          <p className="text-sm text-ink-3">
             {taskDetail.costUsd != null ? `$${taskDetail.costUsd.toFixed(4)}` : '-'}
           </p>
         </div>
         {taskDetail.branchName && (
           <div className="col-span-2">
-            <span className="text-xs text-slate-500">分支</span>
-            <p className="text-sm text-slate-300 font-mono">{taskDetail.branchName}</p>
+            <span className="text-xs text-ink-hint">分支</span>
+            <p className="text-sm text-ink-3 font-mono">{taskDetail.branchName}</p>
           </div>
         )}
       </div>
@@ -139,7 +139,7 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
 
       {/* Logs */}
       <div>
-        <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+        <h3 className="text-xs font-medium text-ink-hint uppercase tracking-wider mb-2">
           日志 ({taskDetail.logs.length})
         </h3>
         <LogViewer logs={taskDetail.logs} />
@@ -148,7 +148,7 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {/* Past interactions */}
       {taskDetail.interactions.filter((i) => i.status !== 'pending').length > 0 && (
         <div>
-          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">历史交互</h3>
+          <h3 className="text-xs font-medium text-ink-hint uppercase tracking-wider mb-2">历史交互</h3>
           <div className="space-y-2">
             {taskDetail.interactions
               .filter((i) => i.status !== 'pending')
@@ -172,18 +172,18 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
                 }
 
                 return (
-                  <div key={interaction.id} className="rounded-lg bg-slate-800/30 border border-slate-800 p-3 space-y-2">
+                  <div key={interaction.id} className="rounded-lg bg-th-input border border-th-border p-3 space-y-2">
                     <div>
                       <span className="text-xs text-purple-400 font-medium">问题</span>
-                      <p className="text-sm text-slate-300 mt-0.5">{question}</p>
+                      <p className="text-sm text-ink-3 mt-0.5">{question}</p>
                     </div>
                     {answer && (
                       <div>
                         <span className="text-xs text-green-400 font-medium">回答</span>
-                        <p className="text-sm text-slate-300 mt-0.5">{answer}</p>
+                        <p className="text-sm text-ink-3 mt-0.5">{answer}</p>
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-ink-faint">
                       <span>{interaction.status === 'answered' ? '已回答' : '已超时'}</span>
                       {interaction.answeredAt && (
                         <span>{formatDateTime(interaction.answeredAt)}</span>

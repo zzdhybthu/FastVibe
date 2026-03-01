@@ -4,11 +4,51 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+    --c-page: #ffffff;
+    --c-header: rgba(255,255,255,0.8);
+    --c-surface: #ffffff;
+    --c-surface-dim: #f8fafc;
+    --c-input: #f1f5f9;
+    --c-elevated: #ffffff;
+    --c-hover: #f1f5f9;
+    --c-muted: #e2e8f0;
+    --c-text: #0f172a;
+    --c-text-2: #1e293b;
+    --c-text-3: #334155;
+    --c-text-muted: #64748b;
+    --c-text-hint: #94a3b8;
+    --c-text-faint: #cbd5e1;
+    --c-border: #e2e8f0;
+    --c-border-strong: #cbd5e1;
+    --c-scrollbar: #cbd5e1;
+    --c-scrollbar-hover: #94a3b8;
+  }
+
+  .dark {
     color-scheme: dark;
+    --c-page: #020617;
+    --c-header: rgba(2,6,23,0.8);
+    --c-surface: rgba(15,23,42,0.5);
+    --c-surface-dim: rgba(15,23,42,0.4);
+    --c-input: rgba(30,41,59,0.5);
+    --c-elevated: #1e293b;
+    --c-hover: rgba(51,65,85,0.5);
+    --c-muted: #334155;
+    --c-text: #f1f5f9;
+    --c-text-2: #e2e8f0;
+    --c-text-3: #cbd5e1;
+    --c-text-muted: #94a3b8;
+    --c-text-hint: #64748b;
+    --c-text-faint: #475569;
+    --c-border: #1e293b;
+    --c-border-strong: #334155;
+    --c-scrollbar: #334155;
+    --c-scrollbar-hover: #475569;
   }
 
   body {
-    @apply bg-slate-950 text-slate-100;
+    @apply bg-th-page text-ink;
     min-height: 100vh;
     min-height: 100dvh;
   }
@@ -24,17 +64,18 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-700 rounded-full;
+    background-color: var(--c-scrollbar);
+    @apply rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-600;
+    background-color: var(--c-scrollbar-hover);
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-th-page disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-primary {
@@ -42,7 +83,7 @@
   }
 
   .btn-secondary {
-    @apply btn bg-slate-700 text-slate-200 hover:bg-slate-600 focus:ring-slate-500;
+    @apply btn bg-th-muted text-ink-2 hover:bg-th-hover focus:ring-brand-500;
   }
 
   .btn-danger {
@@ -50,15 +91,15 @@
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800;
+    @apply btn bg-transparent text-ink-muted hover:text-ink-2 hover:bg-th-elevated;
   }
 
   .input {
-    @apply w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors;
+    @apply w-full rounded-lg border border-th-border-strong bg-th-input px-3 py-2 text-sm text-ink placeholder-ink-hint focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors;
   }
 
   .card {
-    @apply rounded-xl border border-slate-800 bg-slate-900/50 p-4;
+    @apply rounded-xl border border-th-border bg-th-surface p-4;
   }
 
   .badge {

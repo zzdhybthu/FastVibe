@@ -61,7 +61,7 @@ export default function TaskCard({ task }: TaskCardProps) {
     <div
       data-task-card
       onClick={handleView}
-      className={`card cursor-pointer transition-all hover:border-slate-700 ${
+      className={`card cursor-pointer transition-all hover:border-th-border-strong ${
         isSelected ? 'border-brand-500/50 bg-brand-500/5' : ''
       }`}
     >
@@ -69,13 +69,13 @@ export default function TaskCard({ task }: TaskCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <StatusBadge status={task.status} />
-            <span className="text-xs text-slate-500">{formatTime(task.createdAt)}</span>
+            <span className="text-xs text-ink-hint">{formatTime(task.createdAt)}</span>
           </div>
-          <h3 className="text-sm font-medium text-slate-200 truncate">
+          <h3 className="text-sm font-medium text-ink-2 truncate">
             {task.title || task.prompt.slice(0, 80)}
           </h3>
           {task.title && (
-            <p className="mt-0.5 text-xs text-slate-500 truncate">
+            <p className="mt-0.5 text-xs text-ink-hint truncate">
               {task.prompt.slice(0, 100)}
             </p>
           )}
@@ -91,7 +91,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           {canCancel && (
             <button
               onClick={handleCancel}
-              className="btn-ghost p-1.5 text-slate-500 hover:text-yellow-400"
+              className="btn-ghost p-1.5 text-ink-hint hover:text-yellow-400"
               title="取消任务"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -102,7 +102,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           {terminal && (
             <button
               onClick={handleDelete}
-              className="btn-ghost p-1.5 text-slate-500 hover:text-red-400"
+              className="btn-ghost p-1.5 text-ink-hint hover:text-red-400"
               title="删除任务"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -113,7 +113,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           {canRestart && (
             <button
               onClick={handleRestart}
-              className="btn-ghost p-1.5 text-slate-500 hover:text-brand-400"
+              className="btn-ghost p-1.5 text-ink-hint hover:text-brand-400"
               title="重启任务"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

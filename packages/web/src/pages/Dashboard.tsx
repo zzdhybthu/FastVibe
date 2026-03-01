@@ -76,13 +76,13 @@ export default function Dashboard() {
         <div className={`flex-1 min-w-0 min-h-0 flex flex-col ${selectedTaskId ? 'hidden md:block' : ''}`}>
           {!selectedRepoId ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <svg className="h-16 w-16 text-slate-700 mb-4" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+              <svg className="h-16 w-16 text-ink-faint mb-4" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
               </svg>
-              <h2 className="text-lg font-medium text-slate-400">
+              <h2 className="text-lg font-medium text-ink-muted">
                 {repos.length === 0 ? '暂无仓库' : '请选择一个仓库'}
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-ink-hint">
                 {repos.length === 0
                   ? '请先在设置中添加仓库'
                   : '从顶部下拉菜单选择要管理的仓库'}

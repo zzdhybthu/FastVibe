@@ -13,7 +13,7 @@ export default function ConfirmDialog() {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => close(false)} />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
+      <div className="relative w-full max-w-sm rounded-2xl border border-th-border-strong bg-th-surface shadow-2xl">
         <div className="px-6 pt-6 pb-2">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
@@ -22,8 +22,8 @@ export default function ConfirmDialog() {
               </svg>
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-semibold text-slate-100">确认操作</h3>
-              <p className="mt-1 text-sm text-slate-400 whitespace-pre-wrap">{message}</p>
+              <h3 className="text-base font-semibold text-ink">确认操作</h3>
+              <p className="mt-1 text-sm text-ink-muted whitespace-pre-wrap">{message}</p>
             </div>
           </div>
         </div>

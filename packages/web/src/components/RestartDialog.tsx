@@ -72,10 +72,10 @@ export default function RestartDialog() {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl border border-th-border-strong bg-th-surface shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-100">重启任务</h2>
+        <div className="flex items-center justify-between border-b border-th-border px-6 py-4">
+          <h2 className="text-lg font-semibold text-ink">重启任务</h2>
           <button onClick={handleClose} className="btn-ghost p-1.5">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -87,7 +87,7 @@ export default function RestartDialog() {
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-4">
           {/* Prompt */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">
               任务指令 <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -100,8 +100,8 @@ export default function RestartDialog() {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              任务标题 <span className="text-slate-500">(可选)</span>
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">
+              任务标题 <span className="text-ink-hint">(可选)</span>
             </label>
             <input
               type="text"
@@ -115,7 +115,7 @@ export default function RestartDialog() {
 
           {/* Model */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">模型</label>
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">模型</label>
             {claudeDefaults && claudeDefaults.models.length > 0 ? (
               <select
                 className="input"
@@ -140,7 +140,7 @@ export default function RestartDialog() {
 
           {/* Max budget */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">
               最大预算 (USD)
             </label>
             <input
@@ -156,7 +156,7 @@ export default function RestartDialog() {
 
           {/* Interaction timeout */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">
               交互超时 (秒)
             </label>
             <input
@@ -173,14 +173,14 @@ export default function RestartDialog() {
           {/* Thinking mode toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium text-slate-300">思考模式</span>
-              <p className="text-xs text-slate-500">启用后 Claude 会进行更深入的推理</p>
+              <span className="text-sm font-medium text-ink-3">思考模式</span>
+              <p className="text-xs text-ink-hint">启用后 Claude 会进行更深入的推理</p>
             </div>
             <button
               type="button"
               onClick={() => setThinkingEnabled(!thinkingEnabled)}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-                thinkingEnabled ? 'bg-brand-600' : 'bg-slate-700'
+                thinkingEnabled ? 'bg-brand-600' : 'bg-th-muted'
               }`}
               disabled={submitting}
             >
@@ -199,7 +199,7 @@ export default function RestartDialog() {
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-2 border-t border-slate-800 pt-4">
+          <div className="flex items-center justify-end gap-2 border-t border-th-border pt-4">
             <button type="button" onClick={handleClose} className="btn-secondary" disabled={submitting}>
               取消
             </button>

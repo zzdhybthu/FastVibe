@@ -44,14 +44,14 @@ export default function AuthScreen() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-slate-100">VibeCoding</h1>
-            <p className="mt-1 text-sm text-slate-400">编排中心 - 请输入访问令牌</p>
+            <h1 className="text-2xl font-bold text-ink">VibeCoding</h1>
+            <p className="mt-1 text-sm text-ink-muted">编排中心 - 请输入访问令牌</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="token" className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="token" className="block text-sm font-medium text-ink-3 mb-1.5">
                 访问令牌
               </label>
               <input
