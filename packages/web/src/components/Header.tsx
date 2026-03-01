@@ -48,7 +48,7 @@ export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
             </svg>
           </button>
           <button
-            onClick={() => setToken(null)}
+            onClick={() => { if (confirm('确定退出登录？')) setToken(null); }}
             className="btn-ghost p-2"
             title="退出登录"
           >
