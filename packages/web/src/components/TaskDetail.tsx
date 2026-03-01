@@ -41,15 +41,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
     }
   }, [selectedTaskId, fetchTaskDetail]);
 
-  if (!taskDetail) {
-    return (
-      <div className="card animate-pulse space-y-4">
-        <div className="h-6 w-32 rounded bg-slate-800" />
-        <div className="h-4 w-full rounded bg-slate-800" />
-        <div className="h-4 w-3/4 rounded bg-slate-800" />
-        <div className="h-32 rounded bg-slate-800" />
-      </div>
-    );
+  if (!taskDetail || taskDetail.id !== selectedTaskId) {
+    return null;
   }
 
   const pendingInteractions = taskDetail.interactions.filter((i) => i.status === 'pending');

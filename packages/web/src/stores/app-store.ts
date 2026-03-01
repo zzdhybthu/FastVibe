@@ -195,7 +195,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setSelectedTask: (taskId) => {
-    set({ selectedTaskId: taskId, taskDetail: null });
+    set({ selectedTaskId: taskId });
   },
 
   fetchTaskDetail: async (taskId) => {
