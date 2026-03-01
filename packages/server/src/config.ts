@@ -22,7 +22,7 @@ const configSchema = z.object({
       user: z.string(),
       email: z.string(),
     }),
-  })).default([]),
+  })).nullable().default([]).transform(v => v ?? []),
   claude: z.object({
     model: z.string().default('claude-sonnet-4-6'),
     maxBudgetUsd: z.number().default(5.0),
