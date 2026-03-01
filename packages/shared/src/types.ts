@@ -107,13 +107,6 @@ export interface AppConfig {
   global: {
     maxTotalConcurrency: number;
   };
-  repos: Array<{
-    path: string;
-    name: string;
-    mainBranch: string;
-    maxConcurrency: number;
-    git: { user: string; email: string };
-  }>;
   claude: {
     model: string;
     maxBudgetUsd: number;

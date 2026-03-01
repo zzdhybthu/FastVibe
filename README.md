@@ -38,8 +38,8 @@ pnpm install
 cp config.example.yaml config.yaml
 # 编辑 config.yaml:
 # - 设置 server.authToken
-# - 添加仓库到 repos 列表
 # - 设置 claude.model 和预算
+# - 仓库通过 Web UI 管理
 ```
 
 ### 3. 构建前端
@@ -73,20 +73,13 @@ server:
 global:
   maxTotalConcurrency: 5  # 总并发上限
 
-repos:
-  - path: '/path/to/repo'
-    name: 'my-project'
-    mainBranch: 'main'
-    maxConcurrency: 3
-    git:
-      user: 'username'
-      email: 'user@example.com'
-
 claude:
   model: 'claude-sonnet-4-6'
   maxBudgetUsd: 5.0
   interactionTimeout: 1800  # 用户确认超时(秒)
 ```
+
+仓库通过 Web UI 的「添加仓库」功能管理，无需在配置文件中声明。
 
 ## 开发
 

@@ -1,7 +1,6 @@
 import { loadConfig } from './config.js';
 import { initDb } from './db/index.js';
 import { buildServer } from './server.js';
-import { syncReposFromConfig } from './routes/repos.js';
 import { initTaskQueue } from './services/task-queue.js';
 import { recoverOnStartup } from './services/recovery.js';
 import { Scheduler } from './services/scheduler.js';
@@ -15,9 +14,6 @@ async function main() {
   const dataDir = resolve(import.meta.dirname, '../data');
   mkdirSync(dataDir, { recursive: true });
   initDb(resolve(dataDir, 'vibecoding.db'));
-
-  // Sync repos from config into DB
-  await syncReposFromConfig(config);
 
   // Init task queue
   initTaskQueue(config);

@@ -6,15 +6,6 @@ server:
 global:
   maxTotalConcurrency: 5
 
-repos: []
-  # - path: '/home/user/my-project'
-  #   name: 'my-project'
-  #   mainBranch: 'main'
-  #   maxConcurrency: 3
-  #   git:
-  #     user: 'username'
-  #     email: 'user@example.com'
-
 claude:
   model: 'claude-sonnet-4-6'
   maxBudgetUsd: 5.0

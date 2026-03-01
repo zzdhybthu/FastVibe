@@ -2,10 +2,9 @@ import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { realpathSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
-import { eq, notInArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import type { AppConfig } from '@vibecoding/shared';
 import { getDb, schema } from '../db/index.js';
 
 /**
@@ -125,59 +124,4 @@ export async function repoRoutes(app: FastifyInstance) {
     await db.delete(schema.repos).where(eq(schema.repos.id, id));
     return reply.code(204).send();
   });
-}
-
-/**
- * Sync repos from config.yaml into the database on startup.
- * Uses path as the unique key — if a repo with the same path exists, update it;
- * otherwise, insert a new one. Repos no longer in config are removed.
- */
-export async function syncReposFromConfig(config: AppConfig) {
-  const db = getDb();
-
-  const configPaths: string[] = [];
-
-  for (const repoConfig of config.repos) {
-    const normalizedPath = normalizePath(repoConfig.path);
-    configPaths.push(normalizedPath);
-
-    const existing = await db
-      .select()
-      .from(schema.repos)
-      .where(eq(schema.repos.path, normalizedPath));
-
-    if (existing.length > 0) {
-      // Update existing repo
-      await db
-        .update(schema.repos)
-        .set({
-          name: repoConfig.name,
-          mainBranch: repoConfig.mainBranch,
-          maxConcurrency: repoConfig.maxConcurrency,
-          gitUser: repoConfig.git.user,
-          gitEmail: repoConfig.git.email,
-        })
-        .where(eq(schema.repos.path, normalizedPath));
-    } else {
-      // Insert new repo
-      await db.insert(schema.repos).values({
-        id: uuid(),
-        path: normalizedPath,
-        name: repoConfig.name,
-        mainBranch: repoConfig.mainBranch,
-        maxConcurrency: repoConfig.maxConcurrency,
-        gitUser: repoConfig.git.user,
-        gitEmail: repoConfig.git.email,
-        createdAt: new Date().toISOString(),
-      });
-    }
-  }
-
-  // Remove repos that are no longer in config
-  if (configPaths.length > 0) {
-    await db.delete(schema.repos).where(notInArray(schema.repos.path, configPaths));
-  } else {
-    // Config has no repos — clear all
-    await db.delete(schema.repos);
-  }
 }

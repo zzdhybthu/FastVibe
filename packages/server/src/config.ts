@@ -13,16 +13,6 @@ const configSchema = z.object({
   global: z.object({
     maxTotalConcurrency: z.number().default(5),
   }),
-  repos: z.array(z.object({
-    path: z.string(),
-    name: z.string(),
-    mainBranch: z.string().default('main'),
-    maxConcurrency: z.number().default(3),
-    git: z.object({
-      user: z.string(),
-      email: z.string(),
-    }),
-  })).nullable().default([]).transform(v => v ?? []),
   claude: z.object({
     model: z.string().default('claude-sonnet-4-6'),
     maxBudgetUsd: z.number().default(5.0),
