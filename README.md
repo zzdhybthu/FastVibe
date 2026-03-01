@@ -32,7 +32,6 @@
 ### 1. 安装依赖
 
 ```bash
-cd vibecoding-v2
 pnpm install
 ```
 
@@ -126,7 +125,6 @@ pnpm build
 ## 项目结构
 
 ```
-vibecoding-v2/
 ├── packages/
 │   ├── server/        # 后端 (Fastify + Claude SDK)
 │   ├── web/           # 前端 (React + Vite)

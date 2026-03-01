@@ -1,8 +1,0 @@
-node_modules/
-dist/
-*.db
-*.db-journal
-.env
-.vite/
-config.yaml
-data/
