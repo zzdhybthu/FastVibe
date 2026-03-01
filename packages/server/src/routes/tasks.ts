@@ -56,6 +56,8 @@ const createTaskSchema = z.object({
 });
 
 const restartTaskSchema = z.object({
+  prompt: z.string().min(1).optional(),
+  title: z.string().optional(),
   model: z.string().optional(),
   maxBudgetUsd: z.number().positive().optional(),
   interactionTimeout: z.number().int().positive().optional(),
@@ -255,8 +257,8 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
     const newTask = {
       id: uuid(),
       repoId: task.repoId,
-      title: task.title,
-      prompt: task.prompt,
+      title: overrides.title ?? task.title,
+      prompt: overrides.prompt ?? task.prompt,
       status: 'PENDING' as TaskStatus,
       thinkingEnabled: overrides.thinkingEnabled ?? task.thinkingEnabled,
       predecessorTaskId: null,

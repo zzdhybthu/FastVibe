@@ -113,6 +113,8 @@ export function deleteTask(taskId: string): Promise<void> {
 }
 
 export interface RestartTaskOptions {
+  prompt?: string;
+  title?: string;
   model?: string;
   maxBudgetUsd?: number;
   interactionTimeout?: number;

@@ -9,6 +9,8 @@ export default function RestartDialog() {
   const claudeDefaults = useAppStore((s) => s.claudeDefaults);
   const fetchClaudeDefaults = useAppStore((s) => s.fetchClaudeDefaults);
 
+  const [prompt, setPrompt] = useState('');
+  const [title, setTitle] = useState('');
   const [model, setModel] = useState('');
   const [maxBudgetUsd, setMaxBudgetUsd] = useState('');
   const [interactionTimeout, setInteractionTimeout] = useState('');
@@ -25,6 +27,8 @@ export default function RestartDialog() {
   // Pre-fill with original task values when task changes
   useEffect(() => {
     if (restartingTask) {
+      setPrompt(restartingTask.prompt);
+      setTitle(restartingTask.title || '');
       setModel(restartingTask.model);
       setMaxBudgetUsd(String(restartingTask.maxBudgetUsd));
       setInteractionTimeout(String(restartingTask.interactionTimeout));
@@ -39,11 +43,17 @@ export default function RestartDialog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!prompt.trim()) {
+      setError('任务指令不能为空');
+      return;
+    }
     setSubmitting(true);
     setError('');
 
     try {
       await restartTask(restartingTask.id, {
+        prompt: prompt.trim(),
+        title: title.trim() || undefined,
         model: model || undefined,
         maxBudgetUsd: maxBudgetUsd ? parseFloat(maxBudgetUsd) : undefined,
         interactionTimeout: interactionTimeout ? parseInt(interactionTimeout, 10) : undefined,
@@ -73,14 +83,36 @@ export default function RestartDialog() {
           </button>
         </div>
 
-        {/* Task info */}
-        <div className="px-6 pt-4">
-          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">原任务</h3>
-          <p className="text-sm text-slate-300 truncate">{restartingTask.title || restartingTask.prompt.slice(0, 80)}</p>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-4">
+          {/* Prompt */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              任务指令 <span className="text-red-400">*</span>
+            </label>
+            <textarea
+              className="input min-h-[100px] resize-y font-mono text-sm"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              任务标题 <span className="text-slate-500">(可选)</span>
+            </label>
+            <input
+              type="text"
+              className="input"
+              placeholder="简短描述，用于列表展示"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
+
           {/* Model */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">模型</label>
