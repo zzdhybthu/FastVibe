@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6a12d51f-192c-4fee-a79a-69454dc5a78e",
+  "id": "cd1e9a65-d776-4768-ba00-cc95e972a773",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "repos": {
@@ -43,20 +43,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 3
-        },
-        "git_user": {
-          "name": "git_user",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "git_email": {
-          "name": "git_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",

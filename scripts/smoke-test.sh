@@ -46,7 +46,7 @@ check "GET /api/repos" "200" "$STATUS"
 # 4. Create repo
 echo -n "Create repo... "
 REPO=$(curl -s -w "\n%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
-  -d '{"path":"/tmp/smoke-test","name":"smoke-test","gitUser":"test","gitEmail":"test@test.com"}' \
+  -d '{"path":"/tmp/smoke-test","name":"smoke-test"}' \
   "$BASE_URL/api/repos")
 REPO_STATUS=$(echo "$REPO" | tail -1)
 REPO_BODY=$(echo "$REPO" | sed '$d')

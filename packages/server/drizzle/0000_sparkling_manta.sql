@@ -4,8 +4,6 @@ CREATE TABLE `repos` (
 	`name` text NOT NULL,
 	`main_branch` text DEFAULT 'main' NOT NULL,
 	`max_concurrency` integer DEFAULT 3 NOT NULL,
-	`git_user` text NOT NULL,
-	`git_email` text NOT NULL,
 	`created_at` text NOT NULL
 );
 --> statement-breakpoint

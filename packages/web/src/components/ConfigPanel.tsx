@@ -73,8 +73,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                           name: repo.name,
                           mainBranch: repo.mainBranch,
                           maxConcurrency: repo.maxConcurrency,
-                          gitUser: repo.gitUser,
-                          gitEmail: repo.gitEmail,
                         }}
                         onSubmit={async (data) => {
                           await updateRepo(repo.id, data);
@@ -95,9 +93,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 truncate mt-0.5 font-mono">{repo.path}</p>
-                          <p className="text-xs text-slate-600 mt-0.5">
-                            {repo.gitUser} &lt;{repo.gitEmail}&gt;
-                          </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <button
@@ -161,15 +156,13 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
     name: initial?.name || '',
     mainBranch: initial?.mainBranch || 'main',
     maxConcurrency: initial?.maxConcurrency || 3,
-    gitUser: initial?.gitUser || '',
-    gitEmail: initial?.gitEmail || '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.path || !form.name || !form.gitUser || !form.gitEmail) {
+    if (!form.path || !form.name) {
       setError('请填写所有必填项');
       return;
     }
@@ -227,25 +220,6 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
             max={20}
             value={form.maxConcurrency}
             onChange={(e) => update('maxConcurrency', parseInt(e.target.value) || 1)}
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-500 mb-1">Git 用户名 *</label>
-          <input
-            className="input text-sm"
-            placeholder="Your Name"
-            value={form.gitUser}
-            onChange={(e) => update('gitUser', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-slate-500 mb-1">Git 邮箱 *</label>
-          <input
-            type="email"
-            className="input text-sm"
-            placeholder="you@example.com"
-            value={form.gitEmail}
-            onChange={(e) => update('gitEmail', e.target.value)}
           />
         </div>
       </div>

@@ -33,12 +33,6 @@ export function buildPrompt(task: Task, repo: Repo): string {
 
   return `你是一个自动化编码助手，在 Git 仓库中执行指定任务。请严格按照以下步骤操作：
 
-## Git 配置
-\`\`\`bash
-git config user.name "${repo.gitUser}"
-git config user.email "${repo.gitEmail}"
-\`\`\`
-
 ## 步骤 1: 创建 worktree
 在仓库根目录 (当前目录) 下创建一个新的 git worktree:
 \`\`\`bash

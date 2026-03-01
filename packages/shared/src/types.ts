@@ -19,8 +19,6 @@ export interface Repo {
   name: string;
   mainBranch: string;
   maxConcurrency: number;
-  gitUser: string;
-  gitEmail: string;
   createdAt: string;
 }
 
@@ -71,8 +69,6 @@ export interface CreateRepoRequest {
   name: string;
   mainBranch?: string;
   maxConcurrency?: number;
-  gitUser: string;
-  gitEmail: string;
 }
 
 export interface CreateTaskRequest {

@@ -28,8 +28,6 @@ const createRepoSchema = z.object({
   name: z.string().min(1),
   mainBranch: z.string().default('main'),
   maxConcurrency: z.number().int().positive().default(3),
-  gitUser: z.string().min(1),
-  gitEmail: z.string().min(1),
 });
 
 const updateRepoSchema = z.object({
@@ -37,8 +35,6 @@ const updateRepoSchema = z.object({
   name: z.string().min(1).optional(),
   mainBranch: z.string().optional(),
   maxConcurrency: z.number().int().positive().optional(),
-  gitUser: z.string().min(1).optional(),
-  gitEmail: z.string().min(1).optional(),
 });
 
 export async function repoRoutes(app: FastifyInstance) {
@@ -65,8 +61,6 @@ export async function repoRoutes(app: FastifyInstance) {
       name: body.name,
       mainBranch: body.mainBranch,
       maxConcurrency: body.maxConcurrency,
-      gitUser: body.gitUser,
-      gitEmail: body.gitEmail,
       createdAt: new Date().toISOString(),
     };
 

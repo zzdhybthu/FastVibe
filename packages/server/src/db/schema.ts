@@ -6,8 +6,6 @@ export const repos = sqliteTable('repos', {
   name: text('name').notNull(),
   mainBranch: text('main_branch').notNull().default('main'),
   maxConcurrency: integer('max_concurrency').notNull().default(3),
-  gitUser: text('git_user').notNull(),
-  gitEmail: text('git_email').notNull(),
   createdAt: text('created_at').notNull(),
 });
 
