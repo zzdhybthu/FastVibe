@@ -190,34 +190,35 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
             )}
           </div>
 
-          {/* Bulk actions */}
-          {(counts.completed > 0 || counts.failed > 0 || counts.cancelled > 0) && (
-            <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-3">
-              <span className="text-xs text-slate-500">批量操作:</span>
-              {counts.completed > 0 && (
-                <button
-                  onClick={() => handleBulkDelete('COMPLETED')}
-                  className="btn-ghost text-xs text-green-400/70 hover:text-green-400"
-                >
-                  清空已完成 ({counts.completed})
-                </button>
-              )}
-              {counts.failed > 0 && (
-                <button
-                  onClick={() => handleBulkDelete('FAILED')}
-                  className="btn-ghost text-xs text-red-400/70 hover:text-red-400"
-                >
-                  清空失败 ({counts.failed})
-                </button>
-              )}
-              {counts.cancelled > 0 && (
-                <button
-                  onClick={() => handleBulkDelete('CANCELLED')}
-                  className="btn-ghost text-xs text-slate-400/70 hover:text-slate-400"
-                >
-                  清空已取消 ({counts.cancelled})
-                </button>
-              )}
+          {/* Bulk actions - only show in corresponding tab */}
+          {activeTab === 'completed' && counts.completed > 0 && (
+            <div className="flex items-center gap-2 border-t border-slate-800 pt-3">
+              <button
+                onClick={() => handleBulkDelete('COMPLETED')}
+                className="btn-ghost text-xs text-green-400/70 hover:text-green-400"
+              >
+                清空已完成 ({counts.completed})
+              </button>
+            </div>
+          )}
+          {activeTab === 'failed' && counts.failed > 0 && (
+            <div className="flex items-center gap-2 border-t border-slate-800 pt-3">
+              <button
+                onClick={() => handleBulkDelete('FAILED')}
+                className="btn-ghost text-xs text-red-400/70 hover:text-red-400"
+              >
+                清空失败 ({counts.failed})
+              </button>
+            </div>
+          )}
+          {activeTab === 'cancelled' && counts.cancelled > 0 && (
+            <div className="flex items-center gap-2 border-t border-slate-800 pt-3">
+              <button
+                onClick={() => handleBulkDelete('CANCELLED')}
+                className="btn-ghost text-xs text-slate-400/70 hover:text-slate-400"
+              >
+                清空已取消 ({counts.cancelled})
+              </button>
             </div>
           )}
         </>
