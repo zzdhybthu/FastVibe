@@ -65,9 +65,9 @@ export default function UserConfirm({ interaction }: UserConfirmProps) {
           {options.map((opt) => (
             <button
               key={opt}
-              onClick={() => handleSubmit(opt)}
+              onClick={() => setAnswer(opt)}
               disabled={submitting}
-              className="btn-secondary text-sm"
+              className={`btn-secondary text-sm ${answer === opt ? 'border-purple-500 bg-purple-500/20 text-purple-300' : ''}`}
             >
               {opt}
             </button>
