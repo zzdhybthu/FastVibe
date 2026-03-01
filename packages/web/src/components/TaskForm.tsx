@@ -134,7 +134,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 ))}
               </select>
               <p className="mt-1 text-xs text-slate-500">
-                选择前置任务后，新任务将基于前置任务的分支创建
+                新任务将在前置任务完成后才开始执行
               </p>
             </div>
           )}
