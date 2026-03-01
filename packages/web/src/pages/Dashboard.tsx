@@ -5,6 +5,7 @@ import TaskList from '../components/TaskList';
 import TaskDetail from '../components/TaskDetail';
 import TaskForm from '../components/TaskForm';
 import ConfigPanel from '../components/ConfigPanel';
+import RestartDialog from '../components/RestartDialog';
 
 export default function Dashboard() {
   const fetchRepos = useAppStore((s) => s.fetchRepos);
@@ -97,6 +98,7 @@ export default function Dashboard() {
       {showConfig && (
         <ConfigPanel onClose={() => setShowConfig(false)} />
       )}
+      <RestartDialog />
     </div>
   );
 }

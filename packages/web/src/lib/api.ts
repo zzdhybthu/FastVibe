@@ -112,6 +112,20 @@ export function deleteTask(taskId: string): Promise<void> {
   });
 }
 
+export interface RestartTaskOptions {
+  model?: string;
+  maxBudgetUsd?: number;
+  interactionTimeout?: number;
+  thinkingEnabled?: boolean;
+}
+
+export function restartTask(taskId: string, overrides?: RestartTaskOptions): Promise<Task> {
+  return request<Task>(`/api/tasks/${taskId}/restart`, {
+    method: 'POST',
+    body: overrides ? JSON.stringify(overrides) : undefined,
+  });
+}
+
 export function bulkDeleteTasks(repoId: string, status: TaskStatus): Promise<void> {
   return request<void>(`/api/repos/${repoId}/tasks/bulk?status=${status}`, {
     method: 'DELETE',

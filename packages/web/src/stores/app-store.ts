@@ -10,7 +10,7 @@ import type {
   ClaudeDefaults,
 } from '@vibecoding/shared';
 import * as api from '../lib/api';
-import type { TaskDetailResponse } from '../lib/api';
+import type { TaskDetailResponse, RestartTaskOptions } from '../lib/api';
 
 const TOKEN_KEY = 'vibecoding_token';
 
@@ -28,6 +28,8 @@ interface AppState {
   pendingInteractions: TaskInteraction[];
   // Claude defaults
   claudeDefaults: ClaudeDefaults | null;
+  // Restart
+  restartingTask: Task | null;
   // UI
   loading: boolean;
   error: string | null;
@@ -47,6 +49,8 @@ interface AppState {
   createTask: (data: CreateTaskRequest) => Promise<Task>;
   cancelTask: (taskId: string) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
+  restartTask: (taskId: string, overrides?: RestartTaskOptions) => Promise<Task>;
+  setRestartingTask: (task: Task | null) => void;
   bulkDelete: (status: TaskStatus) => Promise<void>;
   setSelectedTask: (taskId: string | null) => void;
   fetchTaskDetail: (taskId: string) => Promise<void>;
@@ -73,6 +77,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   taskDetail: null,
   pendingInteractions: [],
   claudeDefaults: null,
+  restartingTask: null,
   loading: false,
   error: null,
 
@@ -162,6 +167,22 @@ export const useAppStore = create<AppState>((set, get) => ({
       selectedTaskId: s.selectedTaskId === taskId ? null : s.selectedTaskId,
       taskDetail: s.taskDetail?.id === taskId ? null : s.taskDetail,
     }));
+  },
+
+  restartTask: async (taskId, overrides) => {
+    const newTask = await api.restartTask(taskId, overrides);
+    set((s) => ({
+      // Remove old task, add new one
+      tasks: [newTask, ...s.tasks.filter((t) => t.id !== taskId)],
+      selectedTaskId: s.selectedTaskId === taskId ? newTask.id : s.selectedTaskId,
+      taskDetail: s.taskDetail?.id === taskId ? null : s.taskDetail,
+      restartingTask: null,
+    }));
+    return newTask;
+  },
+
+  setRestartingTask: (task) => {
+    set({ restartingTask: task });
   },
 
   bulkDelete: async (status) => {

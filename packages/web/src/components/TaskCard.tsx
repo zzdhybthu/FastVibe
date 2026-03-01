@@ -23,11 +23,13 @@ export default function TaskCard({ task }: TaskCardProps) {
   const fetchTaskDetail = useAppStore((s) => s.fetchTaskDetail);
   const cancelTask = useAppStore((s) => s.cancelTask);
   const deleteTask = useAppStore((s) => s.deleteTask);
+  const setRestartingTask = useAppStore((s) => s.setRestartingTask);
   const selectedTaskId = useAppStore((s) => s.selectedTaskId);
 
   const isSelected = selectedTaskId === task.id;
   const terminal = isTerminalStatus(task.status);
   const canCancel = !terminal && task.status !== 'CANCELLED';
+  const canRestart = task.status === 'CANCELLED' || task.status === 'FAILED';
 
   const handleView = () => {
     setSelectedTask(task.id);
@@ -46,6 +48,11 @@ export default function TaskCard({ task }: TaskCardProps) {
     if (confirm('确定删除此任务？')) {
       await deleteTask(task.id);
     }
+  };
+
+  const handleRestart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRestartingTask(task);
   };
 
   return (
@@ -86,6 +93,17 @@ export default function TaskCard({ task }: TaskCardProps) {
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" />
+              </svg>
+            </button>
+          )}
+          {canRestart && (
+            <button
+              onClick={handleRestart}
+              className="btn-ghost p-1.5 text-slate-500 hover:text-brand-400"
+              title="重启任务"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
               </svg>
             </button>
           )}

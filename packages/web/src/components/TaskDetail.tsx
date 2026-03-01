@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
-import { StatusBadge } from '../lib/status';
+import { StatusBadge, isTerminalStatus } from '../lib/status';
 import LogViewer from './LogViewer';
 import UserConfirm from './UserConfirm';
 
@@ -134,8 +134,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
         </div>
       )}
 
-      {/* Pending interactions */}
-      {pendingInteractions.length > 0 && (
+      {/* Pending interactions — hide when task is in terminal status */}
+      {pendingInteractions.length > 0 && !isTerminalStatus(taskDetail.status) && (
         <div>
           <h3 className="text-xs font-medium text-purple-400 uppercase tracking-wider mb-2">等待确认</h3>
           {pendingInteractions.map((interaction) => (

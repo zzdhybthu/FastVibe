@@ -55,6 +55,13 @@ const createTaskSchema = z.object({
   interactionTimeout: z.number().int().positive().optional(),
 });
 
+const restartTaskSchema = z.object({
+  model: z.string().optional(),
+  maxBudgetUsd: z.number().positive().optional(),
+  interactionTimeout: z.number().int().positive().optional(),
+  thinkingEnabled: z.boolean().optional(),
+});
+
 export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
   // GET /api/repos/:repoId/tasks — list tasks for a repo
   app.get<{ Params: { repoId: string }; Querystring: { status?: string } }>(
@@ -201,6 +208,77 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
 
     const updated = await db.select().from(schema.tasks).where(eq(schema.tasks.id, id));
     return reply.send(updated[0]);
+  });
+
+  // POST /api/tasks/:id/restart — restart a cancelled/failed task
+  app.post<{ Params: { id: string } }>('/api/tasks/:id/restart', async (request, reply) => {
+    const db = getDb();
+    const { id } = request.params;
+
+    const taskRows = await db.select().from(schema.tasks).where(eq(schema.tasks.id, id));
+    if (taskRows.length === 0) {
+      return reply.code(404).send({ error: 'Task not found' });
+    }
+
+    const task = taskRows[0];
+    const RESTARTABLE: TaskStatus[] = ['CANCELLED', 'FAILED'];
+    if (!RESTARTABLE.includes(task.status as TaskStatus)) {
+      return reply.code(400).send({
+        error: `Cannot restart task in status '${task.status}'. Must be one of: ${RESTARTABLE.join(', ')}`,
+      });
+    }
+
+    // Parse optional overrides
+    let overrides: z.infer<typeof restartTaskSchema> = {};
+    if (request.body) {
+      try {
+        overrides = restartTaskSchema.parse(request.body);
+      } catch (err) {
+        return reply.code(400).send({ error: 'Validation failed', details: (err as z.ZodError).errors });
+      }
+    }
+
+    // Get repo info for git cleanup
+    const repo = await db.select().from(schema.repos).where(eq(schema.repos.id, task.repoId));
+
+    // Delete old task (cascade)
+    await db.delete(schema.taskLogs).where(eq(schema.taskLogs.taskId, id));
+    await db.delete(schema.taskInteractions).where(eq(schema.taskInteractions.taskId, id));
+    await db.delete(schema.tasks).where(eq(schema.tasks.id, id));
+
+    // Clean up git resources
+    if (repo.length > 0) {
+      await cleanupTaskGitResources(repo[0].path, task.branchName);
+    }
+
+    // Create new task with same prompt + overrides
+    const newTask = {
+      id: uuid(),
+      repoId: task.repoId,
+      title: task.title,
+      prompt: task.prompt,
+      status: 'PENDING' as TaskStatus,
+      thinkingEnabled: overrides.thinkingEnabled ?? task.thinkingEnabled,
+      predecessorTaskId: null,
+      model: overrides.model ?? task.model,
+      maxBudgetUsd: overrides.maxBudgetUsd ?? task.maxBudgetUsd,
+      interactionTimeout: overrides.interactionTimeout ?? task.interactionTimeout,
+      branchName: null,
+      worktreePath: null,
+      sessionId: null,
+      result: null,
+      errorMessage: null,
+      costUsd: null,
+      startedAt: null,
+      completedAt: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.insert(schema.tasks).values(newTask);
+    await getTaskQueue().enqueue(newTask.id);
+
+    const inserted = await db.select().from(schema.tasks).where(eq(schema.tasks.id, newTask.id));
+    return reply.code(201).send(inserted[0] ?? newTask);
   });
 
   // DELETE /api/tasks/:id — delete task (only terminal status)
