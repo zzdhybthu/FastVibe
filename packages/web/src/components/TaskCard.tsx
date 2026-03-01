@@ -59,6 +59,7 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   return (
     <div
+      data-task-card
       onClick={handleView}
       className={`card cursor-pointer transition-all hover:border-slate-700 ${
         isSelected ? 'border-brand-500/50 bg-brand-500/5' : ''

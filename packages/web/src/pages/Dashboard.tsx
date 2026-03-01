@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../stores/app-store';
 import Header from '../components/Header';
 import TaskList from '../components/TaskList';
@@ -19,6 +19,23 @@ export default function Dashboard() {
 
   const [showConfig, setShowConfig] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  // Close detail panel when clicking outside
+  useEffect(() => {
+    if (!selectedTaskId) return;
+    const handler = (e: MouseEvent) => {
+      // Click inside the detail panel — keep open
+      if (detailRef.current?.contains(e.target as Node)) return;
+      // Click on a task card — will switch task, don't close
+      if ((e.target as Element).closest?.('[data-task-card]')) return;
+      // Click inside a modal overlay (z-50+) — ignore
+      if ((e.target as Element).closest?.('[class*="fixed inset-0 z-"]')) return;
+      setSelectedTask(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [selectedTaskId, setSelectedTask]);
 
   // Fetch repos on mount
   useEffect(() => {
@@ -86,7 +103,7 @@ export default function Dashboard() {
 
         {/* Task detail side panel */}
         {selectedTaskId && (
-          <div className="w-full md:w-[480px] lg:w-[560px] shrink-0">
+          <div ref={detailRef} className="w-full md:w-[480px] lg:w-[560px] shrink-0">
             <TaskDetail onClose={() => setSelectedTask(null)} />
           </div>
         )}
