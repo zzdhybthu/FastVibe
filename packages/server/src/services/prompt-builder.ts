@@ -82,7 +82,7 @@ ${task.prompt}
 ## 步骤 5: 提交代码
 \`\`\`bash
 git add -A
-git commit -m "feat(${branchName}): 简洁描述改动内容"
+git commit -m "feat(${branchName}): concise description of changes"
 \`\`\`
 commit message 格式: \`类型(范围): 描述\`，类型可以是 feat/fix/refactor/docs/test/chore 等。
 
@@ -103,13 +103,12 @@ git rebase ${repo.mainBranch}
 1. 逐个解决冲突文件
 2. 如果无法自动解决，使用 ask_user 工具询问用户如何处理
 3. 解决后 \`git add <文件>\` 然后 \`git rebase --continue\`
-4. 如果冲突过于复杂，可 \`git rebase --abort\` 并使用 ask_user 告知用户
 
 ## 步骤 8: 合并到主分支
 \`\`\`bash
 cd ${repoDir}  # 回到仓库根目录
 git checkout ${repo.mainBranch}
-git merge ${branchName} --no-ff -m "merge(${branchName}): 合并任务分支"
+git merge ${branchName} --no-ff -m "merge(${branchName}): merge task branch"
 \`\`\`
 
 ## 步骤 9: 清理并推送
@@ -118,12 +117,6 @@ git worktree remove ${worktreeDir} --force
 git branch -d ${branchName}
 git push origin ${repo.mainBranch}
 \`\`\`
-
-## 步骤 10: 记录进展
-如果仓库根目录有 PROGRESS.md 文件，在其中记录:
-- 完成的任务简述
-- 关键改动和 commit id
-- 注意事项
 
 ## 失败处理
 如果任务无法完成，请清楚地说明失败原因，包括:
