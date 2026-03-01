@@ -188,7 +188,7 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
                 )}
               </div>
             ) : (
-              filteredTasks.map((task) => <TaskCard key={task.id} task={task} />)
+              filteredTasks.map((task) => <TaskCard key={task.id} task={task} tinted />)
             )}
           </div>
 
