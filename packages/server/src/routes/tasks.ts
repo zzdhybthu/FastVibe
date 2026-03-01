@@ -2,13 +2,48 @@ import type { FastifyInstance } from 'fastify';
 import { eq, and, inArray, desc } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import type { AppConfig, TaskStatus } from '@vibecoding/shared';
 import { getDb, schema } from '../db/index.js';
 import { getTaskQueue } from '../services/task-queue.js';
 import { getAbortController } from '../services/task-runner.js';
 
+const execFileAsync = promisify(execFile);
+
 const TERMINAL_STATUSES: TaskStatus[] = ['COMPLETED', 'FAILED', 'CANCELLED'];
 const CANCELLABLE_STATUSES: TaskStatus[] = ['PENDING', 'QUEUED', 'RUNNING', 'AWAITING_INPUT'];
+
+/**
+ * Clean up git worktree and branch for a task.
+ * Silently ignores errors (worktree/branch may already be cleaned up).
+ */
+async function cleanupTaskGitResources(repoPath: string, branchName: string | null) {
+  if (!branchName) return;
+
+  const worktreeDir = `.claude-worktrees/${branchName}`;
+
+  // Force remove worktree (if exists)
+  try {
+    await execFileAsync('git', ['worktree', 'remove', worktreeDir, '--force'], { cwd: repoPath });
+  } catch {
+    // worktree may not exist or already removed
+  }
+
+  // Prune stale worktree entries
+  try {
+    await execFileAsync('git', ['worktree', 'prune'], { cwd: repoPath });
+  } catch {
+    // ignore
+  }
+
+  // Force delete branch (if exists)
+  try {
+    await execFileAsync('git', ['branch', '-D', branchName], { cwd: repoPath });
+  } catch {
+    // branch may not exist or already deleted
+  }
+}
 
 const createTaskSchema = z.object({
   prompt: z.string().min(1),
@@ -190,6 +225,12 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
     await db.delete(schema.taskInteractions).where(eq(schema.taskInteractions.taskId, id));
     await db.delete(schema.tasks).where(eq(schema.tasks.id, id));
 
+    // Clean up worktree and branch
+    const repo = await db.select().from(schema.repos).where(eq(schema.repos.id, task.repoId));
+    if (repo.length > 0) {
+      await cleanupTaskGitResources(repo[0].path, task.branchName);
+    }
+
     return reply.code(204).send();
   });
 
@@ -214,9 +255,9 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
         });
       }
 
-      // Find all matching tasks
+      // Find all matching tasks (need branchName for cleanup)
       const tasksToDelete = await db
-        .select({ id: schema.tasks.id })
+        .select({ id: schema.tasks.id, branchName: schema.tasks.branchName })
         .from(schema.tasks)
         .where(and(eq(schema.tasks.repoId, repoId), eq(schema.tasks.status, status)));
 
@@ -230,6 +271,14 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
       await db.delete(schema.taskLogs).where(inArray(schema.taskLogs.taskId, taskIds));
       await db.delete(schema.taskInteractions).where(inArray(schema.taskInteractions.taskId, taskIds));
       await db.delete(schema.tasks).where(inArray(schema.tasks.id, taskIds));
+
+      // Clean up worktrees and branches
+      const repo = await db.select().from(schema.repos).where(eq(schema.repos.id, repoId));
+      if (repo.length > 0) {
+        await Promise.all(
+          tasksToDelete.map((t) => cleanupTaskGitResources(repo[0].path, t.branchName)),
+        );
+      }
 
       return reply.send({ deleted: taskIds.length });
     },
