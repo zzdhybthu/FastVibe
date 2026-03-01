@@ -92,6 +92,10 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
     const prompt = buildPrompt(task, repo);
 
     // 4. Call the SDK
+    // Build env without CLAUDECODE to avoid nested-session detection
+    const cleanEnv: Record<string, string | undefined> = { ...process.env };
+    delete cleanEnv.CLAUDECODE;
+
     const conversation = sdkQuery({
       prompt,
       options: {
@@ -111,6 +115,7 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
         model: config.claude.model,
         maxBudgetUsd: config.claude.maxBudgetUsd,
         abortController,
+        env: cleanEnv,
         mcpServers: {
           'user-interaction': mcpServer,
         },
