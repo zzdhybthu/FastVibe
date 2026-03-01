@@ -27,6 +27,18 @@ function expandBindHome(bind: string): string {
 }
 
 /**
+ * Map a host absolute path to its container equivalent.
+ * Replaces the host home directory prefix with /root.
+ */
+export function toContainerPath(hostPath: string): string {
+  const hostHome = homedir();
+  if (hostPath.startsWith(hostHome)) {
+    return '/root' + hostPath.slice(hostHome.length);
+  }
+  return hostPath;
+}
+
+/**
  * Create a Docker container for a worker task.
  * The container runs `sleep infinity` to stay alive while CC operates inside it.
  *
@@ -37,9 +49,10 @@ export async function createWorkerContainer(
   repoPath: string,
   config: AppConfig,
 ): Promise<string> {
-  // Build bind mounts: repo path + extra binds from config
+  // Build bind mounts: repo path mapped under /root + extra binds from config
+  const containerRepoPath = toContainerPath(repoPath);
   const binds = [
-    `${repoPath}:${repoPath}`,
+    `${repoPath}:${containerRepoPath}`,
     ...config.docker.binds.map(expandBindHome),
   ];
 
@@ -71,7 +84,7 @@ export async function createWorkerContainer(
   const container = await docker.createContainer({
     Image: config.docker.image,
     Cmd: ['sleep', 'infinity'],
-    WorkingDir: repoPath,
+    WorkingDir: containerRepoPath,
     Labels: {
       'vibecoding.task-id': taskId,
     },
