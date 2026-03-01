@@ -115,11 +115,11 @@ export async function taskRoutes(app: FastifyInstance) {
       .orderBy(desc(schema.taskLogs.id))
       .limit(100);
 
-    // Get pending interactions
+    // Get all interactions for this task
     const interactions = await db
       .select()
       .from(schema.taskInteractions)
-      .where(and(eq(schema.taskInteractions.taskId, id), eq(schema.taskInteractions.status, 'pending')));
+      .where(eq(schema.taskInteractions.taskId, id));
 
     return reply.send({ ...task, logs: logs.reverse(), interactions });
   });
