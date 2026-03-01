@@ -65,7 +65,7 @@ export async function createWorkerContainer(
   // Mount to the same path inside the container so absolute paths resolve correctly
   const hostHome = homedir();
   if (hostHome !== '/root') {
-    binds.push(`${hostHome}/.claude:${hostHome}/.claude:ro`);
+    binds.push(`${hostHome}/.claude:${hostHome}/.claude`);
   }
 
   const container = await docker.createContainer({

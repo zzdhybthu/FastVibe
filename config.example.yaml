@@ -18,9 +18,8 @@ repos: []
 docker:
   image: 'vibecoding-worker:latest'
   binds:
-    - '~/.claude:/root/.claude:ro'
-    - '~/.cache/uv:/root/.cache/uv'
-    - '~/.local/share/fnm:/root/.local/share/fnm'
+    - '~/.claude:/root/.claude'
+    - '~/.claude.json:/root/.claude.json'
   networkMode: 'host'
 
 claude:
