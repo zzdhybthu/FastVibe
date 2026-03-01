@@ -32,6 +32,9 @@ export interface Task {
   status: TaskStatus;
   thinkingEnabled: boolean;
   predecessorTaskId: string | null;
+  model: string;
+  maxBudgetUsd: number;
+  interactionTimeout: number;
   branchName: string | null;
   worktreePath: string | null;
   sessionId: string | null;
@@ -77,6 +80,9 @@ export interface CreateTaskRequest {
   title?: string;
   thinkingEnabled?: boolean;
   predecessorTaskId?: string;
+  model?: string;
+  maxBudgetUsd?: number;
+  interactionTimeout?: number;
 }
 
 export interface AnswerInteractionRequest {
@@ -108,8 +114,15 @@ export interface AppConfig {
     maxTotalConcurrency: number;
   };
   claude: {
-    model: string;
+    model: string[];
     maxBudgetUsd: number;
     interactionTimeout: number;
   };
+}
+
+export interface ClaudeDefaults {
+  models: string[];
+  defaultModel: string;
+  maxBudgetUsd: number;
+  interactionTimeout: number;
 }

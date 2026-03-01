@@ -5,6 +5,7 @@ import type {
   CreateTaskRequest,
   TaskStatus,
   AppConfig,
+  ClaudeDefaults,
 } from '@vibecoding/shared';
 
 const TOKEN_KEY = 'vibecoding_token';
@@ -125,6 +126,10 @@ export function answerInteraction(interactionId: string, answer: string): Promis
 }
 
 // --- Config ---
+
+export function fetchClaudeDefaults(): Promise<ClaudeDefaults> {
+  return request<ClaudeDefaults>('/api/config/claude-defaults');
+}
 
 export function fetchConfig(): Promise<AppConfig> {
   return request<AppConfig>('/api/config');

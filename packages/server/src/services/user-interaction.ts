@@ -4,14 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
-import type { AppConfig, WsServerEvent, TaskStatus } from '@vibecoding/shared';
+import type { WsServerEvent, TaskStatus } from '@vibecoding/shared';
 
 /**
  * Creates an in-process MCP server with the `ask_user` tool.
  * This tool allows Claude (running inside a task) to ask the user a question
  * and wait for the answer via the WebSocket-connected frontend.
  */
-export function createUserInteractionServer(taskId: string, repoId: string, config: AppConfig) {
+export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number) {
   return createSdkMcpServer({
     name: 'user-interaction',
     tools: [
@@ -72,7 +72,7 @@ export function createUserInteractionServer(taskId: string, repoId: string, conf
           }
 
           // 5. Wait for answer via eventBus with timeout
-          const timeoutMs = (config.claude.interactionTimeout || 1800) * 1000;
+          const timeoutMs = (interactionTimeout || 1800) * 1000;
 
           const answer = await new Promise<string>((resolve, reject) => {
             let timer: ReturnType<typeof setTimeout> | null = null;

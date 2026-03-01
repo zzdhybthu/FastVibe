@@ -7,6 +7,7 @@ import type {
   TaskInteraction,
   CreateRepoRequest,
   CreateTaskRequest,
+  ClaudeDefaults,
 } from '@vibecoding/shared';
 import * as api from '../lib/api';
 import type { TaskDetailResponse } from '../lib/api';
@@ -25,6 +26,8 @@ interface AppState {
   taskDetail: TaskDetailResponse | null;
   // Interactions
   pendingInteractions: TaskInteraction[];
+  // Claude defaults
+  claudeDefaults: ClaudeDefaults | null;
   // UI
   loading: boolean;
   error: string | null;
@@ -51,6 +54,9 @@ interface AppState {
   // Interaction actions
   answerInteraction: (interactionId: string, answer: string) => Promise<void>;
 
+  // Config actions
+  fetchClaudeDefaults: () => Promise<void>;
+
   // WebSocket actions
   updateTaskFromWs: (task: Task) => void;
   addLogFromWs: (taskId: string, log: Omit<TaskLog, 'id' | 'taskId'>) => void;
@@ -66,6 +72,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedTaskId: null,
   taskDetail: null,
   pendingInteractions: [],
+  claudeDefaults: null,
   loading: false,
   error: null,
 
@@ -191,6 +198,16 @@ export const useAppStore = create<AppState>((set, get) => ({
           }
         : null,
     }));
+  },
+
+  // Config
+  fetchClaudeDefaults: async () => {
+    try {
+      const defaults = await api.fetchClaudeDefaults();
+      set({ claudeDefaults: defaults });
+    } catch (err) {
+      console.error('Failed to fetch claude defaults:', err);
+    }
   },
 
   // WebSocket handlers

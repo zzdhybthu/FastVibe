@@ -19,14 +19,14 @@ async function main() {
   initTaskQueue(config);
 
   // Recover from previous crash
-  await recoverOnStartup(config);
+  await recoverOnStartup();
 
   // Build and start server
   const app = await buildServer(config);
   await app.listen({ port: config.server.port, host: config.server.host });
 
   // Start scheduler
-  const scheduler = new Scheduler(config);
+  const scheduler = new Scheduler();
   scheduler.start();
   console.log('Scheduler started');
 

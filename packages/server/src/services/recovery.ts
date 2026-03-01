@@ -1,13 +1,13 @@
 import { eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
-import type { AppConfig, TaskStatus } from '@vibecoding/shared';
+import type { TaskStatus } from '@vibecoding/shared';
 
 /**
  * Recover from a previous crash / restart.
  * 1. Mark stuck RUNNING/AWAITING_INPUT tasks as FAILED
  * 2. Unblock PENDING tasks whose predecessors are now terminal
  */
-export async function recoverOnStartup(_config: AppConfig): Promise<void> {
+export async function recoverOnStartup(): Promise<void> {
   const db = getDb();
   const TERMINAL_STATUSES: TaskStatus[] = ['COMPLETED', 'FAILED', 'CANCELLED'];
 

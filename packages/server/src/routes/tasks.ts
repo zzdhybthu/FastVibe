@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { eq, and, inArray, desc } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import type { TaskStatus } from '@vibecoding/shared';
+import type { AppConfig, TaskStatus } from '@vibecoding/shared';
 import { getDb, schema } from '../db/index.js';
 import { getTaskQueue } from '../services/task-queue.js';
 import { getAbortController } from '../services/task-runner.js';
@@ -15,9 +15,12 @@ const createTaskSchema = z.object({
   title: z.string().optional(),
   thinkingEnabled: z.boolean().default(false),
   predecessorTaskId: z.string().optional(),
+  model: z.string().optional(),
+  maxBudgetUsd: z.number().positive().optional(),
+  interactionTimeout: z.number().int().positive().optional(),
 });
 
-export async function taskRoutes(app: FastifyInstance) {
+export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
   // GET /api/repos/:repoId/tasks — list tasks for a repo
   app.get<{ Params: { repoId: string }; Querystring: { status?: string } }>(
     '/api/repos/:repoId/tasks',
@@ -73,6 +76,9 @@ export async function taskRoutes(app: FastifyInstance) {
         status: 'PENDING' as TaskStatus,
         thinkingEnabled: body.thinkingEnabled,
         predecessorTaskId: body.predecessorTaskId ?? null,
+        model: body.model ?? config.claude.model[0],
+        maxBudgetUsd: body.maxBudgetUsd ?? config.claude.maxBudgetUsd,
+        interactionTimeout: body.interactionTimeout ?? config.claude.interactionTimeout,
         branchName: null,
         worktreePath: null,
         sessionId: null,

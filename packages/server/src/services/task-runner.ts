@@ -5,7 +5,7 @@ import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
 import { createUserInteractionServer } from './user-interaction.js';
 import { buildPrompt, buildBranchName } from './prompt-builder.js';
-import type { AppConfig, Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
+import type { Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
 
 // Map of taskId -> AbortController for cancellation
 const runningTasks = new Map<string, AbortController>();
@@ -65,7 +65,7 @@ async function broadcastTaskStatus(taskId: string, repoId: string, status: TaskS
  * Run a task using the Claude Agent SDK.
  * This is the main entry point for task execution.
  */
-export async function runTask(task: Task, repo: Repo, config: AppConfig): Promise<void> {
+export async function runTask(task: Task, repo: Repo): Promise<void> {
   const db = getDb();
   const abortController = new AbortController();
   runningTasks.set(task.id, abortController);
@@ -86,7 +86,7 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
     await logTask(task.id, 'info', `Task started. Branch: ${branchName}`);
 
     // 2. Create user interaction MCP server
-    const mcpServer = createUserInteractionServer(task.id, repo.id, config);
+    const mcpServer = createUserInteractionServer(task.id, repo.id, task.interactionTimeout);
 
     // 3. Build prompt
     const prompt = buildPrompt(task, repo);
@@ -112,8 +112,8 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
         thinking: task.thinkingEnabled
           ? { type: 'enabled', budgetTokens: 10000 }
           : { type: 'adaptive' },
-        model: config.claude.model,
-        maxBudgetUsd: config.claude.maxBudgetUsd,
+        model: task.model,
+        maxBudgetUsd: task.maxBudgetUsd,
         abortController,
         env: cleanEnv,
         mcpServers: {

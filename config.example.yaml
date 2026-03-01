@@ -7,6 +7,9 @@ global:
   maxTotalConcurrency: 5
 
 claude:
-  model: 'claude-sonnet-4-6'
+  model:
+    - 'claude-sonnet-4-6'
+    - 'claude-haiku-4-5-20251001'
+    - 'claude-opus-4-6'
   maxBudgetUsd: 5.0
   interactionTimeout: 1800

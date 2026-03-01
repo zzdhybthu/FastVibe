@@ -1,13 +1,10 @@
 import { eventBus } from '../ws/event-bus.js';
 import { getTaskQueue } from './task-queue.js';
 import { runTask } from './task-runner.js';
-import type { AppConfig } from '@vibecoding/shared';
 
 export class Scheduler {
   private intervalId: NodeJS.Timeout | null = null;
   private running = false;
-
-  constructor(private config: AppConfig) {}
 
   start() {
     // Run processQueue every 2 seconds
@@ -43,7 +40,7 @@ export class Scheduler {
       const tasksToRun = await taskQueue.getTasksToRun();
       for (const { task, repo } of tasksToRun) {
         // Fire and forget — don't await runTask
-        runTask(task, repo, this.config).catch((err) => {
+        runTask(task, repo).catch((err) => {
           console.error(`[scheduler] Task ${task.id} failed:`, err);
         });
       }

@@ -7,6 +7,7 @@ import type { AppConfig } from '@vibecoding/shared';
 import { repoRoutes } from './routes/repos.js';
 import { taskRoutes } from './routes/tasks.js';
 import { interactionRoutes } from './routes/interactions.js';
+import { configRoutes } from './routes/config.js';
 import { registerWebSocket } from './ws/handler.js';
 
 export async function buildServer(config: AppConfig) {
@@ -28,8 +29,9 @@ export async function buildServer(config: AppConfig) {
 
   // Register API routes
   await repoRoutes(app);
-  await taskRoutes(app);
+  await taskRoutes(app, config);
   await interactionRoutes(app);
+  await configRoutes(app, config);
 
   // Register WebSocket handler
   await registerWebSocket(app, config);
