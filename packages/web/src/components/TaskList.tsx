@@ -136,9 +136,9 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
 
       {isBoard ? (
         /* Board view */
-        <div className="flex gap-3 overflow-x-auto flex-1 min-h-0 pt-2">
+        <div className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pt-2 md:flex-row md:gap-3 md:overflow-x-auto">
           {STATUS_TABS.map((col) => (
-            <div key={col.key} className="min-w-[220px] flex-1 flex flex-col">
+            <div key={col.key} className="flex flex-col md:min-w-[220px] md:flex-1">
               {/* Column header */}
               <div className="flex items-center justify-between mb-2 px-1">
                 <div className="flex items-center gap-2">
@@ -159,9 +159,9 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
                 )}
               </div>
               {/* Column body */}
-              <div className="flex-1 overflow-y-auto space-y-2 rounded-lg bg-slate-900/40 p-2">
+              <div className="space-y-2 rounded-lg bg-slate-900/40 p-2 md:flex-1 md:overflow-y-auto">
                 {tasksByColumn[col.key].length === 0 ? (
-                  <p className="text-xs text-slate-600 text-center py-6">暂无任务</p>
+                  <p className="text-xs text-slate-600 text-center py-4 md:py-6">暂无任务</p>
                 ) : (
                   tasksByColumn[col.key].map((task) => (
                     <TaskCard key={task.id} task={task} />
