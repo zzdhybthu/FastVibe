@@ -1,10 +1,11 @@
 import type { Task } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
 import { useConfirm } from '../stores/confirm-store';
-import { StatusBadge, isTerminalStatus } from '../lib/status';
+import { StatusBadge, isTerminalStatus, getStatusConfig } from '../lib/status';
 
 interface TaskCardProps {
   task: Task;
+  tinted?: boolean;
 }
 
 function formatTime(iso: string): string {
@@ -19,7 +20,7 @@ function formatTime(iso: string): string {
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-export default function TaskCard({ task }: TaskCardProps) {
+export default function TaskCard({ task, tinted }: TaskCardProps) {
   const setSelectedTask = useAppStore((s) => s.setSelectedTask);
   const fetchTaskDetail = useAppStore((s) => s.fetchTaskDetail);
   const cancelTask = useAppStore((s) => s.cancelTask);
@@ -57,11 +58,14 @@ export default function TaskCard({ task }: TaskCardProps) {
     setRestartingTask(task);
   };
 
+  const statusConfig = getStatusConfig(task.status);
+  const tintClass = tinted && statusConfig.cardTint ? `${statusConfig.cardTint} ` : '';
+
   return (
     <div
       data-task-card
       onClick={handleView}
-      className={`card cursor-pointer transition-all hover:border-th-border-strong ${
+      className={`card cursor-pointer transition-all hover:border-th-border-strong ${tintClass}${
         isSelected ? 'border-brand-500/50 bg-brand-500/5' : ''
       }`}
     >

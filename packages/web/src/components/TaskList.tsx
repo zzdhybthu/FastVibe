@@ -164,7 +164,7 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
                   <p className="text-xs text-ink-faint text-center py-4 md:py-6">暂无任务</p>
                 ) : (
                   tasksByColumn[col.key].map((task) => (
-                    <TaskCard key={task.id} task={task} />
+                    <TaskCard key={task.id} task={task} tinted />
                   ))
                 )}
               </div>
