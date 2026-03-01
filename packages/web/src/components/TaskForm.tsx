@@ -215,7 +215,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                   onChange={(e) => setMaxBudgetUsd(e.target.value)}
                   disabled={submitting}
                   min="0.01"
-                  step="0.1"
+                  step="any"
                 />
               </div>
 
