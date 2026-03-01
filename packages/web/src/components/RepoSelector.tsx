@@ -37,9 +37,9 @@ export default function RepoSelector() {
       {open && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
           {/* Dropdown */}
-          <div className="absolute right-0 top-full z-20 mt-1 w-64 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
+          <div className="absolute right-0 top-full z-40 mt-1 w-64 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
             {repos.length === 0 ? (
               <div className="px-3 py-2 text-sm text-slate-500">暂无仓库</div>
             ) : (
