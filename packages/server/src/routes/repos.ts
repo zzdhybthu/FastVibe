@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { realpathSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, notInArray } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import type { AppConfig } from '@vibecoding/shared';
@@ -128,15 +128,19 @@ export async function repoRoutes(app: FastifyInstance) {
 }
 
 /**
- * Upsert repos from config.yaml into the database on startup.
+ * Sync repos from config.yaml into the database on startup.
  * Uses path as the unique key — if a repo with the same path exists, update it;
- * otherwise, insert a new one.
+ * otherwise, insert a new one. Repos no longer in config are removed.
  */
 export async function syncReposFromConfig(config: AppConfig) {
   const db = getDb();
 
+  const configPaths: string[] = [];
+
   for (const repoConfig of config.repos) {
     const normalizedPath = normalizePath(repoConfig.path);
+    configPaths.push(normalizedPath);
+
     const existing = await db
       .select()
       .from(schema.repos)
@@ -167,5 +171,13 @@ export async function syncReposFromConfig(config: AppConfig) {
         createdAt: new Date().toISOString(),
       });
     }
+  }
+
+  // Remove repos that are no longer in config
+  if (configPaths.length > 0) {
+    await db.delete(schema.repos).where(notInArray(schema.repos.path, configPaths));
+  } else {
+    // Config has no repos — clear all
+    await db.delete(schema.repos);
   }
 }
