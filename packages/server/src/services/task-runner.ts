@@ -128,7 +128,7 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
         break;
       }
 
-      await processSDKMessage(task.id, repo.id, message);
+      await processSDKMessage(task.id, repo.id, message, abortController);
     }
 
     // If we got here without abort, task succeeded
@@ -180,8 +180,11 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
 /**
  * Process a single SDK message from the conversation stream.
  */
-async function processSDKMessage(taskId: string, repoId: string, message: SDKMessage): Promise<void> {
+async function processSDKMessage(taskId: string, repoId: string, message: SDKMessage, abortController: AbortController): Promise<void> {
   const db = getDb();
+
+  // Ignore messages after abort to avoid overwriting CANCELLED status
+  if (abortController.signal.aborted) return;
 
   switch (message.type) {
     case 'assistant': {
