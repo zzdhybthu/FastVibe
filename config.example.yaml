@@ -15,13 +15,6 @@ repos: []
   #     user: 'username'
   #     email: 'user@example.com'
 
-docker:
-  image: 'vibecoding-worker:latest'
-  binds:
-    - '~/.claude:/root/.claude'
-    - '~/.claude.json:/root/.claude.json'
-  networkMode: 'host'
-
 claude:
   model: 'claude-sonnet-4-6'
   maxBudgetUsd: 5.0

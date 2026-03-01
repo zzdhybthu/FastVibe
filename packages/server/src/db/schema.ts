@@ -22,7 +22,6 @@ export const tasks = sqliteTable('tasks', {
   branchName: text('branch_name'),
   worktreePath: text('worktree_path'),
   sessionId: text('session_id'),
-  dockerContainerId: text('docker_container_id'),
   result: text('result'),
   errorMessage: text('error_message'),
   costUsd: real('cost_usd'),

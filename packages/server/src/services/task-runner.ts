@@ -1,10 +1,8 @@
-import { spawn } from 'node:child_process';
 import { eq } from 'drizzle-orm';
 import { query as sdkQuery } from '@anthropic-ai/claude-agent-sdk';
-import type { SDKMessage, SpawnedProcess, SpawnOptions } from '@anthropic-ai/claude-agent-sdk';
+import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
 import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
-import { createWorkerContainer, removeContainer } from './docker.js';
 import { createUserInteractionServer } from './user-interaction.js';
 import { buildPrompt, buildBranchName } from './prompt-builder.js';
 import type { AppConfig, Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
@@ -64,66 +62,6 @@ async function broadcastTaskStatus(taskId: string, repoId: string, status: TaskS
 }
 
 /**
- * Create a SpawnedProcess that runs a command inside a Docker container.
- * This function is passed to the SDK as `spawnClaudeCodeProcess`.
- */
-function createDockerExecSpawner(containerId: string) {
-  return (options: SpawnOptions): SpawnedProcess => {
-    // Build the docker exec command
-    // env -u CLAUDECODE removes the nesting guard
-    const dockerArgs = [
-      'exec',
-      '-i',
-      containerId,
-      'env',
-      '-u',
-      'CLAUDECODE',
-      options.command,
-      ...options.args,
-    ];
-
-    const child = spawn('docker', dockerArgs, {
-      cwd: options.cwd,
-      env: options.env as NodeJS.ProcessEnv,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    // Listen for abort signal
-    if (options.signal) {
-      options.signal.addEventListener('abort', () => {
-        child.kill('SIGTERM');
-      });
-    }
-
-    // The SDK expects a SpawnedProcess interface
-    const process: SpawnedProcess = {
-      stdin: child.stdin,
-      stdout: child.stdout,
-      get killed() {
-        return child.killed;
-      },
-      get exitCode() {
-        return child.exitCode;
-      },
-      kill(signal: NodeJS.Signals) {
-        return child.kill(signal);
-      },
-      on(event: string, listener: (...args: any[]) => void) {
-        child.on(event, listener);
-      },
-      once(event: string, listener: (...args: any[]) => void) {
-        child.once(event, listener);
-      },
-      off(event: string, listener: (...args: any[]) => void) {
-        child.off(event, listener);
-      },
-    };
-
-    return process;
-  };
-}
-
-/**
  * Run a task using the Claude Agent SDK.
  * This is the main entry point for task execution.
  */
@@ -131,8 +69,6 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
   const db = getDb();
   const abortController = new AbortController();
   runningTasks.set(task.id, abortController);
-
-  let containerId: string | null = null;
 
   try {
     // 1. Update task status to RUNNING
@@ -149,22 +85,13 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
     await broadcastTaskStatus(task.id, repo.id, 'RUNNING');
     await logTask(task.id, 'info', `Task started. Branch: ${branchName}`);
 
-    // 2. Create Docker container
-    containerId = await createWorkerContainer(task.id, repo.path, config);
-    await db
-      .update(schema.tasks)
-      .set({ dockerContainerId: containerId })
-      .where(eq(schema.tasks.id, task.id));
-
-    await logTask(task.id, 'info', `Docker container created: ${containerId.slice(0, 12)}`);
-
-    // 3. Create user interaction MCP server
+    // 2. Create user interaction MCP server
     const mcpServer = createUserInteractionServer(task.id, repo.id, config);
 
-    // 4. Build prompt
+    // 3. Build prompt
     const prompt = buildPrompt(task, repo);
 
-    // 5. Call the SDK
+    // 4. Call the SDK
     const conversation = sdkQuery({
       prompt,
       options: {
@@ -187,11 +114,10 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
         mcpServers: {
           'user-interaction': mcpServer,
         },
-        spawnClaudeCodeProcess: createDockerExecSpawner(containerId),
       },
     });
 
-    // 6. Stream and process SDK messages
+    // 5. Stream and process SDK messages
     for await (const message of conversation) {
       if (abortController.signal.aborted) {
         break;
@@ -242,15 +168,7 @@ export async function runTask(task: Task, repo: Repo, config: AppConfig): Promis
     await logTask(task.id, 'error', `Task failed: ${errorMessage}`);
     eventBus.emit('task:failed', task.id);
   } finally {
-    // Clean up
     runningTasks.delete(task.id);
-
-    // Remove Docker container
-    if (containerId) {
-      await removeContainer(containerId).catch((err) => {
-        console.error(`[task-runner] Error removing container for task ${task.id}:`, err);
-      });
-    }
   }
 }
 

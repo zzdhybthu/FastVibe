@@ -23,11 +23,6 @@ const configSchema = z.object({
       email: z.string(),
     }),
   })).default([]),
-  docker: z.object({
-    image: z.string().default('vibecoding-worker:latest'),
-    binds: z.array(z.string()).default([]),
-    networkMode: z.string().default('host'),
-  }),
   claude: z.object({
     model: z.string().default('claude-sonnet-4-6'),
     maxBudgetUsd: z.number().default(5.0),

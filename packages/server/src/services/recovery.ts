@@ -1,70 +1,34 @@
 import { eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
-import { isContainerRunning, removeContainer, cleanupOrphanContainers } from './docker.js';
 import type { AppConfig, TaskStatus } from '@vibecoding/shared';
 
 /**
  * Recover from a previous crash / restart.
  * 1. Mark stuck RUNNING/AWAITING_INPUT tasks as FAILED
- * 2. Clean up orphan Docker containers
- * 3. Unblock PENDING tasks whose predecessors are now terminal
+ * 2. Unblock PENDING tasks whose predecessors are now terminal
  */
 export async function recoverOnStartup(_config: AppConfig): Promise<void> {
   const db = getDb();
   const TERMINAL_STATUSES: TaskStatus[] = ['COMPLETED', 'FAILED', 'CANCELLED'];
 
-  // 1. Find tasks stuck in RUNNING or AWAITING_INPUT
+  // 1. Find tasks stuck in RUNNING or AWAITING_INPUT and mark them FAILED
   const stuckTasks = await db
     .select()
     .from(schema.tasks)
     .where(inArray(schema.tasks.status, ['RUNNING', 'AWAITING_INPUT']));
 
   for (const task of stuckTasks) {
-    // Check if Docker container still exists
-    if (task.dockerContainerId) {
-      const running = await isContainerRunning(task.dockerContainerId);
-      if (!running) {
-        // Container gone — mark failed
-        await db
-          .update(schema.tasks)
-          .set({
-            status: 'FAILED' as TaskStatus,
-            errorMessage: 'Service restarted, task interrupted (container not found)',
-            completedAt: new Date().toISOString(),
-          })
-          .where(eq(schema.tasks.id, task.id));
-      } else {
-        // Container exists but we lost the SDK connection — stop and fail
-        await removeContainer(task.dockerContainerId);
-        await db
-          .update(schema.tasks)
-          .set({
-            status: 'FAILED' as TaskStatus,
-            errorMessage: 'Service restarted, task interrupted (connection lost)',
-            completedAt: new Date().toISOString(),
-          })
-          .where(eq(schema.tasks.id, task.id));
-      }
-    } else {
-      // No container ID — just mark failed
-      await db
-        .update(schema.tasks)
-        .set({
-          status: 'FAILED' as TaskStatus,
-          errorMessage: 'Service restarted, task interrupted',
-          completedAt: new Date().toISOString(),
-        })
-        .where(eq(schema.tasks.id, task.id));
-    }
+    await db
+      .update(schema.tasks)
+      .set({
+        status: 'FAILED' as TaskStatus,
+        errorMessage: 'Service restarted, task interrupted',
+        completedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.tasks.id, task.id));
   }
 
-  // 2. Clean up orphan containers
-  const cleanedCount = await cleanupOrphanContainers();
-  if (cleanedCount > 0) {
-    console.log(`[recovery] Cleaned up ${cleanedCount} orphan containers`);
-  }
-
-  // 3. Check if any PENDING tasks should be unblocked
+  // 2. Check if any PENDING tasks should be unblocked
   // (their predecessors may have completed/failed while we were down)
   const pendingTasks = await db
     .select()

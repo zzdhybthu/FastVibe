@@ -1,5 +1,4 @@
 import type { Task, Repo } from '@vibecoding/shared';
-import { toContainerPath } from './docker.js';
 
 /**
  * Slugify a string for use in branch names.
@@ -30,7 +29,7 @@ export function buildBranchName(task: Task): string {
 export function buildPrompt(task: Task, repo: Repo): string {
   const branchName = buildBranchName(task);
   const worktreeDir = `.claude-worktrees/${branchName}`;
-  const repoDir = toContainerPath(repo.path);
+  const repoDir = repo.path;
 
   return `你是一个自动化编码助手，在 Git 仓库中执行指定任务。请严格按照以下步骤操作：
 

@@ -76,7 +76,6 @@ export async function taskRoutes(app: FastifyInstance) {
         branchName: null,
         worktreePath: null,
         sessionId: null,
-        dockerContainerId: null,
         result: null,
         errorMessage: null,
         costUsd: null,

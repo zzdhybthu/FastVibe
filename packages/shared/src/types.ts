@@ -35,7 +35,6 @@ export interface Task {
   branchName: string | null;
   worktreePath: string | null;
   sessionId: string | null;
-  dockerContainerId: string | null;
   result: string | null;
   errorMessage: string | null;
   costUsd: number | null;
@@ -115,11 +114,6 @@ export interface AppConfig {
     maxConcurrency: number;
     git: { user: string; email: string };
   }>;
-  docker: {
-    image: string;
-    binds: string[];
-    networkMode: string;
-  };
   claude: {
     model: string;
     maxBudgetUsd: number;
