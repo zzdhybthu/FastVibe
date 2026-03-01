@@ -80,37 +80,46 @@ ${task.prompt}
 \`\`\`
 
 ## 步骤 5: 提交代码
-使用以下格式提交:
 \`\`\`bash
 git add -A
 git commit -m "feat(${branchName}): 简洁描述改动内容"
 \`\`\`
 commit message 格式: \`类型(范围): 描述\`，类型可以是 feat/fix/refactor/docs/test/chore 等。
 
-## 步骤 6: 合并到主分支
+## 步骤 6: 同步远程最新内容
+\`\`\`bash
+cd ${repoDir}  # 回到仓库根目录
+git checkout ${repo.mainBranch}
+git pull origin ${repo.mainBranch}
+\`\`\`
+
+## 步骤 7: Rebase 工作分支
+\`\`\`bash
+cd ${worktreeDir}  # 回到 worktree
+git rebase ${repo.mainBranch}
+\`\`\`
+
+如果 rebase 有冲突:
+1. 逐个解决冲突文件
+2. 如果无法自动解决，使用 ask_user 工具询问用户如何处理
+3. 解决后 \`git add <文件>\` 然后 \`git rebase --continue\`
+4. 如果冲突过于复杂，可 \`git rebase --abort\` 并使用 ask_user 告知用户
+
+## 步骤 8: 合并到主分支
 \`\`\`bash
 cd ${repoDir}  # 回到仓库根目录
 git checkout ${repo.mainBranch}
 git merge ${branchName} --no-ff -m "merge(${branchName}): 合并任务分支"
 \`\`\`
 
-如果合并有冲突:
-1. 尝试解决冲突
-2. 如果无法自动解决，使用 ask_user 工具询问用户如何处理
-3. 解决后 git add 并 git commit
-
-## 步骤 7: 清理
+## 步骤 9: 清理并推送
 \`\`\`bash
 git worktree remove ${worktreeDir} --force
 git branch -d ${branchName}
-\`\`\`
-
-## 步骤 8: 推送
-\`\`\`bash
 git push origin ${repo.mainBranch}
 \`\`\`
 
-## 步骤 9: 记录进展
+## 步骤 10: 记录进展
 如果仓库根目录有 PROGRESS.md 文件，在其中记录:
 - 完成的任务简述
 - 关键改动和 commit id
