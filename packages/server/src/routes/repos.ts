@@ -1,9 +1,28 @@
+import { resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { realpathSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import type { AppConfig } from '@vibecoding/shared';
 import { getDb, schema } from '../db/index.js';
+
+/**
+ * Normalize a filesystem path to its canonical absolute form.
+ * Expands ~ to home dir, resolves relative segments, resolves symlinks,
+ * and strips trailing slashes.
+ */
+function normalizePath(p: string): string {
+  let expanded = p.startsWith('~') ? p.replace(/^~/, homedir()) : p;
+  expanded = resolve(expanded);
+  try {
+    expanded = realpathSync(expanded);
+  } catch {
+    // Path may not exist yet; fall back to resolved form
+  }
+  return expanded;
+}
 
 const createRepoSchema = z.object({
   path: z.string().min(1),
@@ -43,7 +62,7 @@ export async function repoRoutes(app: FastifyInstance) {
 
     const newRepo = {
       id: uuid(),
-      path: body.path,
+      path: normalizePath(body.path),
       name: body.name,
       mainBranch: body.mainBranch,
       maxConcurrency: body.maxConcurrency,
@@ -81,6 +100,11 @@ export async function repoRoutes(app: FastifyInstance) {
       return reply.code(404).send({ error: 'Repo not found' });
     }
 
+    // Normalize path if provided
+    if (body.path) {
+      body.path = normalizePath(body.path);
+    }
+
     await db.update(schema.repos).set(body).where(eq(schema.repos.id, id));
 
     // Return updated repo
@@ -112,10 +136,11 @@ export async function syncReposFromConfig(config: AppConfig) {
   const db = getDb();
 
   for (const repoConfig of config.repos) {
+    const normalizedPath = normalizePath(repoConfig.path);
     const existing = await db
       .select()
       .from(schema.repos)
-      .where(eq(schema.repos.path, repoConfig.path));
+      .where(eq(schema.repos.path, normalizedPath));
 
     if (existing.length > 0) {
       // Update existing repo
@@ -128,12 +153,12 @@ export async function syncReposFromConfig(config: AppConfig) {
           gitUser: repoConfig.git.user,
           gitEmail: repoConfig.git.email,
         })
-        .where(eq(schema.repos.path, repoConfig.path));
+        .where(eq(schema.repos.path, normalizedPath));
     } else {
       // Insert new repo
       await db.insert(schema.repos).values({
         id: uuid(),
-        path: repoConfig.path,
+        path: normalizedPath,
         name: repoConfig.name,
         mainBranch: repoConfig.mainBranch,
         maxConcurrency: repoConfig.maxConcurrency,
