@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
 
 export default function RepoSelector() {
@@ -7,8 +7,21 @@ export default function RepoSelector() {
   const selectRepo = useAppStore((s) => s.selectRepo);
   const fetchTasks = useAppStore((s) => s.fetchTasks);
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedRepo = repos.find((r) => r.id === selectedRepoId);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
 
   const handleSelect = (repoId: string) => {
     selectRepo(repoId);
@@ -18,7 +31,7 @@ export default function RepoSelector() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen(!open)}
         className="btn-secondary flex items-center gap-2 min-w-[140px]"
@@ -35,34 +48,29 @@ export default function RepoSelector() {
       </button>
 
       {open && (
-        <>
-          {/* Backdrop */}
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          {/* Dropdown */}
-          <div className="absolute right-0 top-full z-40 mt-1 w-64 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
-            {repos.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-slate-500">暂无仓库</div>
-            ) : (
-              repos.map((repo) => (
-                <button
-                  key={repo.id}
-                  onClick={() => handleSelect(repo.id)}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-700/50 ${
-                    repo.id === selectedRepoId ? 'text-brand-400 bg-brand-500/10' : 'text-slate-300'
-                  }`}
-                >
-                  <span className="truncate font-medium">{repo.name}</span>
-                  <span className="truncate text-xs text-slate-500">{repo.path}</span>
-                  {repo.id === selectedRepoId && (
-                    <svg className="ml-auto h-4 w-4 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                  )}
-                </button>
-              ))
-            )}
-          </div>
-        </>
+        <div className="absolute right-0 top-full z-40 mt-1 w-64 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
+          {repos.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-slate-500">暂无仓库</div>
+          ) : (
+            repos.map((repo) => (
+              <button
+                key={repo.id}
+                onClick={() => handleSelect(repo.id)}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-700/50 ${
+                  repo.id === selectedRepoId ? 'text-brand-400 bg-brand-500/10' : 'text-slate-300'
+                }`}
+              >
+                <span className="truncate font-medium">{repo.name}</span>
+                <span className="truncate text-xs text-slate-500">{repo.path}</span>
+                {repo.id === selectedRepoId && (
+                  <svg className="ml-auto h-4 w-4 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                )}
+              </button>
+            ))
+          )}
+        </div>
       )}
     </div>
   );
