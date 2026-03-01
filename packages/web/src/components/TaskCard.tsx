@@ -87,7 +87,7 @@ export default function TaskCard({ task }: TaskCardProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex flex-col items-center gap-1 shrink-0">
           {canCancel && (
             <button
               onClick={handleCancel}
