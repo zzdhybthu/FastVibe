@@ -49,6 +49,23 @@ git worktree add ${worktreeDir} -b ${branchName} ${repo.mainBranch}
 cd ${worktreeDir}
 \`\`\`
 
+## 步骤 2.5: Worktree 环境准备
+Git worktree 不会自动复制 .gitignore 中列出的文件。请遵循以下规则:
+
+### 依赖安装
+- **必须重新安装依赖**，不要从主 worktree 复制 node_modules 或 .venv
+- 有 package.json → \`pnpm install\`（优先）或 \`npm install\`
+- 有 requirements.txt/pyproject.toml → \`uv sync\` 或 \`uv pip install -r requirements.txt\`
+
+### 必要的配置文件
+- .env 文件：从主 worktree 创建符号链接 \`ln -s ${repo.path}/.env .env\`
+- 数据文件/大型资产目录：同样使用符号链接
+- **绝对不要修改符号链接指向的源文件内容**
+
+### 工具版本
+- 如项目有 .node-version/.nvmrc → \`fnm use\`
+- 如项目需要特定 Python 版本 → \`uv python pin\`
+
 ## 步骤 3: 执行任务
 任务描述:
 ---

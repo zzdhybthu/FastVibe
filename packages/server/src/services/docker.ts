@@ -44,12 +44,28 @@ export async function createWorkerContainer(
   ];
 
   // Build environment variables
-  const env: string[] = [];
+  const env: string[] = [
+    'HOME=/root',  // docker exec non-interactive may not set HOME
+  ];
   if (process.env.ANTHROPIC_API_KEY) {
     env.push(`ANTHROPIC_API_KEY=${process.env.ANTHROPIC_API_KEY}`);
   }
   if (process.env.ANTHROPIC_BASE_URL) {
     env.push(`ANTHROPIC_BASE_URL=${process.env.ANTHROPIC_BASE_URL}`);
+  }
+
+  // SSH Agent forwarding (host socket path is dynamic)
+  const sshAuthSock = process.env.SSH_AUTH_SOCK;
+  if (sshAuthSock) {
+    binds.push(`${sshAuthSock}:/tmp/ssh-agent.sock`);
+    env.push('SSH_AUTH_SOCK=/tmp/ssh-agent.sock');
+  }
+
+  // Plugin path compatibility: installed_plugins.json references ${hostHome}/.claude/...
+  // Mount to the same path inside the container so absolute paths resolve correctly
+  const hostHome = homedir();
+  if (hostHome !== '/root') {
+    binds.push(`${hostHome}/.claude:${hostHome}/.claude:ro`);
   }
 
   const container = await docker.createContainer({
