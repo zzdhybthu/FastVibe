@@ -34,12 +34,29 @@ export class TaskQueueService {
         where: eq(schema.tasks.id, task.predecessorTaskId),
       });
 
-      // If predecessor exists and is NOT in a terminal status, keep PENDING
       if (predecessor && !TERMINAL_STATUSES.includes(predecessor.status as TaskStatus)) {
-        // Task stays PENDING until predecessor finishes
+        // Predecessor still running — task stays PENDING until predecessor finishes
         return;
       }
-      // If predecessor doesn't exist (deleted) or is already terminal, proceed to QUEUED
+
+      // Predecessor is terminal — check if it succeeded
+      if (predecessor && predecessor.status !== 'COMPLETED') {
+        // Predecessor failed or was cancelled — cancel this task too
+        const reason = `前置任务 ${predecessor.title || task.predecessorTaskId} 状态为 ${predecessor.status}，自动取消`;
+        await db
+          .update(schema.tasks)
+          .set({
+            status: 'CANCELLED' as TaskStatus,
+            errorMessage: reason,
+            completedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.tasks.id, taskId));
+
+        await this.broadcastTaskStatus(taskId, task.repoId, 'CANCELLED');
+        eventBus.emit('task:cancelled', taskId);
+        return;
+      }
+      // Predecessor completed (or deleted) — proceed to QUEUED
     }
 
     // Transition to QUEUED
@@ -127,10 +144,16 @@ export class TaskQueueService {
   /**
    * Called when a task finishes (any terminal status).
    * Checks if any PENDING tasks had this as predecessor.
-   * If predecessor is now terminal, transition dependent to QUEUED.
+   * If predecessor COMPLETED, transition dependent to QUEUED.
+   * If predecessor FAILED/CANCELLED, cascade-cancel dependents.
    */
   async onTaskTerminated(taskId: string): Promise<void> {
     const db = getDb();
+
+    const predecessor = await db.query.tasks.findFirst({
+      where: eq(schema.tasks.id, taskId),
+    });
+    if (!predecessor) return;
 
     // Find all PENDING tasks that have this task as predecessor
     const dependentTasks = await db.query.tasks.findMany({
@@ -141,13 +164,30 @@ export class TaskQueueService {
     });
 
     for (const dependent of dependentTasks) {
-      // Transition to QUEUED
-      await db
-        .update(schema.tasks)
-        .set({ status: 'QUEUED' })
-        .where(eq(schema.tasks.id, dependent.id));
+      if (predecessor.status === 'COMPLETED') {
+        // Predecessor succeeded — unblock dependent
+        await db
+          .update(schema.tasks)
+          .set({ status: 'QUEUED' })
+          .where(eq(schema.tasks.id, dependent.id));
 
-      await this.broadcastTaskStatus(dependent.id, dependent.repoId, 'QUEUED');
+        await this.broadcastTaskStatus(dependent.id, dependent.repoId, 'QUEUED');
+      } else {
+        // Predecessor failed or was cancelled — cascade cancel
+        const reason = `前置任务 ${predecessor.title || taskId} 状态为 ${predecessor.status}，自动取消`;
+        await db
+          .update(schema.tasks)
+          .set({
+            status: 'CANCELLED' as TaskStatus,
+            errorMessage: reason,
+            completedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.tasks.id, dependent.id));
+
+        await this.broadcastTaskStatus(dependent.id, dependent.repoId, 'CANCELLED');
+        // Recursively cancel any tasks depending on this one
+        eventBus.emit('task:cancelled', dependent.id);
+      }
     }
 
     // Trigger scheduler to pick up newly queued tasks

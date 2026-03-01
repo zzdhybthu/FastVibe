@@ -28,7 +28,7 @@ export async function recoverOnStartup(_config: AppConfig): Promise<void> {
       .where(eq(schema.tasks.id, task.id));
   }
 
-  // 2. Check if any PENDING tasks should be unblocked
+  // 2. Check if any PENDING tasks should be unblocked or cancelled
   // (their predecessors may have completed/failed while we were down)
   const pendingTasks = await db
     .select()
@@ -43,10 +43,22 @@ export async function recoverOnStartup(_config: AppConfig): Promise<void> {
         .where(eq(schema.tasks.id, task.predecessorTaskId));
 
       const pred = predRows[0];
-      if (!pred || TERMINAL_STATUSES.includes(pred.status as TaskStatus)) {
+      if (!pred || pred.status === 'COMPLETED') {
+        // Predecessor completed (or deleted) — unblock
         await db
           .update(schema.tasks)
           .set({ status: 'QUEUED' as TaskStatus })
+          .where(eq(schema.tasks.id, task.id));
+      } else if (TERMINAL_STATUSES.includes(pred.status as TaskStatus)) {
+        // Predecessor failed or cancelled — cascade cancel
+        const reason = `前置任务 ${pred.title || task.predecessorTaskId} 状态为 ${pred.status}，自动取消`;
+        await db
+          .update(schema.tasks)
+          .set({
+            status: 'CANCELLED' as TaskStatus,
+            errorMessage: reason,
+            completedAt: new Date().toISOString(),
+          })
           .where(eq(schema.tasks.id, task.id));
       }
     }
