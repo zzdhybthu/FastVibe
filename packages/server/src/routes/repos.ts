@@ -52,7 +52,14 @@ export async function repoRoutes(app: FastifyInstance) {
       createdAt: new Date().toISOString(),
     };
 
-    await db.insert(schema.repos).values(newRepo);
+    try {
+      await db.insert(schema.repos).values(newRepo);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes('UNIQUE constraint failed')) {
+        return reply.code(409).send({ error: 'A repo with this path already exists' });
+      }
+      throw err;
+    }
     return reply.code(201).send(newRepo);
   });
 
