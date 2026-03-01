@@ -1,4 +1,5 @@
 import { useAppStore } from '../stores/app-store';
+import { useConfirm } from '../stores/confirm-store';
 import RepoSelector from './RepoSelector';
 
 interface HeaderProps {
@@ -9,6 +10,7 @@ interface HeaderProps {
 export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
   const setToken = useAppStore((s) => s.setToken);
   const selectedRepoId = useAppStore((s) => s.selectedRepoId);
+  const confirm = useConfirm();
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
@@ -48,7 +50,7 @@ export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
             </svg>
           </button>
           <button
-            onClick={() => { if (confirm('确定退出登录？')) setToken(null); }}
+            onClick={async () => { if (await confirm('确定退出登录？')) setToken(null); }}
             className="btn-ghost p-2"
             title="退出登录"
           >

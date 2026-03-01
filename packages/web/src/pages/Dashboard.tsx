@@ -6,6 +6,7 @@ import TaskDetail from '../components/TaskDetail';
 import TaskForm from '../components/TaskForm';
 import ConfigPanel from '../components/ConfigPanel';
 import RestartDialog from '../components/RestartDialog';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Dashboard() {
   const fetchRepos = useAppStore((s) => s.fetchRepos);
@@ -99,6 +100,7 @@ export default function Dashboard() {
         <ConfigPanel onClose={() => setShowConfig(false)} />
       )}
       <RestartDialog />
+      <ConfirmDialog />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CreateRepoRequest } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
+import { useConfirm } from '../stores/confirm-store';
 
 interface ConfigPanelProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const createRepo = useAppStore((s) => s.createRepo);
   const updateRepo = useAppStore((s) => s.updateRepo);
   const deleteRepo = useAppStore((s) => s.deleteRepo);
+  const confirm = useConfirm();
 
   const [editingRepoId, setEditingRepoId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -106,7 +108,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                           </button>
                           <button
                             onClick={async () => {
-                              if (confirm(`确定删除仓库 "${repo.name}"？`)) {
+                              if (await confirm(`确定删除仓库 "${repo.name}"？`)) {
                                 await deleteRepo(repo.id);
                               }
                             }}

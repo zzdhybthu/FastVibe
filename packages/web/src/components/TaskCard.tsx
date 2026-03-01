@@ -1,5 +1,6 @@
 import type { Task } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
+import { useConfirm } from '../stores/confirm-store';
 import { StatusBadge, isTerminalStatus } from '../lib/status';
 
 interface TaskCardProps {
@@ -25,6 +26,7 @@ export default function TaskCard({ task }: TaskCardProps) {
   const deleteTask = useAppStore((s) => s.deleteTask);
   const setRestartingTask = useAppStore((s) => s.setRestartingTask);
   const selectedTaskId = useAppStore((s) => s.selectedTaskId);
+  const confirm = useConfirm();
 
   const isSelected = selectedTaskId === task.id;
   const terminal = isTerminalStatus(task.status);
@@ -38,14 +40,14 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   const handleCancel = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('确定取消此任务？')) {
+    if (await confirm('确定取消此任务？')) {
       await cancelTask(task.id);
     }
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('确定删除此任务？')) {
+    if (await confirm('确定删除此任务？')) {
       await deleteTask(task.id);
     }
   };

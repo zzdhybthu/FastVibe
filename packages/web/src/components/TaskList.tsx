@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { TaskStatus } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
+import { useConfirm } from '../stores/confirm-store';
 import TaskCard from './TaskCard';
 
 interface TaskListProps {
@@ -55,6 +56,7 @@ const TERMINAL_STATUS_MAP: Record<string, TaskStatus> = {
 export default function TaskList({ onOpenTaskForm }: TaskListProps) {
   const tasks = useAppStore((s) => s.tasks);
   const bulkDelete = useAppStore((s) => s.bulkDelete);
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<TabKey>('board');
 
   const counts = useMemo(() => {
@@ -102,7 +104,7 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
       FAILED: '失败',
       CANCELLED: '已取消',
     };
-    if (confirm(`确定清空所有${labels[status]}的任务？`)) {
+    if (await confirm(`确定清空所有${labels[status]}的任务？`)) {
       await bulkDelete(status);
     }
   };
