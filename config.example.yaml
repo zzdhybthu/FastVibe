@@ -8,8 +8,8 @@ global:
 
 claude:
   model:
+    - 'claude-opus-4-6'
     - 'claude-sonnet-4-6'
     - 'claude-haiku-4-5-20251001'
-    - 'claude-opus-4-6'
-  maxBudgetUsd: 5.0
-  interactionTimeout: 1800
+  maxBudgetUsd: 1000.0
+  interactionTimeout: 81728000
