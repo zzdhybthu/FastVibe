@@ -138,7 +138,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { selectedRepoId } = get();
     if (!selectedRepoId) throw new Error('No repo selected');
     const task = await api.createTask(selectedRepoId, data);
-    set((s) => ({ tasks: [task, ...s.tasks] }));
+    set((s) => {
+      // May already be added via WebSocket event
+      if (s.tasks.some((t) => t.id === task.id)) return s;
+      return { tasks: [task, ...s.tasks] };
+    });
     return task;
   },
 

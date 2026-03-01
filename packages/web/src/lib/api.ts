@@ -14,11 +14,12 @@ function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-function getHeaders(): HeadersInit {
+function getHeaders(hasBody?: boolean): HeadersInit {
   const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+  const headers: Record<string, string> = {};
+  if (hasBody) {
+    headers['Content-Type'] = 'application/json';
+  }
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -26,10 +27,11 @@ function getHeaders(): HeadersInit {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const hasBody = !!options?.body;
   const res = await fetch(path, {
     ...options,
     headers: {
-      ...getHeaders(),
+      ...getHeaders(hasBody),
       ...options?.headers,
     },
   });

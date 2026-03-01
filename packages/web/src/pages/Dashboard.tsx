@@ -52,9 +52,9 @@ export default function Dashboard() {
         onOpenTaskForm={() => setShowTaskForm(true)}
       />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-1 gap-4 p-4">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 min-h-0 gap-4 p-4">
         {/* Main content area */}
-        <div className={`flex-1 min-w-0 ${selectedTaskId ? 'hidden md:block' : ''}`}>
+        <div className={`flex-1 min-w-0 min-h-0 flex flex-col ${selectedTaskId ? 'hidden md:block' : ''}`}>
           {!selectedRepoId ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <svg className="h-16 w-16 text-slate-700 mb-4" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">

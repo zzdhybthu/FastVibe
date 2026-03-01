@@ -38,6 +38,9 @@ export function useWebSocket() {
     };
 
     ws.onmessage = (event) => {
+      // Ignore messages from stale connections
+      if (wsRef.current !== ws) return;
+
       try {
         const data = JSON.parse(event.data) as WsServerEvent;
 
@@ -68,8 +71,12 @@ export function useWebSocket() {
     };
 
     ws.onclose = () => {
-      wsRef.current = null;
       subscribedRepoRef.current = null;
+
+      // Only reconnect if this is still the active connection
+      if (wsRef.current !== ws) return;
+
+      wsRef.current = null;
 
       // Reconnect with exponential backoff
       const delay = Math.min(
