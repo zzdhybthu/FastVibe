@@ -236,7 +236,13 @@ If the task cannot be completed, clearly explain the reason for failure, includi
  */
 export function getSystemPromptAppend(language: 'zh' | 'en'): string {
   if (language === 'en') {
-    return 'You are running in automated mode. If you need user input, use the ask_user MCP tool.';
+    return `You are running in automated mode. If you need user input, use the ask_user MCP tool.
+
+# Language
+Always respond in English. Use English for all explanations, comments, and communications with the user. Technical terms and code identifiers should remain in their original form.`;
   }
-  return '你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。';
+  return `你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。
+
+# Language
+Always respond in Chinese. Use Chinese for all explanations, comments, and communications with the user. Technical terms and code identifiers should remain in their original form.`;
 }
