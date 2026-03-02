@@ -243,6 +243,6 @@ Always respond in English. Use English for all explanations, comments, and commu
   }
   return `你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。
 
-# Language
-Always respond in Chinese. Use Chinese for all explanations, comments, and communications with the user. Technical terms and code identifiers should remain in their original form.`;
+# 语言
+始终使用中文回复。所有解释、注释和与用户的交流都使用中文。技术术语和代码标识符保持原样。`;
 }
