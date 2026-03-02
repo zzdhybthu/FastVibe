@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
 import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
-import { isTerminalStatus } from '../lib/status';
-
 interface TaskFormProps {
   onClose: () => void;
 }
@@ -28,7 +26,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const terminalTasks = tasks.filter((t) => isTerminalStatus(t.status));
+  const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED');
 
   useEffect(() => {
     if (!claudeDefaults) {
@@ -137,7 +135,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           </div>
 
           {/* Predecessor task */}
-          {terminalTasks.length > 0 && (
+          {eligiblePredecessors.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-ink-3 mb-1.5">
                 {t.taskForm.predecessorTask} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
@@ -149,7 +147,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 disabled={submitting}
               >
                 <option value="">{t.taskForm.noPredecessor}</option>
-                {terminalTasks.map((task) => (
+                {eligiblePredecessors.map((task) => (
                   <option key={task.id} value={task.id}>
                     {task.title || task.prompt.slice(0, 60)} ({task.status})
                   </option>
