@@ -59,8 +59,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   <option value="en">{t.common.en}</option>
                 </select>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-ink-3">{t.config.theme}</span>
+              <div className="flex items-center">
                 <button
                   onClick={toggleTheme}
                   className="btn-ghost flex items-center gap-1.5 px-2.5 py-1.5 text-sm"
