@@ -86,6 +86,7 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
 
           await new Promise<void>((resolve, reject) => {
             let timer: ReturnType<typeof setTimeout> | null = null;
+            let settled = false;
 
             const cleanup = () => {
               eventBus.off('interaction:answered', onAnswer);
@@ -98,12 +99,16 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
               answers.set(answeredId, answerText);
 
               if (answers.size === interactions.length) {
+                settled = true;
                 cleanup();
                 resolve();
               }
             };
 
             const onAbort = () => {
+              // Only clean up listeners; do NOT reject.
+              // The SDK process is being killed — rejecting would cause
+              // the SDK to write an error to the dead process and crash.
               cleanup();
               // Mark unanswered interactions as timeout
               for (const interaction of interactions) {
@@ -115,7 +120,6 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
                     .catch(() => {});
                 }
               }
-              reject(new Error('Task cancelled'));
             };
 
             eventBus.on('interaction:answered', onAnswer);
@@ -130,6 +134,8 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
             }
 
             timer = setTimeout(() => {
+              if (settled) return;
+              settled = true;
               cleanup();
 
               // Mark unanswered interactions as timeout
