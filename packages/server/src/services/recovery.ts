@@ -51,7 +51,11 @@ export async function recoverOnStartup(): Promise<void> {
           .where(eq(schema.tasks.id, task.id));
       } else if (TERMINAL_STATUSES.includes(pred.status as TaskStatus)) {
         // Predecessor failed or cancelled — cascade cancel
-        const reason = `前置任务 ${pred.title || task.predecessorTaskId} 状态为 ${pred.status}，自动取消`;
+        const taskLang = (task.language ?? 'zh') as 'zh' | 'en';
+        const predName = pred.title || task.predecessorTaskId;
+        const reason = taskLang === 'en'
+          ? `Predecessor task "${predName}" is ${pred.status}, auto-cancelled`
+          : `前置任务「${predName}」状态为 ${pred.status}，自动取消`;
         await db
           .update(schema.tasks)
           .set({

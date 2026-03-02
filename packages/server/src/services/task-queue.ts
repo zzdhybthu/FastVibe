@@ -42,7 +42,11 @@ export class TaskQueueService {
       // Predecessor is terminal — check if it succeeded
       if (predecessor && predecessor.status !== 'COMPLETED') {
         // Predecessor failed or was cancelled — cancel this task too
-        const reason = `前置任务 ${predecessor.title || task.predecessorTaskId} 状态为 ${predecessor.status}，自动取消`;
+        const taskLang = (task.language ?? 'zh') as 'zh' | 'en';
+        const predName = predecessor.title || task.predecessorTaskId;
+        const reason = taskLang === 'en'
+          ? `Predecessor task "${predName}" is ${predecessor.status}, auto-cancelled`
+          : `前置任务「${predName}」状态为 ${predecessor.status}，自动取消`;
         await db
           .update(schema.tasks)
           .set({
@@ -174,7 +178,11 @@ export class TaskQueueService {
         await this.broadcastTaskStatus(dependent.id, dependent.repoId, 'QUEUED');
       } else {
         // Predecessor failed or was cancelled — cascade cancel
-        const reason = `前置任务 ${predecessor.title || taskId} 状态为 ${predecessor.status}，自动取消`;
+        const depLang = (dependent.language ?? 'zh') as 'zh' | 'en';
+        const predName = predecessor.title || taskId;
+        const reason = depLang === 'en'
+          ? `Predecessor task "${predName}" is ${predecessor.status}, auto-cancelled`
+          : `前置任务「${predName}」状态为 ${predecessor.status}，自动取消`;
         await db
           .update(schema.tasks)
           .set({
@@ -217,10 +225,13 @@ export class TaskQueueService {
     const wasRunning = task.status === 'RUNNING' || task.status === 'AWAITING_INPUT';
 
     // Update status to CANCELLED
+    const lang = (task.language ?? 'zh') as 'zh' | 'en';
+    const reason = lang === 'en' ? 'Manually cancelled by user' : '用户手动取消';
     await db
       .update(schema.tasks)
       .set({
         status: 'CANCELLED',
+        errorMessage: reason,
         completedAt: new Date().toISOString(),
       })
       .where(eq(schema.tasks.id, taskId));
