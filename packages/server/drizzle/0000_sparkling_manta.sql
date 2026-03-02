@@ -39,6 +39,7 @@ CREATE TABLE `tasks` (
 	`model` text NOT NULL,
 	`max_budget_usd` real NOT NULL,
 	`interaction_timeout` integer NOT NULL,
+	`language` text DEFAULT 'zh' NOT NULL,
 	`branch_name` text,
 	`worktree_path` text,
 	`session_id` text,
