@@ -17,7 +17,7 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
     tools: [
       tool(
         'ask_user',
-        '向用户提问并等待回答。支持一次提出多个问题，用户可以同时看到并逐一回答，无需等待中间过程。当你有多个需要确认的问题时，尽量一次性全部提出。',
+        '向用户提问并等待回答。有多个问题时应一次性提出。',
         {
           questions: z.array(
             z.object({
