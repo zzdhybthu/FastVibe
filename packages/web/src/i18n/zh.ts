@@ -58,6 +58,9 @@ export const zh: Translations = {
     creating: '创建中...',
     cancel: '取消',
     promptRequired: '请输入任务提示词',
+    voiceInput: '语音输入',
+    voiceListening: '识别中...',
+    voiceNotSupported: '浏览器不支持语音输入',
   },
   restartDialog: {
     title: '重启任务',
@@ -249,6 +252,9 @@ export interface Translations {
     creating: string;
     cancel: string;
     promptRequired: string;
+    voiceInput: string;
+    voiceListening: string;
+    voiceNotSupported: string;
   };
   restartDialog: {
     title: string;

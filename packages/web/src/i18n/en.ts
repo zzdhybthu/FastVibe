@@ -60,6 +60,9 @@ export const en: Translations = {
     creating: 'Creating...',
     cancel: 'Cancel',
     promptRequired: 'Please enter a task prompt',
+    voiceInput: 'Voice Input',
+    voiceListening: 'Listening...',
+    voiceNotSupported: 'Voice input not supported in this browser',
   },
   restartDialog: {
     title: 'Restart Task',
