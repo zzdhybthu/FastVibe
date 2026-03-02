@@ -1,9 +1,11 @@
 import { useConfirmStore } from '../stores/confirm-store';
+import { useT } from '../i18n';
 
 export default function ConfirmDialog() {
   const open = useConfirmStore((s) => s.open);
   const message = useConfirmStore((s) => s.message);
   const close = useConfirmStore((s) => s.close);
+  const t = useT();
 
   if (!open) return null;
 
@@ -22,7 +24,7 @@ export default function ConfirmDialog() {
               </svg>
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-semibold text-ink">确认操作</h3>
+              <h3 className="text-base font-semibold text-ink">{t.confirm.title}</h3>
               <p className="mt-1 text-sm text-ink-muted whitespace-pre-wrap">{message}</p>
             </div>
           </div>
@@ -34,13 +36,13 @@ export default function ConfirmDialog() {
             className="btn-secondary"
             autoFocus
           >
-            取消
+            {t.confirm.cancel}
           </button>
           <button
             onClick={() => close(true)}
             className="btn-primary"
           >
-            确认
+            {t.confirm.confirm}
           </button>
         </div>
       </div>

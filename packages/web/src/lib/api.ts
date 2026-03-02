@@ -119,6 +119,7 @@ export interface RestartTaskOptions {
   maxBudgetUsd?: number;
   interactionTimeout?: number;
   thinkingEnabled?: boolean;
+  language?: 'zh' | 'en';
 }
 
 export function restartTask(taskId: string, overrides?: RestartTaskOptions): Promise<Task> {

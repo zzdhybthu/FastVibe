@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAppStore } from '../stores/app-store';
+import { useT } from '../i18n';
 import { fetchRepos } from '../lib/api';
 
 export default function AuthScreen() {
   const setToken = useAppStore((s) => s.setToken);
+  const t = useT();
   const [inputToken, setInputToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,7 +14,7 @@ export default function AuthScreen() {
     e.preventDefault();
     const trimmed = inputToken.trim();
     if (!trimmed) {
-      setError('请输入访问令牌');
+      setError(t.auth.tokenRequired);
       return;
     }
 
@@ -27,7 +29,7 @@ export default function AuthScreen() {
       setToken(trimmed);
     } catch {
       localStorage.removeItem('vibecoding_token');
-      setError('令牌无效或服务器无法连接');
+      setError(t.auth.invalidToken);
     } finally {
       setLoading(false);
     }
@@ -44,21 +46,21 @@ export default function AuthScreen() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-ink">VibeCoding</h1>
-            <p className="mt-1 text-sm text-ink-muted">编排中心 - 请输入访问令牌</p>
+            <h1 className="text-2xl font-bold text-ink">{t.auth.title}</h1>
+            <p className="mt-1 text-sm text-ink-muted">{t.auth.subtitle}</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="token" className="block text-sm font-medium text-ink-3 mb-1.5">
-                访问令牌
+                {t.auth.tokenLabel}
               </label>
               <input
                 id="token"
                 type="password"
                 className="input"
-                placeholder="输入 config.yaml 中配置的 authToken"
+                placeholder={t.auth.tokenPlaceholder}
                 value={inputToken}
                 onChange={(e) => setInputToken(e.target.value)}
                 autoFocus
@@ -83,10 +85,10 @@ export default function AuthScreen() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  验证中...
+                  {t.auth.validating}
                 </span>
               ) : (
-                '登录'
+                t.auth.login
               )}
             </button>
           </form>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
+import { useLanguageStore } from '../stores/language-store';
+import { useT } from '../i18n';
 import { isTerminalStatus } from '../lib/status';
 
 interface TaskFormProps {
@@ -11,6 +13,9 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const tasks = useAppStore((s) => s.tasks);
   const claudeDefaults = useAppStore((s) => s.claudeDefaults);
   const fetchClaudeDefaults = useAppStore((s) => s.fetchClaudeDefaults);
+  const uiLanguage = useLanguageStore((s) => s.language);
+  const t = useT();
+
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
   const [thinkingEnabled, setThinkingEnabled] = useState(false);
@@ -19,6 +24,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const [model, setModel] = useState('');
   const [maxBudgetUsd, setMaxBudgetUsd] = useState('');
   const [interactionTimeout, setInteractionTimeout] = useState('');
+  const [taskLanguage, setTaskLanguage] = useState<'zh' | 'en'>(uiLanguage);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -33,7 +39,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) {
-      setError('请输入任务提示词');
+      setError(t.taskForm.promptRequired);
       return;
     }
 
@@ -49,6 +55,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
         model: model || undefined,
         maxBudgetUsd: maxBudgetUsd ? parseFloat(maxBudgetUsd) : undefined,
         interactionTimeout: interactionTimeout ? parseInt(interactionTimeout, 10) : undefined,
+        language: taskLanguage,
       });
       onClose();
     } catch (err) {
@@ -67,7 +74,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
       <div className="relative w-full max-w-lg rounded-2xl border border-th-border-strong bg-th-surface shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-th-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-ink">新建任务</h2>
+          <h2 className="text-lg font-semibold text-ink">{t.taskForm.title}</h2>
           <button onClick={onClose} className="btn-ghost p-1.5">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -80,11 +87,11 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {/* Prompt */}
           <div>
             <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              任务提示词 <span className="text-red-400">*</span>
+              {t.taskForm.promptLabel} <span className="text-red-400">*</span>
             </label>
             <textarea
               className="input min-h-[120px] resize-y font-mono text-sm"
-              placeholder="描述你希望 Claude Code 完成的任务..."
+              placeholder={t.taskForm.promptPlaceholder}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               autoFocus
@@ -95,12 +102,12 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              任务标题 <span className="text-ink-hint">(可选)</span>
+              {t.taskForm.titleLabel} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
             </label>
             <input
               type="text"
               className="input"
-              placeholder="简短描述，用于列表展示"
+              placeholder={t.taskForm.titlePlaceholder}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={submitting}
@@ -110,8 +117,8 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {/* Thinking mode toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium text-ink-3">思考模式</span>
-              <p className="text-xs text-ink-hint">启用后 Claude 会进行更深入的推理</p>
+              <span className="text-sm font-medium text-ink-3">{t.taskForm.thinkingMode}</span>
+              <p className="text-xs text-ink-hint">{t.taskForm.thinkingModeDesc}</p>
             </div>
             <button
               type="button"
@@ -133,7 +140,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {terminalTasks.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-ink-3 mb-1.5">
-                前置任务 <span className="text-ink-hint">(可选)</span>
+                {t.taskForm.predecessorTask} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
               </label>
               <select
                 className="input"
@@ -141,15 +148,15 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 onChange={(e) => setPredecessorTaskId(e.target.value)}
                 disabled={submitting}
               >
-                <option value="">无前置任务</option>
-                {terminalTasks.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.title || t.prompt.slice(0, 60)} ({t.status})
+                <option value="">{t.taskForm.noPredecessor}</option>
+                {terminalTasks.map((task) => (
+                  <option key={task.id} value={task.id}>
+                    {task.title || task.prompt.slice(0, 60)} ({task.status})
                   </option>
                 ))}
               </select>
               <p className="mt-1 text-xs text-ink-hint">
-                新任务将在前置任务完成后才开始执行
+                {t.taskForm.predecessorDesc}
               </p>
             </div>
           )}
@@ -169,7 +176,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
-            高级设置
+            {t.taskForm.advancedSettings}
           </button>
 
           {/* Advanced settings */}
@@ -177,7 +184,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
             <div className="space-y-3 rounded-lg border border-th-border bg-th-input p-4">
               {/* Model */}
               <div>
-                <label className="block text-sm font-medium text-ink-3 mb-1.5">模型</label>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
                 {claudeDefaults && claudeDefaults.models.length > 0 ? (
                   <select
                     className="input"
@@ -185,7 +192,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                     onChange={(e) => setModel(e.target.value)}
                     disabled={submitting}
                   >
-                    <option value="">默认 ({claudeDefaults.defaultModel})</option>
+                    <option value="">{t.taskForm.modelDefault(claudeDefaults.defaultModel)}</option>
                     {claudeDefaults.models.map((m) => (
                       <option key={m} value={m}>{m}</option>
                     ))}
@@ -205,7 +212,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               {/* Max budget */}
               <div>
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">
-                  最大预算 (USD)
+                  {t.taskForm.maxBudget}
                 </label>
                 <input
                   type="number"
@@ -222,7 +229,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               {/* Interaction timeout */}
               <div>
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">
-                  交互超时 (秒)
+                  {t.taskForm.interactionTimeout}
                 </label>
                 <input
                   type="number"
@@ -234,6 +241,23 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                   min="60"
                   step="60"
                 />
+              </div>
+
+              {/* Task language */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">
+                  {t.taskForm.taskLanguage}
+                </label>
+                <select
+                  className="input"
+                  value={taskLanguage}
+                  onChange={(e) => setTaskLanguage(e.target.value as 'zh' | 'en')}
+                  disabled={submitting}
+                >
+                  <option value="zh">{t.taskForm.langZh}</option>
+                  <option value="en">{t.taskForm.langEn}</option>
+                </select>
+                <p className="mt-1 text-xs text-ink-hint">{t.taskForm.taskLanguageDesc}</p>
               </div>
             </div>
           )}
@@ -247,7 +271,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 border-t border-th-border pt-4">
             <button type="button" onClick={onClose} className="btn-secondary" disabled={submitting}>
-              取消
+              {t.taskForm.cancel}
             </button>
             <button type="submit" className="btn-primary" disabled={submitting}>
               {submitting ? (
@@ -256,10 +280,10 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  创建中...
+                  {t.taskForm.creating}
                 </span>
               ) : (
-                '创建任务'
+                t.taskForm.createTask
               )}
             </button>
           </div>

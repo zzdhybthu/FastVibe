@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { CreateRepoRequest } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
 import { useConfirm } from '../stores/confirm-store';
+import { useLanguageStore } from '../stores/language-store';
+import { useT } from '../i18n';
 
 interface ConfigPanelProps {
   onClose: () => void;
@@ -13,6 +15,9 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const updateRepo = useAppStore((s) => s.updateRepo);
   const deleteRepo = useAppStore((s) => s.deleteRepo);
   const confirm = useConfirm();
+  const language = useLanguageStore((s) => s.language);
+  const setLanguage = useLanguageStore((s) => s.setLanguage);
+  const t = useT();
 
   const [editingRepoId, setEditingRepoId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -26,7 +31,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-th-border-strong bg-th-surface shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-th-border bg-th-surface px-6 py-4">
-          <h2 className="text-lg font-semibold text-ink">设置</h2>
+          <h2 className="text-lg font-semibold text-ink">{t.config.title}</h2>
           <button onClick={onClose} className="btn-ghost p-1.5">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -35,10 +40,26 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
         </div>
 
         <div className="px-6 py-4 space-y-6">
+          {/* Interface settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.interfaceSettings}</h3>
+            <div className="card flex items-center justify-between">
+              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
+              <select
+                className="input w-40"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'zh' | 'en')}
+              >
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </section>
+
           {/* Repo management */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider">仓库管理</h3>
+              <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider">{t.config.repoManagement}</h3>
               <button
                 onClick={() => { setShowAddForm(true); setEditingRepoId(null); }}
                 className="btn-primary text-xs"
@@ -46,7 +67,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 <svg className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                添加仓库
+                {t.config.addRepo}
               </button>
             </div>
 
@@ -64,7 +85,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             {/* Repo list */}
             <div className="space-y-2">
               {repos.length === 0 && !showAddForm ? (
-                <p className="text-sm text-ink-hint py-4 text-center">暂无仓库，点击上方按钮添加</p>
+                <p className="text-sm text-ink-hint py-4 text-center">{t.config.noRepos}</p>
               ) : (
                 repos.map((repo) => (
                   <div key={repo.id}>
@@ -91,7 +112,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                               {repo.mainBranch}
                             </span>
                             <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
-                              并发: {repo.maxConcurrency}
+                              {t.config.concurrency} {repo.maxConcurrency}
                             </span>
                           </div>
                           <p className="text-xs text-ink-hint truncate mt-0.5 font-mono">{repo.path}</p>
@@ -100,7 +121,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                           <button
                             onClick={() => { setEditingRepoId(repo.id); setShowAddForm(false); }}
                             className="btn-ghost p-1.5 text-ink-hint hover:text-brand-400"
-                            title="编辑"
+                            title={t.config.edit}
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -108,12 +129,12 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                           </button>
                           <button
                             onClick={async () => {
-                              if (await confirm(`确定删除仓库 "${repo.name}"？`)) {
+                              if (await confirm(t.config.confirmDeleteRepo(repo.name))) {
                                 await deleteRepo(repo.id);
                               }
                             }}
                             className="btn-ghost p-1.5 text-ink-hint hover:text-red-400"
-                            title="删除"
+                            title={t.config.delete}
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -130,11 +151,11 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
 
           {/* About */}
           <section>
-            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">关于</h3>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.about}</h3>
             <div className="card text-sm text-ink-muted space-y-1">
-              <p>VibeCoding 编排中心 v0.1.0</p>
+              <p>{t.config.aboutTitle}</p>
               <p className="text-xs text-ink-faint">
-                基于胡渊鸣《我给 10 个 Claude Code 打工》构建的并行化开发工具
+                {t.config.aboutDesc}
               </p>
             </div>
           </section>
@@ -153,6 +174,7 @@ interface RepoFormProps {
 }
 
 function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
+  const t = useT();
   const [form, setForm] = useState<CreateRepoRequest>({
     path: initial?.path || '',
     name: initial?.name || '',
@@ -165,7 +187,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.path || !form.name) {
-      setError('请填写所有必填项');
+      setError(t.config.fillRequired);
       return;
     }
     setSubmitting(true);
@@ -187,7 +209,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
     <form onSubmit={handleSubmit} className="card border-brand-500/30 space-y-3 mb-2">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-ink-hint mb-1">仓库名称 *</label>
+          <label className="block text-xs text-ink-hint mb-1">{t.config.repoName} *</label>
           <input
             className="input text-sm"
             placeholder="my-project"
@@ -196,7 +218,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-ink-hint mb-1">本地路径 *</label>
+          <label className="block text-xs text-ink-hint mb-1">{t.config.repoPath} *</label>
           <input
             className="input text-sm font-mono"
             placeholder="/home/user/project"
@@ -205,7 +227,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-ink-hint mb-1">主分支</label>
+          <label className="block text-xs text-ink-hint mb-1">{t.config.mainBranch}</label>
           <input
             className="input text-sm"
             placeholder="main"
@@ -214,7 +236,7 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-ink-hint mb-1">最大并发</label>
+          <label className="block text-xs text-ink-hint mb-1">{t.config.maxConcurrency}</label>
           <input
             type="number"
             className="input text-sm"
@@ -232,10 +254,10 @@ function RepoForm({ initial, onSubmit, onCancel }: RepoFormProps) {
 
       <div className="flex items-center justify-end gap-2">
         <button type="button" onClick={onCancel} className="btn-ghost text-xs">
-          取消
+          {t.config.cancel}
         </button>
         <button type="submit" className="btn-primary text-xs" disabled={submitting}>
-          {submitting ? '保存中...' : (initial ? '保存' : '添加')}
+          {submitting ? t.config.saving : (initial ? t.config.save : t.config.add)}
         </button>
       </div>
     </form>

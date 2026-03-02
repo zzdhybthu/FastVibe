@@ -11,13 +11,17 @@ import type { WsServerEvent, TaskStatus } from '@vibecoding/shared';
  * This tool allows Claude (running inside a task) to ask the user one or more
  * questions and wait for all answers via the WebSocket-connected frontend.
  */
-export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number, abortSignal?: AbortSignal) {
+export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number, language: 'zh' | 'en', abortSignal?: AbortSignal) {
+  const toolDescription = language === 'en'
+    ? 'Ask the user a question and wait for a response. Use this tool when you need user confirmation or a choice. Ask multiple questions at once when possible.'
+    : '向用户提问并等待回答。当你需要用户确认或选择时使用此工具。有多个问题时应一次性提出。';
+
   return createSdkMcpServer({
     name: 'user-interaction',
     tools: [
       tool(
         'ask_user',
-        '向用户提问并等待回答。当你需要用户确认或选择时使用此工具。有多个问题时应一次性提出。',
+        toolDescription,
         {
           questions: z.array(
             z.object({

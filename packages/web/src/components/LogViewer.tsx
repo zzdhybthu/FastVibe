@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { TaskLog } from '@vibecoding/shared';
+import { useT } from '../i18n';
 
 interface LogViewerProps {
   logs: TaskLog[];
@@ -27,6 +28,7 @@ function formatTimestamp(iso: string): string {
 export default function LogViewer({ logs }: LogViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldAutoScroll = useRef(true);
+  const t = useT();
 
   // Auto-scroll to bottom when new logs arrive
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
   if (logs.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-sm text-ink-faint">
-        暂无日志
+        {t.logViewer.noLogs}
       </div>
     );
   }

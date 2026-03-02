@@ -20,6 +20,7 @@ export const tasks = sqliteTable('tasks', {
   model: text('model').notNull(),
   maxBudgetUsd: real('max_budget_usd').notNull(),
   interactionTimeout: integer('interaction_timeout').notNull(),
+  language: text('language').notNull().default('zh'),
   branchName: text('branch_name'),
   worktreePath: text('worktree_path'),
   sessionId: text('session_id'),

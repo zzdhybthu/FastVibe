@@ -25,12 +25,21 @@ export function buildBranchName(task: Task): string {
 /**
  * Build the full CC prompt for a task.
  * Includes instructions for worktree management, task execution, and cleanup.
+ * Supports Chinese and English based on task.language.
  */
 export function buildPrompt(task: Task, repo: Repo): string {
   const branchName = buildBranchName(task);
   const worktreeDir = `.claude-worktrees/${branchName}`;
   const repoDir = repo.path;
+  const lang = task.language ?? 'zh';
 
+  if (lang === 'en') {
+    return buildPromptEn(task, repo, branchName, worktreeDir, repoDir);
+  }
+  return buildPromptZh(task, repo, branchName, worktreeDir, repoDir);
+}
+
+function buildPromptZh(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string): string {
   return `你是一个自动化编码助手，在 Git 仓库中执行指定任务。请严格按照以下步骤操作：
 
 ## 步骤 1: 创建 worktree
@@ -64,7 +73,7 @@ Git worktree 不会自动复制 .gitignore 中列出的文件。请遵循以下�
 ## 步骤 3: 执行任务
 任务描述:
 ---
-${task.prompt}
+${_task.prompt}
 ---
 
 请完成上述任务。在开发过程中:
@@ -124,4 +133,110 @@ git push origin ${repo.mainBranch}
 - 尝试过的解决方案
 - 建议的后续步骤
 `;
+}
+
+function buildPromptEn(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string): string {
+  return `You are an automated coding assistant executing a specified task in a Git repository. Follow these steps strictly:
+
+## Step 1: Create worktree
+Create a new git worktree under the repository root (current directory):
+\`\`\`bash
+git worktree add ${worktreeDir} -b ${branchName} ${repo.mainBranch}
+\`\`\`
+
+## Step 2: Enter the worktree
+\`\`\`bash
+cd ${worktreeDir}
+\`\`\`
+
+## Step 2.5: Worktree environment setup
+Git worktree does not automatically copy files listed in .gitignore. Follow these rules:
+
+### Dependency installation
+- **Must reinstall dependencies** — do not copy node_modules or .venv from the main worktree
+- Has package.json → \`pnpm install\` (preferred) or \`npm install\`
+- Has requirements.txt/pyproject.toml → \`uv sync\` or \`uv pip install -r requirements.txt\`
+
+### Required config files
+- .env file: create a symlink from the main worktree \`ln -s ${repoDir}/.env .env\`
+- Data files / large asset directories: also use symlinks
+- **Never modify the contents of source files pointed to by symlinks**
+
+### Tool versions
+- If the project has .node-version/.nvmrc → \`fnm use\`
+- If the project needs a specific Python version → \`uv python pin\`
+
+## Step 3: Execute the task
+Task description:
+---
+${_task.prompt}
+---
+
+Complete the task described above. During development:
+- If you need user confirmation or choices, use the ask_user MCP tool
+- Write high-quality code following the existing code style of the repository
+- Ensure the code compiles/runs correctly
+
+## Step 4: Code quality check
+If the repository has lint/format configuration (e.g., ESLint, Prettier, Biome, etc.), run the appropriate formatting and linting commands:
+\`\`\`bash
+# Check package.json for lint/format scripts and run them
+# e.g.: pnpm run lint --fix, pnpm run format, etc.
+\`\`\`
+
+## Step 5: Commit the code
+\`\`\`bash
+git add -A
+git commit -m "feat(${branchName}): concise description of changes"
+\`\`\`
+Commit message format: \`type(scope): description\`. Types: feat/fix/refactor/docs/test/chore, etc.
+
+## Step 6: Sync with latest remote
+\`\`\`bash
+cd ${repoDir}  # Return to repository root
+git checkout ${repo.mainBranch}
+git pull origin ${repo.mainBranch}
+\`\`\`
+
+## Step 7: Rebase the working branch
+\`\`\`bash
+cd ${worktreeDir}  # Return to worktree
+git rebase ${repo.mainBranch}
+\`\`\`
+
+If rebase has conflicts:
+1. Resolve conflict files one by one
+2. If automatic resolution is not possible, use the ask_user tool to ask the user how to handle it
+3. After resolving, \`git add <file>\` then \`git rebase --continue\`
+
+## Step 8: Merge into main branch
+\`\`\`bash
+cd ${repoDir}  # Return to repository root
+git checkout ${repo.mainBranch}
+git merge ${branchName} --no-ff -m "merge(${branchName}): merge task branch"
+\`\`\`
+
+## Step 9: Clean up and push
+\`\`\`bash
+git worktree remove ${worktreeDir} --force
+git branch -d ${branchName}
+git push origin ${repo.mainBranch}
+\`\`\`
+
+## Failure handling
+If the task cannot be completed, clearly explain the reason for failure, including:
+- Specific error messages
+- Solutions attempted
+- Suggested next steps
+`;
+}
+
+/**
+ * Get the system prompt append string based on language.
+ */
+export function getSystemPromptAppend(language: 'zh' | 'en'): string {
+  if (language === 'en') {
+    return 'You are running in automated mode. If you need user input, use the ask_user MCP tool.';
+  }
+  return '你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。';
 }

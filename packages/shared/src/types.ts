@@ -33,6 +33,7 @@ export interface Task {
   model: string;
   maxBudgetUsd: number;
   interactionTimeout: number;
+  language: 'zh' | 'en';
   branchName: string | null;
   worktreePath: string | null;
   sessionId: string | null;
@@ -79,6 +80,7 @@ export interface CreateTaskRequest {
   model?: string;
   maxBudgetUsd?: number;
   interactionTimeout?: number;
+  language?: 'zh' | 'en';
 }
 
 export interface AnswerInteractionRequest {

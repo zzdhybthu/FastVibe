@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../stores/app-store';
+import { useT } from '../i18n';
 import Header from '../components/Header';
 import TaskList from '../components/TaskList';
 import TaskDetail from '../components/TaskDetail';
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const fetchTasks = useAppStore((s) => s.fetchTasks);
   const selectedTaskId = useAppStore((s) => s.selectedTaskId);
   const setSelectedTask = useAppStore((s) => s.setSelectedTask);
+  const t = useT();
 
   const [showConfig, setShowConfig] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
@@ -80,19 +82,19 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
               </svg>
               <h2 className="text-lg font-medium text-ink-muted">
-                {repos.length === 0 ? '暂无仓库' : '请选择一个仓库'}
+                {repos.length === 0 ? t.dashboard.noRepos : t.dashboard.selectRepo}
               </h2>
               <p className="mt-1 text-sm text-ink-hint">
                 {repos.length === 0
-                  ? '请先在设置中添加仓库'
-                  : '从顶部下拉菜单选择要管理的仓库'}
+                  ? t.dashboard.addRepoFirst
+                  : t.dashboard.selectFromDropdown}
               </p>
               {repos.length === 0 && (
                 <button
                   onClick={() => setShowConfig(true)}
                   className="btn-primary mt-4"
                 >
-                  打开设置
+                  {t.dashboard.openSettings}
                 </button>
               )}
             </div>

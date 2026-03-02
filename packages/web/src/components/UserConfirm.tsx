@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { TaskInteraction } from '@vibecoding/shared';
 import { useAppStore } from '../stores/app-store';
+import { useT } from '../i18n';
 
 interface UserConfirmProps {
   interaction: TaskInteraction;
@@ -16,6 +17,7 @@ interface QuestionData {
 
 export default function UserConfirm({ interaction }: UserConfirmProps) {
   const answerInteraction = useAppStore((s) => s.answerInteraction);
+  const t = useT();
   const [answer, setAnswer] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -80,7 +82,7 @@ export default function UserConfirm({ interaction }: UserConfirmProps) {
         <input
           type="text"
           className="input flex-1"
-          placeholder="输入回答..."
+          placeholder={t.userConfirm.placeholder}
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           disabled={submitting}

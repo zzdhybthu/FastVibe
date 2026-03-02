@@ -53,6 +53,7 @@ const createTaskSchema = z.object({
   model: z.string().optional(),
   maxBudgetUsd: z.number().positive().optional(),
   interactionTimeout: z.number().int().positive().optional(),
+  language: z.enum(['zh', 'en']).default('zh'),
 });
 
 const restartTaskSchema = z.object({
@@ -62,6 +63,7 @@ const restartTaskSchema = z.object({
   maxBudgetUsd: z.number().positive().optional(),
   interactionTimeout: z.number().int().positive().optional(),
   thinkingEnabled: z.boolean().optional(),
+  language: z.enum(['zh', 'en']).optional(),
 });
 
 export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
@@ -123,6 +125,7 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
         model: body.model ?? config.claude.model[0],
         maxBudgetUsd: body.maxBudgetUsd ?? config.claude.maxBudgetUsd,
         interactionTimeout: body.interactionTimeout ?? config.claude.interactionTimeout,
+        language: body.language,
         branchName: null,
         worktreePath: null,
         sessionId: null,
@@ -265,6 +268,7 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
       model: overrides.model ?? task.model,
       maxBudgetUsd: overrides.maxBudgetUsd ?? task.maxBudgetUsd,
       interactionTimeout: overrides.interactionTimeout ?? task.interactionTimeout,
+      language: (overrides.language ?? task.language ?? 'zh') as 'zh' | 'en',
       branchName: null,
       worktreePath: null,
       sessionId: null,

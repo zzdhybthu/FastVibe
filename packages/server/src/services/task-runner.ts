@@ -4,7 +4,7 @@ import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
 import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
 import { createUserInteractionServer } from './user-interaction.js';
-import { buildPrompt, buildBranchName } from './prompt-builder.js';
+import { buildPrompt, buildBranchName, getSystemPromptAppend } from './prompt-builder.js';
 import type { Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
 
 // Map of taskId -> AbortController for cancellation
@@ -86,7 +86,8 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
     await logTask(task.id, 'info', `Task started. Branch: ${branchName}`);
 
     // 2. Create user interaction MCP server
-    const mcpServer = createUserInteractionServer(task.id, repo.id, task.interactionTimeout, abortController.signal);
+    const taskLanguage = (task.language ?? 'zh') as 'zh' | 'en';
+    const mcpServer = createUserInteractionServer(task.id, repo.id, task.interactionTimeout, taskLanguage, abortController.signal);
 
     // 3. Build prompt
     const prompt = buildPrompt(task, repo);
@@ -106,7 +107,7 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
         systemPrompt: {
           type: 'preset',
           preset: 'claude_code',
-          append: '你在自动化模式下运行。如果需要用户输入，使用 ask_user MCP 工具。',
+          append: getSystemPromptAppend(taskLanguage),
         },
         tools: { type: 'preset', preset: 'claude_code' },
         thinking: task.thinkingEnabled

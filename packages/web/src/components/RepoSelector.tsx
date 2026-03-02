@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
+import { useT } from '../i18n';
 
 interface RepoSelectorProps {
   onAddRepo?: () => void;
@@ -10,6 +11,7 @@ export default function RepoSelector({ onAddRepo }: RepoSelectorProps) {
   const selectedRepoId = useAppStore((s) => s.selectedRepoId);
   const selectRepo = useAppStore((s) => s.selectRepo);
   const fetchTasks = useAppStore((s) => s.fetchTasks);
+  const t = useT();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +46,7 @@ export default function RepoSelector({ onAddRepo }: RepoSelectorProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
         </svg>
         <span className="truncate text-sm">
-          {selectedRepo ? selectedRepo.name : '选择仓库'}
+          {selectedRepo ? selectedRepo.name : t.repoSelector.selectRepo}
         </span>
         <svg className={`h-4 w-4 text-ink-muted shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -54,7 +56,7 @@ export default function RepoSelector({ onAddRepo }: RepoSelectorProps) {
       {open && (
         <div className="absolute right-0 top-full z-40 mt-1 w-64 rounded-xl border border-th-border-strong bg-th-elevated py-1 shadow-xl">
           {repos.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-ink-hint">暂无仓库</div>
+            <div className="px-3 py-2 text-sm text-ink-hint">{t.repoSelector.noRepos}</div>
           ) : (
             repos.map((repo) => (
               <button
@@ -84,7 +86,7 @@ export default function RepoSelector({ onAddRepo }: RepoSelectorProps) {
                 <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                <span>新建仓库</span>
+                <span>{t.repoSelector.newRepo}</span>
               </button>
             </>
           )}
