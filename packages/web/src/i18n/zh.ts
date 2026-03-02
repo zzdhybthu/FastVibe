@@ -2,15 +2,17 @@ export const zh: Translations = {
   header: {
     newTask: '新建任务',
     settings: '设置',
-    toggleLight: '切换亮色',
-    toggleDark: '切换暗色',
-    confirmLogout: '确定退出登录？',
-    logout: '退出登录',
   },
   config: {
     title: '设置',
     interfaceSettings: '界面设置',
     language: '语言',
+    theme: '主题',
+    darkMode: '暗色模式',
+    lightMode: '亮色模式',
+    account: '账户',
+    logout: '退出登录',
+    confirmLogout: '确定退出登录？',
     repoManagement: '仓库管理',
     addRepo: '添加仓库',
     noRepos: '暂无仓库，点击上方按钮添加',
@@ -191,15 +193,17 @@ export interface Translations {
   header: {
     newTask: string;
     settings: string;
-    toggleLight: string;
-    toggleDark: string;
-    confirmLogout: string;
-    logout: string;
   };
   config: {
     title: string;
     interfaceSettings: string;
     language: string;
+    theme: string;
+    darkMode: string;
+    lightMode: string;
+    account: string;
+    logout: string;
+    confirmLogout: string;
     repoManagement: string;
     addRepo: string;
     noRepos: string;
