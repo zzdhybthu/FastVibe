@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `language` text DEFAULT 'zh' NOT NULL;
