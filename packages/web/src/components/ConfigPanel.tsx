@@ -49,24 +49,23 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           {/* Interface settings */}
           <section>
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.interfaceSettings}</h3>
-            <div className="card space-y-3">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
-                  <select
-                    className="input w-28 text-sm"
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value as 'zh' | 'en')}
-                  >
-                    <option value="zh">{t.common.zh}</option>
-                    <option value="en">{t.common.en}</option>
-                  </select>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={toggleTheme}
-                    className="btn-ghost flex items-center gap-1.5 px-2.5 py-1.5 text-sm"
-                  >
+            <div className="card flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
+                <select
+                  className="input w-28 text-sm"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as 'zh' | 'en')}
+                >
+                  <option value="zh">{t.common.zh}</option>
+                  <option value="en">{t.common.en}</option>
+                </select>
+              </div>
+              <div className="flex items-center">
+                <button
+                  onClick={toggleTheme}
+                  className="btn-ghost flex items-center gap-1.5 px-2.5 py-1.5 text-sm"
+                >
                   {theme === 'dark' ? (
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
@@ -79,18 +78,22 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   {theme === 'dark' ? t.config.darkMode : t.config.lightMode}
                 </button>
               </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-ink-3">{t.config.voiceLanguage}</span>
-                <select
-                  className="input w-28 text-sm"
-                  value={voiceLang}
-                  onChange={(e) => setVoiceLang(e.target.value as 'zh' | 'en')}
-                >
-                  <option value="zh">{t.common.zh}</option>
-                  <option value="en">{t.common.en}</option>
-                </select>
-              </div>
+            </div>
+          </section>
+
+          {/* Voice settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.voiceLanguage}</span>
+              <select
+                className="input w-28 text-sm"
+                value={voiceLang}
+                onChange={(e) => setVoiceLang(e.target.value as 'zh' | 'en')}
+              >
+                <option value="zh">{t.common.zh}</option>
+                <option value="en">{t.common.en}</option>
+              </select>
             </div>
           </section>
 

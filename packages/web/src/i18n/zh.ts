@@ -7,6 +7,7 @@ export const zh: Translations = {
     title: '设置',
     interfaceSettings: '界面设置',
     language: '语言',
+    voiceSettings: '语音设置',
     voiceLanguage: '语音识别语言',
     theme: '主题',
     darkMode: '暗色模式',
@@ -202,6 +203,7 @@ export interface Translations {
     title: string;
     interfaceSettings: string;
     language: string;
+    voiceSettings: string;
     voiceLanguage: string;
     theme: string;
     darkMode: string;
