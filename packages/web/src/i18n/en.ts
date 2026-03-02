@@ -9,6 +9,7 @@ export const en: Translations = {
     title: 'Settings',
     interfaceSettings: 'Interface Settings',
     language: 'Language',
+    voiceLanguage: 'Voice Recognition Language',
     theme: 'Theme',
     darkMode: 'Dark Mode',
     lightMode: 'Light Mode',

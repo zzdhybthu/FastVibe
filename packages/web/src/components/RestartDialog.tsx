@@ -10,7 +10,7 @@ export default function RestartDialog() {
   const restartTask = useAppStore((s) => s.restartTask);
   const claudeDefaults = useAppStore((s) => s.claudeDefaults);
   const fetchClaudeDefaults = useAppStore((s) => s.fetchClaudeDefaults);
-  const uiLanguage = useLanguageStore((s) => s.language);
+  const voiceLang = useLanguageStore((s) => s.voiceLang);
   const t = useT();
 
   const [prompt, setPrompt] = useState('');
@@ -30,7 +30,7 @@ export default function RestartDialog() {
     setPrompt(base ? base + ' ' + text : text);
   }, []);
   const { isListening, isSupported, start: startVoice, stop: stopVoice } = useSpeechRecognition({
-    lang: uiLanguage,
+    lang: voiceLang,
     onResult: handleVoiceResult,
   });
   const toggleVoice = useCallback(() => {
