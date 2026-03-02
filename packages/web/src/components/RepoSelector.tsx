@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/app-store';
 
-export default function RepoSelector() {
+interface RepoSelectorProps {
+  onAddRepo?: () => void;
+}
+
+export default function RepoSelector({ onAddRepo }: RepoSelectorProps) {
   const repos = useAppStore((s) => s.repos);
   const selectedRepoId = useAppStore((s) => s.selectedRepoId);
   const selectRepo = useAppStore((s) => s.selectRepo);
@@ -69,6 +73,20 @@ export default function RepoSelector() {
                 )}
               </button>
             ))
+          )}
+          {onAddRepo && (
+            <>
+              <div className="my-1 border-t border-th-border" />
+              <button
+                onClick={() => { setOpen(false); onAddRepo(); }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-muted transition-colors hover:bg-th-hover"
+              >
+                <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>新建仓库</span>
+              </button>
+            </>
           )}
         </div>
       )}

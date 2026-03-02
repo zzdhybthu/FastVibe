@@ -41,7 +41,7 @@ export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
               <span className="hidden sm:inline">新建任务</span>
             </button>
           )}
-          <RepoSelector />
+          <RepoSelector onAddRepo={onOpenConfig} />
           <button
             onClick={onOpenConfig}
             className="btn-ghost p-2"
