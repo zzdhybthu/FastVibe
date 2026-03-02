@@ -8,8 +8,8 @@ import type { WsServerEvent, TaskStatus } from '@vibecoding/shared';
 
 /**
  * Creates an in-process MCP server with the `ask_user` tool.
- * This tool allows Claude (running inside a task) to ask the user a question
- * and wait for the answer via the WebSocket-connected frontend.
+ * This tool allows Claude (running inside a task) to ask the user one or more
+ * questions and wait for all answers via the WebSocket-connected frontend.
  */
 export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number) {
   return createSdkMcpServer({
@@ -17,29 +17,47 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
     tools: [
       tool(
         'ask_user',
-        '向用户提问并等待回答。当你需要用户确认或选择时使用此工具。',
+        '向用户提问并等待回答。支持一次提出多个问题，用户可以同时看到并逐一回答，无需等待中间过程。当你有多个需要确认的问题时，尽量一次性全部提出。',
         {
-          question: z.string(),
-          options: z.array(z.string()).optional(),
+          questions: z.array(
+            z.object({
+              question: z.string(),
+              options: z.array(z.string()).optional(),
+            }),
+          ).min(1),
         },
         async (args) => {
           const db = getDb();
-          const interactionId = uuidv4();
           const now = new Date().toISOString();
+          const interactions: { id: string; question: string; options?: string[] }[] = [];
 
-          // 1. Create interaction record in DB
-          const questionData = JSON.stringify({
-            question: args.question,
-            options: args.options,
-          });
+          // 1. Create all interaction records and broadcast them
+          for (const q of args.questions) {
+            const interactionId = uuidv4();
+            const questionData = JSON.stringify({
+              question: q.question,
+              options: q.options,
+            });
 
-          await db.insert(schema.taskInteractions).values({
-            id: interactionId,
-            taskId,
-            questionData,
-            status: 'pending',
-            createdAt: now,
-          });
+            await db.insert(schema.taskInteractions).values({
+              id: interactionId,
+              taskId,
+              questionData,
+              status: 'pending',
+              createdAt: now,
+            });
+
+            interactions.push({ id: interactionId, question: q.question, options: q.options });
+
+            // Broadcast each interaction event
+            const interactionEvent: WsServerEvent = {
+              type: 'task:interaction',
+              taskId,
+              interactionId,
+              questionData: { question: q.question, options: q.options },
+            };
+            eventBus.emit('ws:broadcast', interactionEvent);
+          }
 
           // 2. Update task status to AWAITING_INPUT
           await db
@@ -47,16 +65,6 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
             .set({ status: 'AWAITING_INPUT' as TaskStatus })
             .where(eq(schema.tasks.id, taskId));
 
-          // 3. Broadcast interaction event
-          const interactionEvent: WsServerEvent = {
-            type: 'task:interaction',
-            taskId,
-            interactionId,
-            questionData: { question: args.question, options: args.options },
-          };
-          eventBus.emit('ws:broadcast', interactionEvent);
-
-          // 4. Broadcast task status change
           const task = await db.query.tasks.findFirst({
             where: eq(schema.tasks.id, taskId),
           });
@@ -71,56 +79,52 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
             eventBus.emit('ws:broadcast', statusEvent);
           }
 
-          // 5. Wait for answer via eventBus with timeout
+          // 3. Wait for ALL answers via eventBus with timeout
           const timeoutMs = (interactionTimeout || 1800) * 1000;
+          const interactionIds = new Set(interactions.map((i) => i.id));
+          const answers = new Map<string, string>();
 
-          const answer = await new Promise<string>((resolve, reject) => {
+          await new Promise<void>((resolve, reject) => {
             let timer: ReturnType<typeof setTimeout> | null = null;
 
             const onAnswer = (answeredId: string, answerText: string) => {
-              if (answeredId !== interactionId) return;
+              if (!interactionIds.has(answeredId)) return;
+              answers.set(answeredId, answerText);
 
-              // Clean up
-              eventBus.off('interaction:answered', onAnswer);
-              if (timer) clearTimeout(timer);
-
-              resolve(answerText);
+              if (answers.size === interactions.length) {
+                eventBus.off('interaction:answered', onAnswer);
+                if (timer) clearTimeout(timer);
+                resolve();
+              }
             };
 
             eventBus.on('interaction:answered', onAnswer);
 
-            // Timeout
             timer = setTimeout(() => {
               eventBus.off('interaction:answered', onAnswer);
 
-              // Update interaction status to timeout
-              db.update(schema.taskInteractions)
-                .set({ status: 'timeout' })
-                .where(eq(schema.taskInteractions.id, interactionId))
-                .then(() => {})
-                .catch(() => {});
+              // Mark unanswered interactions as timeout
+              for (const interaction of interactions) {
+                if (!answers.has(interaction.id)) {
+                  db.update(schema.taskInteractions)
+                    .set({ status: 'timeout' })
+                    .where(eq(schema.taskInteractions.id, interaction.id))
+                    .then(() => {})
+                    .catch(() => {});
+                }
+              }
 
               reject(new Error('User interaction timeout'));
             }, timeoutMs);
           });
 
-          // 6. Update DB with answer
-          await db
-            .update(schema.taskInteractions)
-            .set({
-              answerData: JSON.stringify({ answer }),
-              status: 'answered',
-              answeredAt: new Date().toISOString(),
-            })
-            .where(eq(schema.taskInteractions.id, interactionId));
-
-          // 7. Set task back to RUNNING
+          // 4. Set task back to RUNNING
+          // (individual interaction DB records already updated by the REST endpoint)
           await db
             .update(schema.tasks)
             .set({ status: 'RUNNING' as TaskStatus })
             .where(eq(schema.tasks.id, taskId));
 
-          // Broadcast status change back to RUNNING
           const updatedTask = await db.query.tasks.findFirst({
             where: eq(schema.tasks.id, taskId),
           });
@@ -135,9 +139,14 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
             eventBus.emit('ws:broadcast', statusEvent);
           }
 
-          // 8. Return the answer to Claude
+          // 5. Return all answers to Claude
+          const resultParts = interactions.map((interaction) => {
+            const answer = answers.get(interaction.id)!;
+            return `Q: ${interaction.question}\nA: ${answer}`;
+          });
+
           return {
-            content: [{ type: 'text' as const, text: answer }],
+            content: [{ type: 'text' as const, text: resultParts.join('\n\n') }],
           };
         },
       ),
