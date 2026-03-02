@@ -121,7 +121,7 @@ export default function RestartDialog() {
                 <button
                   type="button"
                   onClick={toggleVoice}
-                  className={`flex items-center justify-center w-12 h-12 rounded-xl transition-colors ${
+                  className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors before:absolute before:inset-[-4px] before:content-[''] ${
                     isListening
                       ? 'bg-red-500/20 text-red-400 animate-pulse'
                       : 'btn-ghost text-ink-muted hover:text-ink-2'
@@ -129,7 +129,7 @@ export default function RestartDialog() {
                   title={isListening ? t.taskForm.voiceListening : t.taskForm.voiceInput}
                   disabled={submitting}
                 >
-                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
                   </svg>
                 </button>
