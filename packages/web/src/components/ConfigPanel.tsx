@@ -50,8 +50,8 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as 'zh' | 'en')}
               >
-                <option value="zh">中文</option>
-                <option value="en">English</option>
+                <option value="zh">{t.common.zh}</option>
+                <option value="en">{t.common.en}</option>
               </select>
             </div>
           </section>
