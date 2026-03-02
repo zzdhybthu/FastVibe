@@ -86,7 +86,7 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
     await logTask(task.id, 'info', `Task started. Branch: ${branchName}`);
 
     // 2. Create user interaction MCP server
-    const mcpServer = createUserInteractionServer(task.id, repo.id, task.interactionTimeout);
+    const mcpServer = createUserInteractionServer(task.id, repo.id, task.interactionTimeout, abortController.signal);
 
     // 3. Build prompt
     const prompt = buildPrompt(task, repo);

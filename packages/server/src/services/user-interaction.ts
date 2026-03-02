@@ -11,7 +11,7 @@ import type { WsServerEvent, TaskStatus } from '@vibecoding/shared';
  * This tool allows Claude (running inside a task) to ask the user one or more
  * questions and wait for all answers via the WebSocket-connected frontend.
  */
-export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number) {
+export function createUserInteractionServer(taskId: string, repoId: string, interactionTimeout: number, abortSignal?: AbortSignal) {
   return createSdkMcpServer({
     name: 'user-interaction',
     tools: [
@@ -87,21 +87,50 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
           await new Promise<void>((resolve, reject) => {
             let timer: ReturnType<typeof setTimeout> | null = null;
 
+            const cleanup = () => {
+              eventBus.off('interaction:answered', onAnswer);
+              if (timer) clearTimeout(timer);
+              if (abortSignal) abortSignal.removeEventListener('abort', onAbort);
+            };
+
             const onAnswer = (answeredId: string, answerText: string) => {
               if (!interactionIds.has(answeredId)) return;
               answers.set(answeredId, answerText);
 
               if (answers.size === interactions.length) {
-                eventBus.off('interaction:answered', onAnswer);
-                if (timer) clearTimeout(timer);
+                cleanup();
                 resolve();
               }
             };
 
+            const onAbort = () => {
+              cleanup();
+              // Mark unanswered interactions as timeout
+              for (const interaction of interactions) {
+                if (!answers.has(interaction.id)) {
+                  db.update(schema.taskInteractions)
+                    .set({ status: 'timeout' })
+                    .where(eq(schema.taskInteractions.id, interaction.id))
+                    .then(() => {})
+                    .catch(() => {});
+                }
+              }
+              reject(new Error('Task cancelled'));
+            };
+
             eventBus.on('interaction:answered', onAnswer);
 
+            // Listen for abort signal
+            if (abortSignal) {
+              if (abortSignal.aborted) {
+                onAbort();
+                return;
+              }
+              abortSignal.addEventListener('abort', onAbort);
+            }
+
             timer = setTimeout(() => {
-              eventBus.off('interaction:answered', onAnswer);
+              cleanup();
 
               // Mark unanswered interactions as timeout
               for (const interaction of interactions) {
