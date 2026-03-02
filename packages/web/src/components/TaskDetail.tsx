@@ -155,10 +155,14 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
             </div>
             <div>
               <span className="text-xs text-ink-hint">{t.taskDetail.configPredecessor}</span>
-              <p className="text-sm text-ink-3">
+              <p className="text-sm text-ink-3 truncate">
                 {taskDetail.predecessorTaskId
-                  ? (tasks.find((t) => t.id === taskDetail.predecessorTaskId)?.title
-                    || taskDetail.predecessorTaskId.slice(0, 8))
+                  ? (() => {
+                      const pred = tasks.find((tk) => tk.id === taskDetail.predecessorTaskId);
+                      return pred
+                        ? (pred.title || pred.prompt.slice(0, 60))
+                        : taskDetail.predecessorTaskId.slice(0, 8);
+                    })()
                   : t.taskDetail.configNone}
               </p>
             </div>
