@@ -97,6 +97,17 @@ export const zh: Translations = {
     seconds: '秒',
     minutes: '分',
     hours: '时',
+    config: '任务配置',
+    configModel: '模型',
+    configBudget: '预算上限',
+    configTimeout: '交互超时',
+    configLanguage: '任务语言',
+    configThinking: '思考模式',
+    configPredecessor: '前置任务',
+    configEnabled: '开启',
+    configDisabled: '关闭',
+    configNone: '无',
+    configSeconds: '秒',
   },
   taskCard: {
     justNow: '刚刚',
@@ -275,6 +286,17 @@ export interface Translations {
     seconds: string;
     minutes: string;
     hours: string;
+    config: string;
+    configModel: string;
+    configBudget: string;
+    configTimeout: string;
+    configLanguage: string;
+    configThinking: string;
+    configPredecessor: string;
+    configEnabled: string;
+    configDisabled: string;
+    configNone: string;
+    configSeconds: string;
   };
   taskCard: {
     justNow: string;

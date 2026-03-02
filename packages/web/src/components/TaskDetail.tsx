@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '../stores/app-store';
 import { StatusBadge, isTerminalStatus } from '../lib/status';
 import { useT } from '../i18n';
@@ -23,8 +23,10 @@ function formatDateTime(iso: string | null): string {
 export default function TaskDetail({ onClose }: TaskDetailProps) {
   const selectedTaskId = useAppStore((s) => s.selectedTaskId);
   const taskDetail = useAppStore((s) => s.taskDetail);
+  const tasks = useAppStore((s) => s.tasks);
   const fetchTaskDetail = useAppStore((s) => s.fetchTaskDetail);
   const t = useT();
+  const [showConfig, setShowConfig] = useState(false);
 
   useEffect(() => {
     if (selectedTaskId) {
@@ -105,6 +107,61 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
           <div className="col-span-2">
             <span className="text-xs text-ink-hint">{t.taskDetail.branch}</span>
             <p className="text-sm text-ink-3 font-mono">{taskDetail.branchName}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Task Configuration (collapsible) */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowConfig(!showConfig)}
+          className="flex items-center gap-1.5 text-xs font-medium text-ink-hint uppercase tracking-wider hover:text-ink-3 transition-colors"
+        >
+          <svg
+            className={`h-3.5 w-3.5 transition-transform ${showConfig ? 'rotate-90' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+          {t.taskDetail.config}
+        </button>
+        {showConfig && (
+          <div className="mt-2 grid grid-cols-2 gap-3 rounded-lg bg-th-input border border-th-border-strong p-3">
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configModel}</span>
+              <p className="text-sm text-ink-3 font-mono">{taskDetail.model}</p>
+            </div>
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configBudget}</span>
+              <p className="text-sm text-ink-3">${taskDetail.maxBudgetUsd}</p>
+            </div>
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configTimeout}</span>
+              <p className="text-sm text-ink-3">{taskDetail.interactionTimeout}{t.taskDetail.configSeconds}</p>
+            </div>
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configLanguage}</span>
+              <p className="text-sm text-ink-3">{taskDetail.language === 'en' ? 'English' : '中文'}</p>
+            </div>
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configThinking}</span>
+              <p className="text-sm text-ink-3">
+                {taskDetail.thinkingEnabled ? t.taskDetail.configEnabled : t.taskDetail.configDisabled}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configPredecessor}</span>
+              <p className="text-sm text-ink-3">
+                {taskDetail.predecessorTaskId
+                  ? (tasks.find((t) => t.id === taskDetail.predecessorTaskId)?.title
+                    || taskDetail.predecessorTaskId.slice(0, 8))
+                  : t.taskDetail.configNone}
+              </p>
+            </div>
           </div>
         )}
       </div>
