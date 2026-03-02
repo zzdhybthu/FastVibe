@@ -7,9 +7,6 @@ const STORAGE_KEY = 'vibecoding_language';
 function getInitialLanguage(): Language {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'zh' || stored === 'en') return stored;
-  // Detect from browser, default to Chinese
-  const browserLang = navigator.language || '';
-  if (browserLang.startsWith('en')) return 'en';
   return 'zh';
 }
 
