@@ -117,7 +117,7 @@ git rebase ${repo.mainBranch}
 \`\`\`bash
 cd ${repoDir}  # 回到仓库根目录
 git checkout ${repo.mainBranch}
-git merge ${branchName} --no-ff -m "merge(${branchName}): merge task branch"
+git merge ${branchName} -m "merge(${branchName}): merge task branch"
 \`\`\`
 
 ## 步骤 9: 清理并推送
@@ -213,7 +213,7 @@ If rebase has conflicts:
 \`\`\`bash
 cd ${repoDir}  # Return to repository root
 git checkout ${repo.mainBranch}
-git merge ${branchName} --no-ff -m "merge(${branchName}): merge task branch"
+git merge ${branchName} -m "merge(${branchName}): merge task branch"
 \`\`\`
 
 ## Step 9: Clean up and push
