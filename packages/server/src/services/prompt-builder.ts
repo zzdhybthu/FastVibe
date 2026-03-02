@@ -90,10 +90,9 @@ ${_task.prompt}
 
 ## 步骤 5: 提交代码
 \`\`\`bash
-git add -A
-git commit -m "feat(${branchName}): concise description of changes"
+git add ...
+git commit -m "type(scope): concise description of changes"
 \`\`\`
-commit message 格式: \`类型(范围): 描述\`，类型可以是 feat/fix/refactor/docs/test/chore 等。
 
 ## 步骤 6: 同步远程最新内容
 \`\`\`bash
@@ -117,7 +116,7 @@ git rebase ${repo.mainBranch}
 \`\`\`bash
 cd ${repoDir}  # 回到仓库根目录
 git checkout ${repo.mainBranch}
-git merge ${branchName} -m "merge(${branchName}): merge task branch"
+git merge ${branchName} -m "merge: merge task branch"
 \`\`\`
 
 ## 步骤 9: 清理并推送
@@ -186,10 +185,9 @@ If the repository has lint/format configuration (e.g., ESLint, Prettier, Biome, 
 
 ## Step 5: Commit the code
 \`\`\`bash
-git add -A
-git commit -m "feat(${branchName}): concise description of changes"
+git add ...
+git commit -m "type(scope): concise description of changes"
 \`\`\`
-Commit message format: \`type(scope): description\`. Types: feat/fix/refactor/docs/test/chore, etc.
 
 ## Step 6: Sync with latest remote
 \`\`\`bash
@@ -213,7 +211,7 @@ If rebase has conflicts:
 \`\`\`bash
 cd ${repoDir}  # Return to repository root
 git checkout ${repo.mainBranch}
-git merge ${branchName} -m "merge(${branchName}): merge task branch"
+git merge ${branchName} -m "merge: merge task branch"
 \`\`\`
 
 ## Step 9: Clean up and push
