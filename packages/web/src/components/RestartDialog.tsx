@@ -124,7 +124,7 @@ export default function RestartDialog() {
                   className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${
                     isListening
                       ? 'bg-red-500/15 text-red-400'
-                      : 'btn-ghost text-ink-muted hover:text-ink-2'
+                      : 'text-ink-muted hover:text-ink-2 hover:bg-th-elevated'
                   }`}
                   title={isListening ? t.taskForm.voiceListening : t.taskForm.voiceInput}
                   disabled={submitting}
