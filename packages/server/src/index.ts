@@ -7,6 +7,16 @@ import { Scheduler } from './services/scheduler.js';
 import { resolve } from 'node:path';
 import { mkdirSync } from 'node:fs';
 
+// Catch unhandled rejections from the Claude Agent SDK's internal async
+// operations. When a task is aborted while the SDK is handling an MCP tool
+// call, the SDK tries to write a response to the already-dead process,
+// producing an "Operation aborted" rejection we cannot catch locally.
+process.on('unhandledRejection', (reason: unknown) => {
+  const msg = reason instanceof Error ? reason.message : String(reason);
+  if (msg === 'Operation aborted') return; // expected during task cancellation
+  console.error('Unhandled rejection:', reason);
+});
+
 async function main() {
   const config = loadConfig();
 
