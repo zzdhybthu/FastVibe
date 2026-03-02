@@ -81,22 +81,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             </div>
           </section>
 
-          {/* Voice settings */}
-          <section>
-            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.voiceLanguage}</span>
-              <select
-                className="input w-28 text-sm"
-                value={voiceLang}
-                onChange={(e) => setVoiceLang(e.target.value as 'zh' | 'en')}
-              >
-                <option value="zh">{t.common.zh}</option>
-                <option value="en">{t.common.en}</option>
-              </select>
-            </div>
-          </section>
-
           {/* Repo management */}
           <section>
             <div className="flex items-center justify-between mb-3">
@@ -187,6 +171,22 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   </div>
                 ))
               )}
+            </div>
+          </section>
+
+          {/* Voice settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
+              <select
+                className="input w-28 text-sm"
+                value={voiceLang}
+                onChange={(e) => setVoiceLang(e.target.value as 'zh' | 'en')}
+              >
+                <option value="zh">{t.common.zh}</option>
+                <option value="en">{t.common.en}</option>
+              </select>
             </div>
           </section>
 
