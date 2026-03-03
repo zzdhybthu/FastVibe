@@ -53,23 +53,10 @@
     min-height: 100dvh;
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--c-scrollbar);
-    @apply rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--c-scrollbar-hover);
+  /* Scrollbar styling — thin, themed, auto-hiding on supported platforms */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-scrollbar) transparent;
   }
 }
 
