@@ -105,7 +105,13 @@ export default function Dashboard() {
 
         {/* Task detail — mobile: fixed overlay, desktop: side panel */}
         {selectedTaskId && (
-          <div ref={detailRef} className="fixed inset-0 z-30 overflow-y-auto bg-th-page p-4 md:static md:inset-auto md:z-auto md:overflow-visible md:bg-transparent md:p-0 md:w-[480px] lg:w-[560px] md:shrink-0">
+          <div
+            ref={detailRef}
+            className="fixed inset-0 z-30 overflow-y-auto bg-th-page p-4 md:static md:inset-auto md:z-auto md:overflow-visible md:bg-transparent md:p-0 md:w-[480px] lg:w-[560px] md:shrink-0"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setSelectedTask(null);
+            }}
+          >
             <TaskDetail onClose={() => setSelectedTask(null)} />
           </div>
         )}
