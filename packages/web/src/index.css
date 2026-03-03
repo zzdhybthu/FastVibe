@@ -53,27 +53,12 @@
     min-height: 100dvh;
   }
 
-  /* Scrollbar: hidden by default, hover-reveal on desktop */
+  /* Hide all scrollbars */
   * {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    scrollbar-width: none;
   }
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: transparent;
-    border-radius: 9999px;
-  }
-  *:hover::-webkit-scrollbar-thumb {
-    background-color: var(--c-scrollbar);
-  }
-  *:hover::-webkit-scrollbar-thumb:hover {
-    background-color: var(--c-scrollbar-hover);
+    display: none;
   }
 }
 
