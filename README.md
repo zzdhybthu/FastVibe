@@ -17,7 +17,6 @@
 server/            # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
 web/               # 前端 (React 18 + Vite + Zustand + TailwindCSS)
 shared/            # 共享类型
-docker/            # Docker Worker 镜像
 config.yaml        # 运行时配置
 ```
 
@@ -30,9 +29,45 @@ config.yaml        # 运行时配置
 
 ## 前置要求
 
-- Node.js >= 22 (推荐通过 fnm 安装)
-- pnpm (通过 corepack 启用)
-- Claude Code CLI (`npm install -g @anthropic-ai/claude-code`)
+### 1. 安装 Node.js (>= 22)
+
+推荐使用 [fnm](https://github.com/Schniz/fnm) 管理 Node.js 版本：
+
+```bash
+# 安装 fnm
+curl -fsSL https://fnm.vercel.app/install | bash
+
+# 重新加载 shell 配置（或重开终端）
+source ~/.bashrc  # 或 source ~/.zshrc
+
+# 安装并使用 Node.js 22
+fnm install 22
+fnm use 22
+
+# 验证
+node -v  # 应输出 v22.x.x
+```
+
+### 2. 启用 pnpm
+
+Node.js 22 内置 corepack，直接启用即可：
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+
+# 验证
+pnpm -v
+```
+
+### 3. 安装 Claude Code CLI
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+
+# 验证
+claude --version
+```
 
 ## 快速开始
 
