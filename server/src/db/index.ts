@@ -18,7 +18,9 @@ export function initDb(dbPath: string) {
   sqlite.pragma('journal_mode = WAL');
   sqlite.pragma('foreign_keys = ON');
   db = drizzle(sqlite, { schema });
-  migrate(db, { migrationsFolder: resolve(import.meta.dirname, '../../drizzle') });
+  // tsup bundles into dist/index.js (1 level deep), tsx runs from src/db/ (2 levels deep)
+  const migrationsFolder = resolve(import.meta.dirname, import.meta.dirname.includes('/dist') ? '../drizzle' : '../../drizzle');
+  migrate(db, { migrationsFolder });
   return db;
 }
 
