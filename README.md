@@ -144,3 +144,32 @@ claude:
 ```
 
 也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。
+
+## 浏览器访问
+
+### 本地访问
+
+服务启动后，直接在浏览器打开 `http://localhost:8420` 即可。推荐使用 Chrome。
+
+### 远程服务器访问
+
+如果 FastVibe 运行在远程服务器上，通过 SSH 端口转发在本地浏览器访问：
+
+```bash
+ssh -Nfn -L 8420:localhost:8420 user@your-server-ip
+```
+
+然后在本地浏览器打开 `http://localhost:8420`。
+
+### 手机访问
+
+手机同样可以通过 SSH 端口转发访问。推荐使用 [Termux](https://termux.dev)：
+
+1. 安装 Termux 后，在终端中执行相同的 SSH 端口转发命令
+2. 根据提示开启 **wakelock**（`termux-wake-lock`），防止 Termux 在后台被系统休眠
+3. 部分手机需要在 **系统设置 → 应用启动管理** 中，将 Termux 从「自动管理」改为「手动管理」，允许后台运行，防止进程被杀
+4. 在手机浏览器打开 `http://localhost:8420`，可以将网页 **保存到桌面** 作为独立 APP 使用（PWA）
+
+### 语音输入
+
+Web UI 支持语音输入功能。首次使用时，浏览器会请求麦克风权限，请点击允许。
