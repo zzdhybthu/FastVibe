@@ -1,6 +1,6 @@
 # FastVibe - Claude Code 调度中心
 
-生产级 Claude Code 调度中心，支持多仓库管理、任务队列、Git worktree 自动化和 Web UI 实时交互。
+轻量级 Claude Code 调度中心，支持多仓库管理、任务队列、Git worktree 自动化和 Web UI 实时交互。
 
 ## 功能特性
 
@@ -68,17 +68,9 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 # 验证安装
 claude --version
-claude doctor
 ```
 
-首次启动会自动打开浏览器进行登录（需要 Claude Pro/Max/Team/Enterprise 订阅）：
-
-```bash
-claude
-# 浏览器自动打开登录页面，若未打开可按 c 复制登录链接
-```
-
-登录后建议配置用户级 settings（`~/.claude/settings.json`）：
+登录或配置用户级 settings（`~/.claude/settings.json`）：
 
 ```json
 {
@@ -88,7 +80,7 @@ claude
 }
 ```
 
-> `ANTHROPIC_API_KEY` 是 FastVibe 通过 Claude Agent SDK 调用 API 的凭证，在 [Anthropic Console](https://console.anthropic.com/) 获取。这与 Claude Code CLI 的登录账号是独立的。
+确保 `claude code` 可用。
 
 ## 快速开始
 
