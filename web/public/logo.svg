@@ -37,5 +37,5 @@
   </g>
 
   <!-- Sketch arc on left side -->
-  <path d="M 120,430 A 220,220 0 0 1 120,82" stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
+  <path d="M 152,451 A 220,220 0 0 1 92,108" stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
 </svg>
