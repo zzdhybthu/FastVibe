@@ -16,11 +16,7 @@ export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
       <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between px-4">
         {/* Left: Logo + Title */}
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600/20">
-            <svg className="h-5 w-5 text-brand-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-          </div>
+          <img src="/favicon.svg" alt="FastVibe" className="h-8 w-8 rounded-lg" />
           <h1 className="text-lg font-semibold text-ink hidden sm:block">FastVibe</h1>
         </div>
 
