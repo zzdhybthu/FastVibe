@@ -8,7 +8,6 @@
 server/            # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
 web/               # 前端 (React 18 + Vite + Zustand + TailwindCSS)
 shared/            # 共享类型
-docker/            # Docker Worker 镜像
 config.yaml        # 运行时配置
 ```
 
@@ -16,7 +15,6 @@ config.yaml        # 运行时配置
 - **后端**: Node.js + Fastify + Claude Agent SDK + Drizzle ORM (SQLite)
 - **前端**: React 18 + TypeScript + Vite + Zustand + TailwindCSS
 - **通信**: WebSocket (ws) + REST API
-- **容器**: Docker (dockerode)
 - **构建**: pnpm workspace
 
 ## Tool Preferences
