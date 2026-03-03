@@ -1,4 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <style>
+    .dark-half { fill: #1a1a1a; }
+    .light-outline { opacity: 0; }
+    @media (prefers-color-scheme: light) {
+      .dark-half { fill: #2d2d32; }
+      .light-outline { opacity: 0.3; }
+    }
+  </style>
   <defs>
     <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f0c030"/>
@@ -10,12 +18,14 @@
     </clipPath>
   </defs>
 
-  <path d="M16,0 L14.2,8.4 L17.8,10.2 L13,16.8 L17.4,18.8 L15.4,32 L0,32 L0,0 Z"
-        clip-path="url(#circleClip)" fill="#1a1a1a"/>
+  <path class="dark-half" d="M16,0 L14.2,8.4 L17.8,10.2 L13,16.8 L17.4,18.8 L15.4,32 L0,32 L0,0 Z"
+        clip-path="url(#circleClip)"/>
   <path d="M16,0 L14.2,8.4 L17.8,10.2 L13,16.8 L17.4,18.8 L15.4,32 L32,32 L32,0 Z"
         clip-path="url(#circleClip)" fill="url(#goldFill)"/>
   <!-- Sketch arc on left side -->
   <path d="M 7.5,27 A 14,14 0 0 1 7.5,5" stroke="#b8860b" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <!-- Light mode outline -->
+  <circle class="light-outline" cx="16" cy="16" r="13.5" stroke="#c8a020" stroke-width="0.4" fill="none"/>
 
   <g transform="rotate(8, 16, 16)">
     <g transform="translate(8.2, 7) scale(0.16)">
