@@ -13,7 +13,7 @@ export default function Header({ onOpenConfig, onOpenTaskForm }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-th-border bg-th-header backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between px-4">
         {/* Left: Logo + Title */}
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600/20">
