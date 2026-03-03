@@ -11,8 +11,8 @@
       <stop offset="100%" stop-color="#8b6914"/>
     </linearGradient>
     <linearGradient id="grayGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6b7280"/>
-      <stop offset="100%" stop-color="#374151"/>
+      <stop offset="0%" stop-color="#9ca3af"/>
+      <stop offset="100%" stop-color="#6b7280"/>
     </linearGradient>
   </defs>
 
