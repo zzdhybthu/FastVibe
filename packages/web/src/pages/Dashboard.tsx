@@ -22,18 +22,6 @@ export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const detailRef = useRef<HTMLDivElement>(null);
-  const scrollPosRef = useRef(0);
-
-  // Save/restore scroll position when toggling task detail on mobile
-  useEffect(() => {
-    if (selectedTaskId) {
-      scrollPosRef.current = window.scrollY;
-    } else {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, scrollPosRef.current);
-      });
-    }
-  }, [selectedTaskId]);
 
   // Close detail panel when clicking outside
   useEffect(() => {
@@ -86,8 +74,8 @@ export default function Dashboard() {
       />
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 min-h-0 gap-4 p-4">
-        {/* Main content area */}
-        <div className={`flex-1 min-w-0 min-h-0 flex flex-col ${selectedTaskId ? 'hidden md:block' : ''}`}>
+        {/* Main content area — always rendered to preserve scroll */}
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
           {!selectedRepoId ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <svg className="h-16 w-16 text-ink-faint mb-4" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
@@ -115,9 +103,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Task detail side panel */}
+        {/* Task detail — mobile: fixed overlay, desktop: side panel */}
         {selectedTaskId && (
-          <div ref={detailRef} className="w-full md:w-[480px] lg:w-[560px] shrink-0">
+          <div ref={detailRef} className="fixed inset-0 z-30 overflow-y-auto bg-th-page p-4 md:static md:inset-auto md:z-auto md:overflow-visible md:bg-transparent md:p-0 md:w-[480px] lg:w-[560px] md:shrink-0">
             <TaskDetail onClose={() => setSelectedTask(null)} />
           </div>
         )}
