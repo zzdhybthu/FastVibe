@@ -22,6 +22,18 @@ export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const detailRef = useRef<HTMLDivElement>(null);
+  const scrollPosRef = useRef(0);
+
+  // Save/restore scroll position when toggling task detail on mobile
+  useEffect(() => {
+    if (selectedTaskId) {
+      scrollPosRef.current = window.scrollY;
+    } else {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosRef.current);
+      });
+    }
+  }, [selectedTaskId]);
 
   // Close detail panel when clicking outside
   useEffect(() => {
