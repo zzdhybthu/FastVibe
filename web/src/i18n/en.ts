@@ -40,7 +40,7 @@ export const en: Translations = {
   taskForm: {
     title: 'New Task',
     promptLabel: 'Task Prompt',
-    promptPlaceholder: 'Describe the task you want Claude Code to complete...',
+    promptPlaceholder: 'Describe the task you want Code Agent to complete...',
     titleLabel: 'Task Title',
     titleOptional: '(optional)',
     titlePlaceholder: 'Short description for list display',
@@ -55,7 +55,7 @@ export const en: Translations = {
     maxBudget: 'Max Budget (USD)',
     interactionTimeout: 'Interaction Timeout (seconds)',
     taskLanguage: 'Task Language',
-    taskLanguageDesc: 'Language used by Claude Code when executing the task',
+    taskLanguageDesc: 'Language used by Code Agent when executing the task',
     langZh: '中文',
     langEn: 'English',
     createTask: 'Create Task',

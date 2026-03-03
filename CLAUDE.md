@@ -1,7 +1,7 @@
-# FastVibe - Claude Code 调度中心
+# FastVibe - Code Agent 调度中心
 
 ## Project Overview
-生产级 Claude Code 调度中心，支持多仓库管理、任务队列、Docker 隔离、Git worktree 自动化和 Web UI 实时交互。
+生产级 Code Agent 调度中心，支持多仓库管理、任务队列、Docker 隔离、Git worktree 自动化和 Web UI 实时交互。
 
 ## Architecture
 ```

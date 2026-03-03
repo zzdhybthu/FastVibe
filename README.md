@@ -10,13 +10,13 @@
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white" alt="Node.js" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/Claude_Code-Agent_SDK-6366f1?logo=anthropic&logoColor=white" alt="Claude Code" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Code_Agent-6366f1?logo=anthropic&logoColor=white" alt="Code Agent" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/pnpm-workspace-F69220?logo=pnpm&logoColor=white" alt="pnpm" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
 <p align="center">
-  A lightweight Claude Code orchestration hub with multi-repo management, task queuing, Git worktree automation, and real-time Web UI interaction.
+  A lightweight Code Agent orchestration hub with multi-repo management, task queuing, Git worktree automation, and real-time Web UI interaction.
 </p>
 
 <p align="center">
@@ -30,9 +30,11 @@
 - **Parallel Execution**: Multiple atomic tasks run simultaneously without interference
 - **Git Worktree**: Automatic worktree creation, branching, merging, and pushing
 - **Real-Time Monitoring**: WebSocket-based task status and log streaming
-- **User Interaction**: Claude Code can ask questions; users respond via the Web UI
+- **User Interaction**: Code Agent can ask questions; users respond via the Web UI
 - **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
 - **Fault Recovery**: Automatic task state recovery after service restart
+
+> **Note**: Currently only [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is supported as the backend agent. To support other Code Agents (e.g. Codex, Xcode), you can extend the agent integration layer yourself.
 
 ## Use Cases
 
@@ -51,7 +53,7 @@ The right approach: **Build the framework first, then iterate step by step, givi
 
 ### Step 1: Scaffold the Project
 
-Use Claude Code to create a new project directly:
+Use Code Agent to create a new project directly:
 
 1. Initialize the project directory, configure git and remote
 2. Think through what you want to build, write a detailed instruction set, and set up Claude's project configuration (system prompts, skills, etc.)
@@ -120,7 +122,7 @@ corepack prepare pnpm@latest --activate
 pnpm -v
 ```
 
-### 3. Install and Configure Claude Code CLI
+### 3. Install and Configure Code Agent CLI
 
 ```bash
 # Install
@@ -237,7 +239,7 @@ The Web UI supports voice input. On first use, the browser will request micropho
 
 ## Security Recommendations
 
-This project runs Claude Code in dangerous mode by default — the Agent has full file read/write and command execution privileges. Recommendations:
+This project runs Code Agent in dangerous mode by default — the Agent has full file read/write and command execution privileges. Recommendations:
 
 - Use an isolated development environment
 - Avoid running as root

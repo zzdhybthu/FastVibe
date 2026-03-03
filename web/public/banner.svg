@@ -27,5 +27,5 @@
 
   <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="url(#grayGrad)" letter-spacing="-1">ibe</text>
 
-  <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#888" text-anchor="middle" letter-spacing="0.5">Claude Code Orchestration Hub</text>
+  <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#888" text-anchor="middle" letter-spacing="0.5">Code Agent Orchestration Hub</text>
 </svg>

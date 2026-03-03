@@ -38,7 +38,7 @@ export const zh: Translations = {
   taskForm: {
     title: '新建任务',
     promptLabel: '任务提示词',
-    promptPlaceholder: '描述你希望 Claude Code 完成的任务...',
+    promptPlaceholder: '描述你希望 Code Agent 完成的任务...',
     titleLabel: '任务标题',
     titleOptional: '(可选)',
     titlePlaceholder: '简短描述，用于列表展示',
@@ -53,7 +53,7 @@ export const zh: Translations = {
     maxBudget: '最大预算 (USD)',
     interactionTimeout: '交互超时 (秒)',
     taskLanguage: '任务语言',
-    taskLanguageDesc: 'Claude Code 执行任务时使用的语言',
+    taskLanguageDesc: 'Code Agent 执行任务时使用的语言',
     langZh: '中文',
     langEn: 'English',
     createTask: '创建任务',

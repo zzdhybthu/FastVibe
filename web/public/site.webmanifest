@@ -1,7 +1,7 @@
 {
   "name": "FastVibe",
   "short_name": "FastVibe",
-  "description": "Claude Code 调度中心",
+  "description": "Code Agent 调度中心",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
