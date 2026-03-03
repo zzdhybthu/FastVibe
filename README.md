@@ -70,6 +70,7 @@ pnpm start          # 启动生产服务 (:8420)
 pnpm -r typecheck   # TypeScript 类型检查
 pnpm test           # 运行测试
 pnpm clean          # 清理构建产物 (dist/)
+pnpm clean:db       # 清空数据库 (server/data/)
 pnpm clean:all      # 清理构建产物 + 依赖 (dist/ + node_modules/)
 ```
 
