@@ -4,7 +4,17 @@
       <stop offset="0%" stop-color="#6366f1"/>
       <stop offset="100%" stop-color="#8b5cf6"/>
     </linearGradient>
+    <linearGradient id="bL" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="bR" x1="0.7" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
   </defs>
   <rect width="512" height="512" rx="108" fill="url(#bg)"/>
-  <path d="M296 96L176 288h80l-40 128 160-208h-96l40-112z" fill="#fff"/>
+  <!-- V-shaped double lightning bolts -->
+  <path d="M99,36 L171,198 L127,198 L225,450 L180,405 L108,234 L152,234 Z" fill="url(#bL)"/>
+  <path d="M413,36 L341,198 L385,198 L287,450 L332,405 L404,234 L360,234 Z" fill="url(#bR)"/>
 </svg>
