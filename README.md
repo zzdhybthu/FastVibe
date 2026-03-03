@@ -60,14 +60,35 @@ corepack prepare pnpm@latest --activate
 pnpm -v
 ```
 
-### 3. 安装 Claude Code CLI
+### 3. 安装并配置 Claude Code CLI
 
 ```bash
+# 安装
 curl -fsSL https://claude.ai/install.sh | bash
 
-# 验证
+# 验证安装
 claude --version
+claude doctor
 ```
+
+首次启动会自动打开浏览器进行登录（需要 Claude Pro/Max/Team/Enterprise 订阅）：
+
+```bash
+claude
+# 浏览器自动打开登录页面，若未打开可按 c 复制登录链接
+```
+
+登录后建议配置用户级 settings（`~/.claude/settings.json`）：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_API_KEY": "sk-ant-..."
+  }
+}
+```
+
+> `ANTHROPIC_API_KEY` 是 FastVibe 通过 Claude Agent SDK 调用 API 的凭证，在 [Anthropic Console](https://console.anthropic.com/) 获取。这与 Claude Code CLI 的登录账号是独立的。
 
 ## 快速开始
 
