@@ -7,7 +7,7 @@ const STORAGE_KEY = 'fastvibe_theme';
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
-  return 'light';
+  return 'dark';
 }
 
 function applyTheme(theme: Theme) {
