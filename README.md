@@ -9,6 +9,7 @@
 - **Git Worktree**: Claude Code 自动创建 worktree、分支、合并、push
 - **实时监控**: WebSocket 推送任务状态和日志
 - **用户交互**: Claude Code 可向用户提问，用户在 Web UI 回答
+- **语音输入**: Web UI 支持语音输入，转文本后发送给 Claude Code
 - **容错恢复**: 服务重启后自动恢复任务状态
 
 ## 项目结构
@@ -75,12 +76,13 @@ claude --version
 ```json
 {
   "env": {
-    "ANTHROPIC_API_KEY": "sk-ant-..."
-  }
+    "ANTHROPIC_API_KEY": "sk-ant-...",
+  },
+  "skipDangerousModePermissionPrompt": true
 }
 ```
 
-确保 `claude code` 可用。
+确保 `claude --dangerously-skip-permissions` 可用。
 
 ## 快速开始
 
