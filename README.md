@@ -11,12 +11,22 @@
 - **用户交互**: Claude Code 可向用户提问，用户在 Web UI 回答
 - **容错恢复**: 服务重启后自动恢复任务状态
 
+## 项目结构
+
+```
+server/            # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
+web/               # 前端 (React 18 + Vite + Zustand + TailwindCSS)
+shared/            # 共享类型
+docker/            # Docker Worker 镜像
+config.yaml        # 运行时配置
+```
+
 ## 技术栈
 
-- **后端**: Node.js + Fastify + Claude Agent SDK + Drizzle ORM (SQLite)
+- **后端**: Node.js (>=22) + Fastify + Claude Agent SDK + Drizzle ORM (SQLite)
 - **前端**: React 18 + TypeScript + Vite + Zustand + TailwindCSS
 - **通信**: WebSocket (ws) + REST API
-- **构建**: pnpm workspace
+- **构建**: pnpm workspace monorepo
 
 ## 前置要求
 
@@ -26,84 +36,58 @@
 
 ## 快速开始
 
-### 1. 安装依赖
-
 ```bash
-pnpm install
+pnpm install        # 安装依赖
 ```
 
-### 2. 配置
+编辑 `config.yaml`，设置 `server.authToken` 等参数。仓库通过 Web UI 管理。
+
+### 开发模式
+
+前后端分离，支持热重载：
 
 ```bash
-cp config.example.yaml config.yaml
-# 编辑 config.yaml:
-# - 设置 server.authToken
-# - 设置 claude.model 和预算
-# - 仓库通过 Web UI 管理
+pnpm dev            # 启动后端 (tsx watch, :8420)
+pnpm dev:web        # 启动前端 (Vite dev server, :5173)
 ```
 
-### 3. 构建前端
+前端 Vite 自动将 `/api/*` 和 `/ws` 代理到后端 `:8420`，无需手动处理跨域。两个服务需分别启动。
+
+### 生产模式
+
+单端口部署，后端同时托管前端静态文件：
 
 ```bash
-pnpm --filter @vibecoding/web build
+pnpm build          # 构建所有包 (shared + server + web)
+pnpm start          # 启动生产服务 (:8420)
 ```
 
-### 4. 启动服务
+构建后后端自动检测 `web/dist/` 并挂载为静态资源，访问 `:8420` 即同时提供 API 和前端界面。
+
+### 其他命令
 
 ```bash
-pnpm --filter @vibecoding/server dev
-```
-
-访问 http://localhost:8420 打开 Web UI。
-
-### 5. 验证
-
-```bash
-./scripts/smoke-test.sh
+pnpm -r typecheck   # TypeScript 类型检查
+pnpm test           # 运行测试
 ```
 
 ## 配置说明
 
 ```yaml
 server:
-  port: 8420           # 服务端口
-  host: '0.0.0.0'      # 监听地址
-  authToken: 'xxx'     # Bearer Token
+  port: 8420              # 服务端口
+  host: '0.0.0.0'         # 监听地址
+  authToken: 'xxx'        # Bearer Token
 
 global:
   maxTotalConcurrency: 5  # 总并发上限
 
 claude:
-  model: 'claude-sonnet-4-6'
-  maxBudgetUsd: 5.0
-  interactionTimeout: 1800  # 用户确认超时(秒)
+  model:                  # 可用模型列表
+    - 'claude-opus-4-6'
+    - 'claude-sonnet-4-6'
+  maxBudgetUsd: 1000.0    # 预算上限
+  interactionTimeout: 86400  # 用户确认超时(秒)
 ```
 
-仓库通过 Web UI 的「添加仓库」功能管理，无需在配置文件中声明。
-
-## 开发
-
-```bash
-# 启动后端 (带 hot reload)
-pnpm --filter @vibecoding/server dev
-
-# 启动前端 (Vite dev server, 代理到后端)
-pnpm --filter @vibecoding/web dev
-
-# TypeScript 类型检查
-pnpm -r typecheck
-
-# 构建所有
-pnpm build
-```
-
-## 项目结构
-
-```
-├── packages/
-│   ├── server/        # 后端 (Fastify + Claude Agent SDK)
-│   ├── web/           # 前端 (React + Vite)
-│   └── shared/        # 共享类型
-├── scripts/           # 工具脚本
-└── config.example.yaml
-```
+也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。
