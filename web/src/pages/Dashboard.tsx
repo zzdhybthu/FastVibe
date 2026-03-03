@@ -73,7 +73,7 @@ export default function Dashboard() {
         onOpenTaskForm={() => setShowTaskForm(true)}
       />
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-1 min-h-0 gap-4 p-4">
+      <main className="mx-auto flex w-full max-w-[1500px] flex-1 min-h-0 gap-4 p-4">
         {/* Main content area — always rendered to preserve scroll */}
         <div className="flex-1 min-w-0 min-h-0 flex flex-col">
           {!selectedRepoId ? (
