@@ -7,242 +7,242 @@
 </p>
 
 <p align="center">
-  <a href="#技术栈"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white" alt="Node.js" /></a>
-  <a href="#技术栈"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="#技术栈"><img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" /></a>
-  <a href="#技术栈"><img src="https://img.shields.io/badge/Claude_Code-Agent_SDK-6366f1?logo=anthropic&logoColor=white" alt="Claude Code" /></a>
-  <a href="#技术栈"><img src="https://img.shields.io/badge/pnpm-workspace-F69220?logo=pnpm&logoColor=white" alt="pnpm" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white" alt="Node.js" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Claude_Code-Agent_SDK-6366f1?logo=anthropic&logoColor=white" alt="Claude Code" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/pnpm-workspace-F69220?logo=pnpm&logoColor=white" alt="pnpm" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
 <p align="center">
-  一个轻量级的 Claude Code 调度中心，支持多仓库管理、任务队列、Git worktree 自动化以及 Web UI 实时交互。
+  A lightweight Claude Code orchestration hub with multi-repo management, task queuing, Git worktree automation, and real-time Web UI interaction.
 </p>
 
 <p align="center">
-  中文 | <a href="README.en.md">English</a>
+  <a href="README.zh.md">中文</a> | English
 </p>
 
-## 功能特性
+## Features
 
-- **多仓库管理**: 注册多个开发仓库，独立配置和隔离
-- **任务队列**: 优先级排队、并发控制、前序任务依赖
-- **任务并行**: 多个原子任务同时执行，互不干扰
-- **Git Worktree**: 自动创建 worktree、分支、合并、push
-- **实时监控**: WebSocket 推送任务状态和日志
-- **用户交互**: Claude Code 可向用户提问，用户在 Web UI 回答
-- **语音输入**: Web UI 支持语音输入，适用手机场景
-- **容错恢复**: 服务重启后自动恢复任务状态
+- **Multi-Repo Management**: Register multiple development repositories with independent configuration and isolation
+- **Task Queue**: Priority queuing, concurrency control, and predecessor task dependencies
+- **Parallel Execution**: Multiple atomic tasks run simultaneously without interference
+- **Git Worktree**: Automatic worktree creation, branching, merging, and pushing
+- **Real-Time Monitoring**: WebSocket-based task status and log streaming
+- **User Interaction**: Claude Code can ask questions; users respond via the Web UI
+- **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
+- **Fault Recovery**: Automatic task state recovery after service restart
 
-## 使用场景
+## Use Cases
 
-- **桌面端**: 用于看板协作，监控 Agent 进度
-- **手机端**: 用于灵活开发，随时随地通知 Agent
+- **Desktop**: Kanban-style collaboration, monitoring Agent progress
+- **Mobile**: Flexible development, notify your Agent anytime, anywhere
 
-## 设计理念
+## Design Philosophy
 
-> 指令原子化，任务并行化，流程自动化，干预最小化，开发灵活化。
+> Atomize instructions · parallelize tasks · automate workflows · minimize intervention · maximize flexibility.
 
-Agent 有能力根据指令完成项目的整体框架设计，但一次性满足所有愿望是不现实的——你的 prompt 不可能一次就详细覆盖所有需求。Agent 在缺乏明确指令时会自由发挥：有时偷懒，有时添油加醋，有时做错。当多个需求混在一起时，Agent 可能难以把握侧重点，出了问题也难以定位。
+An Agent can design the overall project framework based on instructions, but fulfilling all requirements at once is unrealistic — your prompt can never cover every detail in a single shot. Without clear instructions, the Agent improvises: sometimes cutting corners, sometimes over-engineering, sometimes getting things wrong. When multiple requirements are mixed together, the Agent may lose focus, and issues become hard to pinpoint.
 
-因此，正确的做法是：**先搭框架，再逐步修正，每次只给一个明确的指令。** 这并不低效——FastVibe 的任务并行化能力让这些原子任务同时推进，有条不紊。
+The right approach: **Build the framework first, then iterate step by step, giving one clear instruction at a time.** This is not inefficient — FastVibe's task parallelization lets these atomic tasks progress simultaneously and methodically.
 
-## 推荐工作流
+## Recommended Workflow
 
-### 第一步：搭建项目框架
+### Step 1: Scaffold the Project
 
-用 Claude Code 直接创建新项目：
+Use Claude Code to create a new project directly:
 
-1. 初始化项目目录，配置 git 和 remote
-2. 想清楚你要做什么，写一份尽可能详尽的指令，并初步完成 claude 的项目配置（如系统指令、技能等）
-3. 使用最好的模型 + plan mode，让 Agent 搭建项目的整体框架，实现初步功能
+1. Initialize the project directory, configure git and remote
+2. Think through what you want to build, write a detailed instruction set, and set up Claude's project configuration (system prompts, skills, etc.)
+3. Use the best model + plan mode to have the Agent scaffold the overall project framework and implement initial functionality
 
-### 第二步：定制 Agent 工作流（可选）
+### Step 2: Customize the Agent Workflow (Optional)
 
-- 修改 `server/src/services/prompt-builder.ts`——这里定义了 Agent 的系统指令，调整它可以直接改变 Agent 的行为模式
-- Fork 本项目，用 FastVibe 来改进 FastVibe，定制化调度中心
-- 如果现有架构不满足需求，也可以从零构建自己的调度系统
+- Modify `server/src/services/prompt-builder.ts` — this defines the Agent's system prompt; adjusting it directly changes the Agent's behavior
+- Fork this project and use FastVibe to improve FastVibe, customizing your orchestration hub
+- If the existing architecture doesn't meet your needs, build your own orchestration system from scratch
 
-### 第三步：原子化迭代
+### Step 3: Atomic Iteration
 
-将项目加入 FastVibe 的工作目录，开始提交原子化任务：
+Add your project to FastVibe's working directory and start submitting atomic tasks:
 
-- 每条任务只做一件事：修一个 bug、加一个功能、调一处样式
-- 多条任务可以并行执行，互不阻塞
-- 任务之间有依赖时，用前序任务功能串联
+- Each task does one thing: fix a bug, add a feature, tweak a style
+- Multiple tasks can execute in parallel without blocking each other
+- When tasks have dependencies, chain them using predecessor tasks
 
-## 项目结构
+## Project Structure
 
 ```
-server/            # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
-web/               # 前端 (React 18 + Vite + Zustand + TailwindCSS)
-shared/            # 共享类型
-config.yaml        # 运行时配置
+server/            # Backend (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
+web/               # Frontend (React 18 + Vite + Zustand + TailwindCSS)
+shared/            # Shared types
+config.yaml        # Runtime configuration
 ```
 
-## 技术栈
+## Tech Stack
 
-- **后端**: Node.js (>=22) + Fastify + Claude Agent SDK + Drizzle ORM (SQLite)
-- **前端**: React 18 + TypeScript + Vite + Zustand + TailwindCSS
-- **通信**: WebSocket (ws) + REST API
-- **构建**: pnpm workspace monorepo
+- **Backend**: Node.js (>=22) + Fastify + Claude Agent SDK + Drizzle ORM (SQLite)
+- **Frontend**: React 18 + TypeScript + Vite + Zustand + TailwindCSS
+- **Communication**: WebSocket (ws) + REST API
+- **Build**: pnpm workspace monorepo
 
-## 前置要求
+## Prerequisites
 
-### 1. 安装 Node.js (>= 22)
+### 1. Install Node.js (>= 22)
 
-推荐使用 [fnm](https://github.com/Schniz/fnm) 管理 Node.js 版本：
+Recommended: use [fnm](https://github.com/Schniz/fnm) for Node.js version management:
 
 ```bash
-# 安装 fnm
+# Install fnm
 curl -fsSL https://fnm.vercel.app/install | bash
 
-# 重新加载 shell 配置（或重开终端）
-source ~/.bashrc  # 或 source ~/.zshrc
+# Reload shell config (or restart terminal)
+source ~/.bashrc  # or source ~/.zshrc
 
-# 安装并使用 Node.js 22
+# Install and use Node.js 22
 fnm install 22
 fnm use 22
 
-# 验证
-node -v  # 应输出 v22.x.x
+# Verify
+node -v  # Should output v22.x.x
 ```
 
-### 2. 启用 pnpm
+### 2. Enable pnpm
 
-Node.js 22 内置 corepack，直接启用即可：
+Node.js 22 ships with corepack — just enable it:
 
 ```bash
 corepack enable
 corepack prepare pnpm@latest --activate
 
-# 验证
+# Verify
 pnpm -v
 ```
 
-### 3. 安装并配置 Claude Code CLI
+### 3. Install and Configure Claude Code CLI
 
 ```bash
-# 安装
+# Install
 curl -fsSL https://claude.ai/install.sh | bash
 
-# 验证安装
+# Verify
 claude --version
 ```
 
-登录或配置用户级 settings（`~/.claude/settings.json`）：
+Log in or configure user-level settings (`~/.claude/settings.json`):
 
 ```json
 {
   "env": {
-    "ANTHROPIC_API_KEY": "sk-ant-...",
+    "ANTHROPIC_API_KEY": "sk-ant-..."
   },
   "skipDangerousModePermissionPrompt": true
 }
 ```
 
-确保 `claude --dangerously-skip-permissions` 可用。
+Make sure `claude --dangerously-skip-permissions` works.
 
-## 快速开始
-
-```bash
-pnpm install        # 安装依赖
-```
-
-编辑 `config.yaml`，设置 `server.authToken` 等参数。仓库通过 Web UI 管理。
-
-### 开发模式
-
-前后端分离，支持热重载：
+## Quick Start
 
 ```bash
-pnpm dev            # 启动后端 (tsx watch, :8420)
-pnpm dev:web        # 启动前端 (Vite dev server, :5173)
+pnpm install        # Install dependencies
 ```
 
-前端 Vite 自动将 `/api/*` 和 `/ws` 代理到后端 `:8420`，无需手动处理跨域。两个服务需分别启动。
+Edit `config.yaml` to set `server.authToken` and other parameters. Repositories are managed through the Web UI.
 
-### 生产模式
+### Development Mode
 
-单端口部署，后端同时托管前端静态文件：
+Frontend and backend run separately with hot reload:
 
 ```bash
-pnpm build          # 构建所有包 (shared + server + web)
-pnpm start          # 启动生产服务 (:8420)
+pnpm dev            # Start backend (tsx watch, :8420)
+pnpm dev:web        # Start frontend (Vite dev server, :5173)
 ```
 
-构建后后端自动检测 `web/dist/` 并挂载为静态资源，访问 `:8420` 即同时提供 API 和前端界面。
+Vite automatically proxies `/api/*` and `/ws` to the backend at `:8420` — no manual CORS handling needed. Both services must be started separately.
 
-### 其他命令
+### Production Mode
+
+Single-port deployment — the backend serves the frontend static files:
 
 ```bash
-pnpm -r typecheck   # TypeScript 类型检查
-pnpm test           # 运行测试
-pnpm clean          # 清理构建产物 (dist/)
-pnpm clean:db       # 清空数据库 (server/data/)
-pnpm clean:all      # 清理构建产物 + 依赖 (dist/ + node_modules/)
+pnpm build          # Build all packages (shared + server + web)
+pnpm start          # Start production server (:8420)
 ```
 
-## 配置说明
+After building, the backend automatically detects `web/dist/` and mounts it as static assets. Access `:8420` for both API and frontend.
+
+### Other Commands
+
+```bash
+pnpm -r typecheck   # TypeScript type checking
+pnpm test           # Run tests
+pnpm clean          # Clean build artifacts (dist/)
+pnpm clean:db       # Clear database (server/data/)
+pnpm clean:all      # Clean build artifacts + dependencies (dist/ + node_modules/)
+```
+
+## Configuration
 
 ```yaml
 server:
-  port: 8420              # 服务端口
-  host: '0.0.0.0'         # 监听地址
+  port: 8420              # Server port
+  host: '0.0.0.0'         # Listen address
   authToken: 'xxx'        # Bearer Token
 
 global:
-  maxTotalConcurrency: 5  # 总并发上限
+  maxTotalConcurrency: 5  # Max total concurrency
 
 claude:
-  model:                  # 可用模型列表
+  model:                  # Available models
     - 'claude-opus-4-6'
     - 'claude-sonnet-4-6'
-  maxBudgetUsd: 1000.0    # 预算上限
-  interactionTimeout: 86400  # 用户确认超时(秒)
+  maxBudgetUsd: 1000.0    # Budget limit
+  interactionTimeout: 86400  # User confirmation timeout (seconds)
 ```
 
-也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。
+You can also specify the config file path via the `CONFIG_PATH` environment variable.
 
-## 浏览器访问
+## Browser Access
 
-> 推荐使用 Chrome。
+> Chrome is recommended.
 
-### 本地访问
+### Local Access
 
-服务启动后，直接在浏览器打开 `http://localhost:8420`。
+After starting the server, open `http://localhost:8420` in your browser.
 
-### 远程服务器访问
+### Remote Server Access
 
-如果 FastVibe 运行在远程服务器上，可通过 SSH 端口转发在本地浏览器访问：
+If FastVibe is running on a remote server, use SSH port forwarding:
 
 ```bash
 ssh -Nfn -L 8420:localhost:8420 user@your-server-ip
 ```
 
-然后在本地浏览器打开 `http://localhost:8420`。
+Then open `http://localhost:8420` in your local browser.
 
-### 手机访问
+### Mobile Access
 
-手机同样可以通过 SSH 端口转发访问。例如 [Termux](https://termux.dev)（安卓）：
+Mobile devices can also use SSH port forwarding. For example, with [Termux](https://termux.dev) (Android):
 
-1. 安装 Termux 后，在终端中执行相同的 SSH 端口转发命令
-2. 根据提示开启 **wakelock**（`termux-wake-lock`），防止 Termux 在后台被系统休眠
-3. 部分手机需要在 **系统设置 → 应用启动管理** 中，将 Termux 从「自动管理」改为「手动管理」，允许后台运行，防止进程被杀
-4. 在手机浏览器打开 `http://localhost:8420`，可以将网页 **保存到桌面** 作为独立 APP 使用（PWA）
+1. After installing Termux, run the same SSH port forwarding command
+2. Enable **wakelock** (`termux-wake-lock`) to prevent Termux from being suspended in the background
+3. Some phones require changing Termux from "Auto-manage" to "Manual" in **Settings > App Launch Management** to allow background execution
+4. Open `http://localhost:8420` in the mobile browser — you can **add to home screen** for a standalone app experience (PWA)
 
-### 语音输入
+### Voice Input
 
-Web UI 支持语音输入功能。首次使用时，浏览器会请求麦克风权限，请点击允许。
+The Web UI supports voice input. On first use, the browser will request microphone permission — please allow it.
 
-## 安全建议
+## Security Recommendations
 
-本项目默认以 dangerous mode 运行 Claude Code，Agent 拥有完整的文件读写和命令执行权限。建议：
+This project runs Claude Code in dangerous mode by default — the Agent has full file read/write and command execution privileges. Recommendations:
 
-- 使用隔离的开发环境
-- 避免以 root 权限运行
-- 定期备份不受 git 管理的重要数据
+- Use an isolated development environment
+- Avoid running as root
+- Regularly back up important data not managed by git
 
-## 许可证
+## License
 
 [MIT](LICENSE)
