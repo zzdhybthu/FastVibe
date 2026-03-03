@@ -12,18 +12,16 @@
     </linearGradient>
   </defs>
 
-  <!-- "Fast" in black -->
   <text x="118" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#111" letter-spacing="-1">Fast</text>
 
-  <!-- V-bolt character in gold metallic -->
   <g transform="translate(237, 10) scale(0.60)">
-    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
-          fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+    <g transform="rotate(6, 49, 49)">
+      <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+            fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+    </g>
   </g>
 
-  <!-- "ibe" in black -->
   <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#111" letter-spacing="-1">ibe</text>
 
-  <!-- Subtitle -->
   <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#888" text-anchor="middle" letter-spacing="0.5">Claude Code Orchestration Hub</text>
 </svg>

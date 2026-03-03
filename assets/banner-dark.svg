@@ -15,8 +15,10 @@
   <text x="118" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">Fast</text>
 
   <g transform="translate(237, 10) scale(0.60)">
-    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
-          fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+    <g transform="rotate(6, 49, 49)">
+      <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+            fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+    </g>
   </g>
 
   <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">ibe</text>

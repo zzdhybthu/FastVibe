@@ -1,19 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffe680"/>
-      <stop offset="25%" stop-color="#f0c030"/>
-      <stop offset="55%" stop-color="#d4a017"/>
+    <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0c030"/>
+      <stop offset="50%" stop-color="#d4a017"/>
       <stop offset="100%" stop-color="#b8860b"/>
     </linearGradient>
-    <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fff4b8"/>
+    <linearGradient id="brushGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4a017"/>
+      <stop offset="50%" stop-color="#b8860b"/>
       <stop offset="100%" stop-color="#8b6914"/>
     </linearGradient>
+    <clipPath id="circleClip">
+      <circle cx="256" cy="256" r="215"/>
+    </clipPath>
   </defs>
-  <rect width="512" height="512" rx="108" fill="#111"/>
-  <g transform="translate(50, 30) scale(4.2)">
-    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
-          fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Left half (dark) - left of lightning divider -->
+  <path d="M256,0 L226,134 L288,164 L206,268 L278,298 L246,512 L0,512 L0,0 Z"
+        clip-path="url(#circleClip)" fill="#1a1a1a"/>
+
+  <!-- Right half (gold) - right of lightning divider -->
+  <path d="M256,0 L226,134 L288,164 L206,268 L278,298 L246,512 L512,512 L512,0 Z"
+        clip-path="url(#circleClip)" fill="url(#goldFill)"/>
+
+  <!-- Lightning divider line -->
+  <path d="M256,41 L226,134 L288,164 L206,268 L278,298 L246,471"
+        clip-path="url(#circleClip)"
+        stroke="#ffe680" stroke-width="6" fill="none" stroke-linejoin="round"/>
+
+  <!-- Brush stroke circle (enso style with gap) -->
+  <circle cx="256" cy="256" r="226" stroke="url(#brushGold)" stroke-width="22" fill="none"
+          stroke-dasharray="1360 60" stroke-dashoffset="120" stroke-linecap="round"/>
+  <!-- Brush highlight for texture -->
+  <circle cx="256" cy="256" r="226" stroke="#d4a017" stroke-width="8" fill="none"
+          stroke-dasharray="1360 60" stroke-dashoffset="120" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- Tilted V (white) -->
+  <g transform="rotate(8, 256, 256)">
+    <g transform="translate(130, 112) scale(2.58)">
+      <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+            fill="#ffffff" fill-rule="evenodd" opacity="0.95"/>
+    </g>
   </g>
 </svg>
