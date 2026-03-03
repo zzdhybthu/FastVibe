@@ -50,7 +50,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           {/* Interface settings */}
           <section>
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.interfaceSettings}</h3>
-            <div className="card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="card flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
                 <CustomSelect
@@ -63,23 +63,21 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   onChange={(val) => setLanguage(val as 'zh' | 'en')}
                 />
               </div>
-              <div className="flex items-center">
-                <button
-                  onClick={toggleTheme}
-                  className="btn-ghost flex items-center gap-1.5 px-2.5 py-1.5 text-sm"
-                >
-                  {theme === 'dark' ? (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                    </svg>
-                  )}
-                  {theme === 'dark' ? t.config.darkMode : t.config.lightMode}
-                </button>
-              </div>
+              <button
+                onClick={toggleTheme}
+                className="btn-ghost flex items-center gap-1.5 px-2.5 py-1.5 text-sm"
+              >
+                {theme === 'dark' ? (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">{theme === 'dark' ? t.config.darkMode : t.config.lightMode}</span>
+              </button>
             </div>
           </section>
 
@@ -131,20 +129,20 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                         onCancel={() => setEditingRepoId(null)}
                       />
                     ) : (
-                      <div className="card flex items-center justify-between gap-3">
+                      <div className="card flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-ink-2">{repo.name}</span>
-                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
+                          <span className="text-sm font-medium text-ink-2">{repo.name}</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint w-fit">
                               {repo.mainBranch}
                             </span>
-                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
+                            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint w-fit">
                               {t.config.concurrency} {repo.maxConcurrency}
                             </span>
                           </div>
-                          <p className="text-xs text-ink-hint truncate mt-0.5 font-mono">{repo.path}</p>
+                          <p className="text-xs text-ink-hint truncate mt-1 font-mono">{repo.path}</p>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex flex-col sm:flex-row items-center gap-1 shrink-0">
                           <button
                             onClick={() => { setEditingRepoId(repo.id); setShowAddForm(false); }}
                             className="btn-ghost p-1.5 text-ink-hint hover:text-brand-400"
