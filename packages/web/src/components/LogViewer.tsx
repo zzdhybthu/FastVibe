@@ -60,12 +60,12 @@ export default function LogViewer({ logs }: LogViewerProps) {
       className="max-h-[400px] overflow-y-auto rounded-lg bg-th-page border border-th-border p-3 font-mono text-xs leading-relaxed"
     >
       {logs.map((log, i) => (
-        <div key={log.id || i} className="flex gap-2 hover:bg-th-surface px-1 py-0.5 rounded">
+        <div key={log.id || i} className="flex flex-wrap sm:flex-nowrap gap-x-2 hover:bg-th-surface px-1 py-0.5 rounded">
           <span className="shrink-0 text-ink-faint">{formatTimestamp(log.timestamp)}</span>
           <span className={`shrink-0 font-semibold ${LEVEL_STYLES[log.level] || LEVEL_STYLES.info}`}>
             {LEVEL_LABELS[log.level] || 'INFO'}
           </span>
-          <span className={`break-all ${LEVEL_STYLES[log.level] || LEVEL_STYLES.info}`}>
+          <span className={`w-full sm:w-auto break-all ${LEVEL_STYLES[log.level] || LEVEL_STYLES.info}`}>
             {log.message}
           </span>
         </div>
