@@ -50,7 +50,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           {/* Interface settings */}
           <section>
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.interfaceSettings}</h3>
-            <div className="card flex items-center justify-between gap-4">
+            <div className="card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
                 <CustomSelect
@@ -133,7 +133,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                     ) : (
                       <div className="card flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-medium text-ink-2">{repo.name}</span>
                             <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
                               {repo.mainBranch}
