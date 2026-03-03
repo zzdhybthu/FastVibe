@@ -1,46 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <style>
-    .dark-half { fill: #1a1a1a; }
-    .light-outline { opacity: 0; }
-    @media (prefers-color-scheme: light) {
-      .dark-half { fill: #2d2d32; }
-      .light-outline { opacity: 0.3; }
-    }
-  </style>
   <defs>
-    <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f0c030"/>
-      <stop offset="50%" stop-color="#d4a017"/>
-      <stop offset="100%" stop-color="#b8860b"/>
+    <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
-    <clipPath id="circleClip">
-      <circle cx="256" cy="256" r="215"/>
+    <clipPath id="circleClip"><circle cx="256" cy="256" r="215"/></clipPath>
+    <clipPath id="leftClip">
+      <path d="M256,0 L226,134 L288,164 L206,268 L278,298 L246,512 L0,512 L0,0 Z"/>
     </clipPath>
+    <mask id="vCutout">
+      <rect width="512" height="512" fill="white"/>
+      <g transform="rotate(8, 256, 256)">
+        <g transform="translate(130, 112) scale(2.58)">
+          <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+                fill="black" fill-rule="evenodd"/>
+        </g>
+      </g>
+    </mask>
   </defs>
 
-  <!-- Left half (dark) - left of lightning divider -->
-  <path class="dark-half" d="M256,0 L226,134 L288,164 L206,268 L278,298 L246,512 L0,512 L0,0 Z"
-        clip-path="url(#circleClip)"/>
-
-  <!-- Right half (gold) - right of lightning divider -->
+  <!-- Right half: blue with V cutout -->
   <path d="M256,0 L226,134 L288,164 L206,268 L278,298 L246,512 L512,512 L512,0 Z"
-        clip-path="url(#circleClip)" fill="url(#goldFill)"/>
+        clip-path="url(#circleClip)" fill="url(#blueFill)" mask="url(#vCutout)"/>
 
-  <!-- Lightning divider line -->
-  <path d="M256,41 L226,134 L288,164 L206,268 L278,298 L246,471"
-        clip-path="url(#circleClip)"
-        stroke="#ffe680" stroke-width="6" fill="none" stroke-linejoin="round"/>
-
-  <!-- Sketch arc on left side -->
-  <path d="M 120,430 A 220,220 0 0 1 120,82" stroke="#b8860b" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.7"/>
-  <!-- Light mode outline -->
-  <circle class="light-outline" cx="256" cy="256" r="215" stroke="#c8a020" stroke-width="2" fill="none"/>
-
-  <!-- Tilted V (white) -->
-  <g transform="rotate(8, 256, 256)">
-    <g transform="translate(130, 112) scale(2.58)">
-      <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
-            fill="#ffffff" fill-rule="evenodd" opacity="0.95"/>
+  <!-- Left half: blue V only -->
+  <g clip-path="url(#circleClip)">
+    <g clip-path="url(#leftClip)">
+      <g transform="rotate(8, 256, 256)">
+        <g transform="translate(130, 112) scale(2.58)">
+          <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+                fill="url(#blueFill)" fill-rule="evenodd"/>
+        </g>
+      </g>
     </g>
   </g>
+
+  <!-- Sketch arc on left side -->
+  <path d="M 120,430 A 220,220 0 0 1 120,82" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
 </svg>
