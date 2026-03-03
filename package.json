@@ -7,7 +7,7 @@
     "build": "pnpm -r build",
     "start": "pnpm --filter @vibecoding/server start",
     "clean": "rm -rf server/dist web/dist shared/dist",
-    "clean:all": "rm -rf server/dist web/dist shared/dist node_modules server/node_modules web/node_modules shared/node_modules",
+    "clean:all": "pnpm clean && rm -rf node_modules server/node_modules web/node_modules shared/node_modules",
     "clean:db": "rm -rf server/data",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"
