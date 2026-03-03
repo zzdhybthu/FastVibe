@@ -1,9 +1,22 @@
-# FastVibe
+<p align="center">
+  <img src="assets/banner.svg" alt="FastVibe" width="800" />
+</p>
 
-一个轻量级的 Claude Code 调度中心，支持多仓库管理、任务队列、Git worktree 自动化以及 Web UI 实时交互。
+<p align="center">
+  <a href="#技术栈"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white" alt="Node.js" /></a>
+  <a href="#技术栈"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="#技术栈"><img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" /></a>
+  <a href="#技术栈"><img src="https://img.shields.io/badge/Claude_Code-Agent_SDK-6366f1?logo=anthropic&logoColor=white" alt="Claude Code" /></a>
+  <a href="#技术栈"><img src="https://img.shields.io/badge/pnpm-workspace-F69220?logo=pnpm&logoColor=white" alt="pnpm" /></a>
+</p>
 
-在电脑上，它是清晰高效的开发看板；
-在手机上，它是随身携带的灵活开发工具。
+<p align="center">
+  一个轻量级的 Claude Code 调度中心，支持多仓库管理、任务队列、Git worktree 自动化以及 Web UI 实时交互。
+</p>
+
+<p align="center">
+  在电脑上，它是清晰高效的开发看板；在手机上，它是随身携带的灵活开发工具。
+</p>
 
 ## 功能特性
 
@@ -182,8 +195,6 @@ claude:
 也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。
 
 ## 浏览器访问
-
-> 推荐使用 Chrome。
 
 ### 本地访问
 
