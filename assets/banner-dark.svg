@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 110" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe680"/>
+      <stop offset="25%" stop-color="#f0c030"/>
+      <stop offset="55%" stop-color="#d4a017"/>
+      <stop offset="100%" stop-color="#b8860b"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff4b8"/>
+      <stop offset="100%" stop-color="#8b6914"/>
+    </linearGradient>
+  </defs>
+
+  <text x="118" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">Fast</text>
+
+  <g transform="translate(237, 10) scale(0.60)">
+    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+          fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+
+  <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">ibe</text>
+
+  <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#aaa" text-anchor="middle" letter-spacing="0.5">Claude Code Orchestration Hub</text>
+</svg>

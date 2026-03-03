@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="FastVibe" width="800" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.svg" />
+    <img src="assets/banner-light.svg" alt="FastVibe" width="800" />
+  </picture>
 </p>
 
 <p align="center">
