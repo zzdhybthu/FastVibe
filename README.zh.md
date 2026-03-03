@@ -34,7 +34,7 @@
 - **语音输入**: Web UI 支持语音输入，适用手机场景
 - **容错恢复**: 服务重启后自动恢复任务状态
 
-> **注意**: 当前仅支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 作为后端 Agent。如需支持其他 Code Agent（如 Codex、Xcode 等），可自行扩展 Agent 集成层。
+> **注意**: 当前仅支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 作为后端 Agent。如需支持其他 Code Agent（如 Codex 等），可自行扩展 Agent 集成层。
 
 ## 使用场景
 

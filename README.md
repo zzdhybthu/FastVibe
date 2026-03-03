@@ -34,7 +34,7 @@
 - **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
 - **Fault Recovery**: Automatic task state recovery after service restart
 
-> **Note**: Currently only [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is supported as the backend agent. To support other Code Agents (e.g. Codex, Xcode), you can extend the agent integration layer yourself.
+> **Note**: Currently only [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is supported as the backend agent. To support other Code Agents (e.g. Codex), you can extend the agent integration layer yourself.
 
 ## Use Cases
 
