@@ -10,6 +10,10 @@
       <stop offset="0%" stop-color="#fff4b8"/>
       <stop offset="100%" stop-color="#8b6914"/>
     </linearGradient>
+    <linearGradient id="grayGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d1d5db"/>
+      <stop offset="100%" stop-color="#9ca3af"/>
+    </linearGradient>
   </defs>
 
   <text x="118" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">Fast</text>
@@ -21,7 +25,7 @@
     </g>
   </g>
 
-  <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#f0f0f0" letter-spacing="-1">ibe</text>
+  <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="url(#grayGrad)" letter-spacing="-1">ibe</text>
 
   <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#aaa" text-anchor="middle" letter-spacing="0.5">Claude Code Orchestration Hub</text>
 </svg>
