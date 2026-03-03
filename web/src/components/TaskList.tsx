@@ -149,7 +149,7 @@ export default function TaskList({ onOpenTaskForm }: TaskListProps) {
         /* Board view */
         <div className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pt-2 md:flex-row md:gap-3 md:overflow-x-auto">
           {STATUS_TAB_KEYS.map((col) => (
-            <div key={col} className="flex flex-col md:min-w-[220px] md:flex-1">
+            <div key={col} className="flex flex-col md:min-w-[280px] md:flex-1">
               {/* Column header */}
               <div className="flex items-center justify-between mb-2 px-1">
                 <div className="flex items-center gap-2">
