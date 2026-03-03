@@ -5,6 +5,33 @@ import { useT } from '../i18n';
 import LogViewer from './LogViewer';
 import UserConfirm from './UserConfirm';
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="absolute top-2 right-2 p-1 rounded text-ink-hint hover:text-ink-2 hover:bg-th-hover transition-colors"
+    >
+      {copied ? (
+        <svg className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      ) : (
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 interface TaskDetailProps {
   onClose: () => void;
 }
@@ -78,7 +105,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {/* Prompt */}
       <div>
         <h3 className="text-xs font-medium text-ink-hint uppercase tracking-wider mb-1">{t.taskDetail.prompt}</h3>
-        <div className="rounded-lg bg-th-input border border-th-border-strong p-3 text-sm text-ink-3 whitespace-pre-wrap font-mono">
+        <div className="relative rounded-lg bg-th-input border border-th-border-strong p-3 pr-9 text-sm text-ink-3 whitespace-pre-wrap font-mono">
+          <CopyButton text={taskDetail.prompt} />
           {taskDetail.prompt}
         </div>
       </div>
@@ -174,7 +202,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {taskDetail.errorMessage && (
         <div>
           <h3 className="text-xs font-medium text-red-400 uppercase tracking-wider mb-1">{t.taskDetail.errorMessage}</h3>
-          <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-300 font-mono whitespace-pre-wrap">
+          <div className="relative rounded-lg bg-red-500/10 border border-red-500/20 p-3 pr-9 text-sm text-red-300 font-mono whitespace-pre-wrap">
+            <CopyButton text={taskDetail.errorMessage} />
             {taskDetail.errorMessage}
           </div>
         </div>
@@ -184,7 +213,8 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {taskDetail.result && (
         <div>
           <h3 className="text-xs font-medium text-green-400 uppercase tracking-wider mb-1">{t.taskDetail.result}</h3>
-          <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-300 font-mono whitespace-pre-wrap max-h-[200px] overflow-y-auto">
+          <div className="relative rounded-lg bg-green-500/10 border border-green-500/20 p-3 pr-9 text-sm text-green-300 font-mono whitespace-pre-wrap max-h-[200px] overflow-y-auto">
+            <CopyButton text={taskDetail.result} />
             {taskDetail.result}
           </div>
         </div>
