@@ -243,6 +243,10 @@ This project runs Claude Code in dangerous mode by default — the Agent has ful
 - Avoid running as root
 - Regularly back up important data not managed by git
 
+## References
+
+- [胡渊鸣 | 我给 10 个 Claude Code 打工](https://mp.weixin.qq.com/s/9qPD3gXj3HLmrKC64Q6fbQ)
+
 ## License
 
 [MIT](LICENSE)

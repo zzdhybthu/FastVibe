@@ -24,7 +24,7 @@ export const zh: Translations = {
     confirmDeleteRepo: (name: string) => `确定删除仓库 "${name}"？`,
     about: '关于',
     aboutTitle: 'FastVibe 编排中心 v0.1.0',
-    aboutDesc: '基于胡渊鸣《我给 10 个 Claude Code 打工》构建的并行化开发工具',
+    aboutDesc: 'github.com/zzdhybthu/FastVibe',
     repoName: '仓库名称',
     repoPath: '本地路径',
     mainBranch: '主分支',

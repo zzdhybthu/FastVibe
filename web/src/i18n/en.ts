@@ -26,7 +26,7 @@ export const en: Translations = {
     confirmDeleteRepo: (name: string) => `Are you sure you want to delete repository "${name}"?`,
     about: 'About',
     aboutTitle: 'FastVibe Orchestration Center v0.1.0',
-    aboutDesc: 'Parallel development tool inspired by Yuanming Hu\'s "I Have 10 Claude Codes Working for Me"',
+    aboutDesc: 'github.com/zzdhybthu/FastVibe',
     repoName: 'Repository Name',
     repoPath: 'Local Path',
     mainBranch: 'Main Branch',

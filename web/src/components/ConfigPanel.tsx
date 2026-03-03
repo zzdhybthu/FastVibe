@@ -197,7 +197,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             <div className="card text-sm text-ink-muted space-y-1">
               <p>{t.config.aboutTitle}</p>
               <p className="text-xs text-ink-faint">
-                {t.config.aboutDesc}
+                <a href={`https://${t.config.aboutDesc}`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors">{t.config.aboutDesc}</a>
               </p>
             </div>
           </section>
