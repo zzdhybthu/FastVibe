@@ -5,6 +5,7 @@ import { useThemeStore } from '../stores/theme-store';
 import { useConfirm } from '../stores/confirm-store';
 import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
+import CustomSelect from './CustomSelect';
 
 interface ConfigPanelProps {
   onClose: () => void;
@@ -52,14 +53,15 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             <div className="card flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
-                <select
-                  className="input w-28 text-sm"
+                <CustomSelect
+                  className="w-28 text-sm"
+                  options={[
+                    { value: 'zh', label: t.common.zh },
+                    { value: 'en', label: t.common.en },
+                  ]}
                   value={language}
-                  onChange={(e) => setLanguage(e.target.value as 'zh' | 'en')}
-                >
-                  <option value="zh">{t.common.zh}</option>
-                  <option value="en">{t.common.en}</option>
-                </select>
+                  onChange={(val) => setLanguage(val as 'zh' | 'en')}
+                />
               </div>
               <div className="flex items-center">
                 <button
@@ -179,14 +181,15 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
             <div className="card flex items-center gap-2">
               <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
-              <select
-                className="input w-28 text-sm"
+              <CustomSelect
+                className="w-28 text-sm"
+                options={[
+                  { value: 'zh', label: t.common.zh },
+                  { value: 'en', label: t.common.en },
+                ]}
                 value={voiceLang}
-                onChange={(e) => setVoiceLang(e.target.value as 'zh' | 'en')}
-              >
-                <option value="zh">{t.common.zh}</option>
-                <option value="en">{t.common.en}</option>
-              </select>
+                onChange={(val) => setVoiceLang(val as 'zh' | 'en')}
+              />
             </div>
           </section>
 

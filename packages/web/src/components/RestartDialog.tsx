@@ -3,6 +3,7 @@ import { useAppStore } from '../stores/app-store';
 import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import CustomSelect from './CustomSelect';
 
 export default function RestartDialog() {
   const restartingTask = useAppStore((s) => s.restartingTask);
@@ -162,16 +163,12 @@ export default function RestartDialog() {
           <div>
             <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.restartDialog.model}</label>
             {claudeDefaults && claudeDefaults.models.length > 0 ? (
-              <select
-                className="input"
+              <CustomSelect
+                options={claudeDefaults.models.map((m) => ({ value: m, label: m }))}
                 value={model}
-                onChange={(e) => setModel(e.target.value)}
+                onChange={(val) => setModel(val)}
                 disabled={submitting}
-              >
-                {claudeDefaults.models.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+              />
             ) : (
               <input
                 type="text"
@@ -220,15 +217,15 @@ export default function RestartDialog() {
             <label className="block text-sm font-medium text-ink-3 mb-1.5">
               {t.restartDialog.taskLanguage}
             </label>
-            <select
-              className="input"
+            <CustomSelect
+              options={[
+                { value: 'zh', label: t.restartDialog.langZh },
+                { value: 'en', label: t.restartDialog.langEn },
+              ]}
               value={taskLanguage}
-              onChange={(e) => setTaskLanguage(e.target.value as 'zh' | 'en')}
+              onChange={(val) => setTaskLanguage(val as 'zh' | 'en')}
               disabled={submitting}
-            >
-              <option value="zh">{t.restartDialog.langZh}</option>
-              <option value="en">{t.restartDialog.langEn}</option>
-            </select>
+            />
           </div>
 
           {/* Thinking mode toggle */}

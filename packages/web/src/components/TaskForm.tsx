@@ -3,6 +3,7 @@ import { useAppStore } from '../stores/app-store';
 import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import CustomSelect from './CustomSelect';
 interface TaskFormProps {
   onClose: () => void;
 }
@@ -180,19 +181,18 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               <label className="block text-sm font-medium text-ink-3 mb-1.5">
                 {t.taskForm.predecessorTask} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
               </label>
-              <select
-                className="input"
+              <CustomSelect
+                options={[
+                  { value: '', label: t.taskForm.noPredecessor },
+                  ...eligiblePredecessors.map((task) => ({
+                    value: task.id,
+                    label: `${task.title || task.prompt.slice(0, 60)} (${task.status})`,
+                  })),
+                ]}
                 value={predecessorTaskId}
-                onChange={(e) => setPredecessorTaskId(e.target.value)}
+                onChange={(val) => setPredecessorTaskId(val)}
                 disabled={submitting}
-              >
-                <option value="">{t.taskForm.noPredecessor}</option>
-                {eligiblePredecessors.map((task) => (
-                  <option key={task.id} value={task.id}>
-                    {task.title || task.prompt.slice(0, 60)} ({task.status})
-                  </option>
-                ))}
-              </select>
+              />
               <p className="mt-1 text-xs text-ink-hint">
                 {t.taskForm.predecessorDesc}
               </p>
@@ -224,17 +224,15 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               <div>
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
                 {claudeDefaults && claudeDefaults.models.length > 0 ? (
-                  <select
-                    className="input"
+                  <CustomSelect
+                    options={[
+                      { value: '', label: t.taskForm.modelDefault(claudeDefaults.defaultModel) },
+                      ...claudeDefaults.models.map((m) => ({ value: m, label: m })),
+                    ]}
                     value={model}
-                    onChange={(e) => setModel(e.target.value)}
+                    onChange={(val) => setModel(val)}
                     disabled={submitting}
-                  >
-                    <option value="">{t.taskForm.modelDefault(claudeDefaults.defaultModel)}</option>
-                    {claudeDefaults.models.map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
+                  />
                 ) : (
                   <input
                     type="text"
@@ -286,15 +284,15 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">
                   {t.taskForm.taskLanguage}
                 </label>
-                <select
-                  className="input"
+                <CustomSelect
+                  options={[
+                    { value: 'zh', label: t.taskForm.langZh },
+                    { value: 'en', label: t.taskForm.langEn },
+                  ]}
                   value={taskLanguage}
-                  onChange={(e) => setTaskLanguage(e.target.value as 'zh' | 'en')}
+                  onChange={(val) => setTaskLanguage(val as 'zh' | 'en')}
                   disabled={submitting}
-                >
-                  <option value="zh">{t.taskForm.langZh}</option>
-                  <option value="en">{t.taskForm.langEn}</option>
-                </select>
+                />
                 <p className="mt-1 text-xs text-ink-hint">{t.taskForm.taskLanguageDesc}</p>
               </div>
             </div>
