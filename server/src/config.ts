@@ -22,7 +22,7 @@ const configSchema = z.object({
 
 export function loadConfig(): AppConfig {
   const configPath = process.env.CONFIG_PATH
-    || resolve(import.meta.dirname, '../../../config.yaml');
+    || resolve(import.meta.dirname, '../../config.yaml');
   const raw = readFileSync(configPath, 'utf-8');
   const parsed = parseYaml(raw);
   return configSchema.parse(parsed);

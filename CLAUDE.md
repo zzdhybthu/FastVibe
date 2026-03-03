@@ -5,12 +5,10 @@
 
 ## Architecture
 ```
-packages/
-├── server/        # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
-├── web/           # 前端 (React 18 + Vite + Zustand + TailwindCSS)
-└── shared/        # 共享类型
+server/            # 后端 (Fastify + Claude Agent SDK + Drizzle ORM/SQLite)
+web/               # 前端 (React 18 + Vite + Zustand + TailwindCSS)
+shared/            # 共享类型
 docker/            # Docker Worker 镜像
-scripts/           # 工具脚本
 config.yaml        # 运行时配置
 ```
 
