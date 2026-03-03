@@ -23,7 +23,7 @@ export const zh: Translations = {
     delete: '删除',
     confirmDeleteRepo: (name: string) => `确定删除仓库 "${name}"？`,
     about: '关于',
-    aboutTitle: 'VibeCoding 编排中心 v0.1.0',
+    aboutTitle: 'FastVibe 编排中心 v0.1.0',
     aboutDesc: '基于胡渊鸣《我给 10 个 Claude Code 打工》构建的并行化开发工具',
     repoName: '仓库名称',
     repoPath: '本地路径',
@@ -159,7 +159,7 @@ export const zh: Translations = {
     openSettings: '打开设置',
   },
   auth: {
-    title: 'VibeCoding',
+    title: 'FastVibe',
     subtitle: '编排中心 - 请输入访问令牌',
     tokenLabel: '访问令牌',
     tokenPlaceholder: '输入 config.yaml 中配置的 authToken',

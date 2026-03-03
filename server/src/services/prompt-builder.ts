@@ -1,4 +1,4 @@
-import type { Task, Repo } from '@vibecoding/shared';
+import type { Task, Repo } from '@fastvibe/shared';
 
 /**
  * Slugify a string for use in branch names.

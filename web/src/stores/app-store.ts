@@ -8,11 +8,11 @@ import type {
   CreateRepoRequest,
   CreateTaskRequest,
   ClaudeDefaults,
-} from '@vibecoding/shared';
+} from '@fastvibe/shared';
 import * as api from '../lib/api';
 import type { TaskDetailResponse, RestartTaskOptions } from '../lib/api';
 
-const TOKEN_KEY = 'vibecoding_token';
+const TOKEN_KEY = 'fastvibe_token';
 
 interface AppState {
   // Auth

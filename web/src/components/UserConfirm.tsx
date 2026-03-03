@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TaskInteraction } from '@vibecoding/shared';
+import type { TaskInteraction } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 import { useT } from '../i18n';
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CreateRepoRequest } from '@vibecoding/shared';
+import type { CreateRepoRequest } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 import { useThemeStore } from '../stores/theme-store';
 import { useConfirm } from '../stores/confirm-store';

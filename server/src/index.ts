@@ -23,7 +23,7 @@ async function main() {
   // Init database
   const dataDir = resolve(import.meta.dirname, '../data');
   mkdirSync(dataDir, { recursive: true });
-  initDb(resolve(dataDir, 'vibecoding.db'));
+  initDb(resolve(dataDir, 'fastvibe.db'));
 
   // Init task queue
   initTaskQueue(config);

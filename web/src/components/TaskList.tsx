@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { TaskStatus } from '@vibecoding/shared';
+import type { TaskStatus } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 import { useConfirm } from '../stores/confirm-store';
 import { useT } from '../i18n';

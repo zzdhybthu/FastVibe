@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
-import type { AppConfig } from '@vibecoding/shared';
+import type { AppConfig } from '@fastvibe/shared';
 import { repoRoutes } from './routes/repos.js';
 import { taskRoutes } from './routes/tasks.js';
 import { interactionRoutes } from './routes/interactions.js';

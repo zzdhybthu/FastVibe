@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { AppConfig, ClaudeDefaults } from '@vibecoding/shared';
+import type { AppConfig, ClaudeDefaults } from '@fastvibe/shared';
 
 export async function configRoutes(app: FastifyInstance, config: AppConfig) {
   app.get('/api/config/claude-defaults', async (_request, reply) => {

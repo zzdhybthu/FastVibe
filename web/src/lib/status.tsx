@@ -1,4 +1,4 @@
-import type { TaskStatus } from '@vibecoding/shared';
+import type { TaskStatus } from '@fastvibe/shared';
 import { useLanguageStore } from '../stores/language-store';
 import type { Language } from '../stores/language-store';
 

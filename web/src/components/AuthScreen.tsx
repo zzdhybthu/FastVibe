@@ -23,12 +23,12 @@ export default function AuthScreen() {
 
     try {
       // Temporarily set token to validate
-      localStorage.setItem('vibecoding_token', trimmed);
+      localStorage.setItem('fastvibe_token', trimmed);
       await fetchRepos();
       // Success - set in store
       setToken(trimmed);
     } catch {
-      localStorage.removeItem('vibecoding_token');
+      localStorage.removeItem('fastvibe_token');
       setError(t.auth.invalidToken);
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { TaskLog } from '@vibecoding/shared';
+import type { TaskLog } from '@fastvibe/shared';
 import { useT } from '../i18n';
 
 interface LogViewerProps {

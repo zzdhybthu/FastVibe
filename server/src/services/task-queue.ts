@@ -1,7 +1,7 @@
 import { eq, and, inArray, count } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
-import type { AppConfig, Task, TaskStatus, WsServerEvent } from '@vibecoding/shared';
+import type { AppConfig, Task, TaskStatus, WsServerEvent } from '@fastvibe/shared';
 
 const TERMINAL_STATUSES: TaskStatus[] = ['COMPLETED', 'FAILED', 'CANCELLED'];
 

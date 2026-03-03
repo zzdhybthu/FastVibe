@@ -1,5 +1,5 @@
 {
-  "name": "@vibecoding/web",
+  "name": "@fastvibe/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vibecoding/shared": "workspace:*",
+    "@fastvibe/shared": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zustand": "^5.0.0"

@@ -1,7 +1,7 @@
 import websocket from '@fastify/websocket';
 import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from 'ws';
-import type { AppConfig, WsClientEvent, WsServerEvent } from '@vibecoding/shared';
+import type { AppConfig, WsClientEvent, WsServerEvent } from '@fastvibe/shared';
 import { eventBus } from './event-bus.js';
 
 interface TrackedClient {

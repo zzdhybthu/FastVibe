@@ -5,7 +5,7 @@ import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
 import { createUserInteractionServer } from './user-interaction.js';
 import { buildPrompt, buildBranchName, getSystemPromptAppend } from './prompt-builder.js';
-import type { Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@vibecoding/shared';
+import type { Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@fastvibe/shared';
 
 // Map of taskId -> AbortController for cancellation
 const runningTasks = new Map<string, AbortController>();

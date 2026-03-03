@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
-import type { TaskStatus } from '@vibecoding/shared';
+import type { TaskStatus } from '@fastvibe/shared';
 
 /**
  * Recover from a previous crash / restart.

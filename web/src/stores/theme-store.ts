@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'vibecoding_theme';
+const STORAGE_KEY = 'fastvibe_theme';
 
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);

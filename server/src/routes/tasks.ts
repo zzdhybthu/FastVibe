@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { AppConfig, TaskStatus } from '@vibecoding/shared';
+import type { AppConfig, TaskStatus } from '@fastvibe/shared';
 import { getDb, schema } from '../db/index.js';
 import { getTaskQueue } from '../services/task-queue.js';
 import { getAbortController } from '../services/task-runner.js';

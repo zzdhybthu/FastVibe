@@ -25,7 +25,7 @@ export const en: Translations = {
     delete: 'Delete',
     confirmDeleteRepo: (name: string) => `Are you sure you want to delete repository "${name}"?`,
     about: 'About',
-    aboutTitle: 'VibeCoding Orchestration Center v0.1.0',
+    aboutTitle: 'FastVibe Orchestration Center v0.1.0',
     aboutDesc: 'Parallel development tool inspired by Yuanming Hu\'s "I Have 10 Claude Codes Working for Me"',
     repoName: 'Repository Name',
     repoPath: 'Local Path',
@@ -161,7 +161,7 @@ export const en: Translations = {
     openSettings: 'Open Settings',
   },
   auth: {
-    title: 'VibeCoding',
+    title: 'FastVibe',
     subtitle: 'Orchestration Center - Enter access token',
     tokenLabel: 'Access Token',
     tokenPlaceholder: 'Enter the authToken configured in config.yaml',

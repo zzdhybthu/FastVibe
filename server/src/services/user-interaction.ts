@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
-import type { WsServerEvent, TaskStatus } from '@vibecoding/shared';
+import type { WsServerEvent, TaskStatus } from '@fastvibe/shared';
 
 /**
  * Creates an in-process MCP server with the `ask_user` tool.

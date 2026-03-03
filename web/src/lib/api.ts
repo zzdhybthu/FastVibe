@@ -6,9 +6,9 @@ import type {
   TaskStatus,
   AppConfig,
   ClaudeDefaults,
-} from '@vibecoding/shared';
+} from '@fastvibe/shared';
 
-const TOKEN_KEY = 'vibecoding_token';
+const TOKEN_KEY = 'fastvibe_token';
 
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -92,8 +92,8 @@ export function createTask(repoId: string, data: CreateTaskRequest): Promise<Tas
 }
 
 export interface TaskDetailResponse extends Task {
-  logs: import('@vibecoding/shared').TaskLog[];
-  interactions: import('@vibecoding/shared').TaskInteraction[];
+  logs: import('@fastvibe/shared').TaskLog[];
+  interactions: import('@fastvibe/shared').TaskInteraction[];
 }
 
 export function fetchTaskDetail(taskId: string): Promise<TaskDetailResponse> {

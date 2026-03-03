@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import type { AppConfig } from '@vibecoding/shared';
+import type { AppConfig } from '@fastvibe/shared';
 
 const configSchema = z.object({
   server: z.object({

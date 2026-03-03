@@ -1,4 +1,4 @@
-import type { Task } from '@vibecoding/shared';
+import type { Task } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 import { useConfirm } from '../stores/confirm-store';
 import { useLanguageStore } from '../stores/language-store';

@@ -22,7 +22,7 @@ importers:
       '@fastify/websocket':
         specifier: ^11.0.0
         version: 11.2.0
-      '@vibecoding/shared':
+      '@fastvibe/shared':
         specifier: workspace:*
         version: link:../shared
       better-sqlite3:
@@ -80,7 +80,7 @@ importers:
 
   web:
     dependencies:
-      '@vibecoding/shared':
+      '@fastvibe/shared':
         specifier: workspace:*
         version: link:../shared
       react:

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import type { WsServerEvent } from '@vibecoding/shared';
+import type { WsServerEvent } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 
 const RECONNECT_BASE_DELAY = 1000;

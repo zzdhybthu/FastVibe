@@ -1,11 +1,11 @@
 {
-  "name": "vibecoding-v2",
+  "name": "fastvibe-v2",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter @vibecoding/server dev",
-    "dev:web": "pnpm --filter @vibecoding/web dev",
+    "dev": "pnpm --filter @fastvibe/server dev",
+    "dev:web": "pnpm --filter @fastvibe/web dev",
     "build": "pnpm -r build",
-    "start": "pnpm --filter @vibecoding/server start",
+    "start": "pnpm --filter @fastvibe/server start",
     "clean": "rm -rf server/dist web/dist shared/dist",
     "clean:all": "pnpm clean && rm -rf node_modules server/node_modules web/node_modules shared/node_modules",
     "clean:db": "rm -rf server/data",

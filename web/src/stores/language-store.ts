@@ -2,8 +2,8 @@ import { create } from 'zustand';
 
 export type Language = 'zh' | 'en';
 
-const STORAGE_KEY = 'vibecoding_language';
-const VOICE_LANG_KEY = 'vibecoding_voice_lang';
+const STORAGE_KEY = 'fastvibe_language';
+const VOICE_LANG_KEY = 'fastvibe_voice_lang';
 
 function getInitialLanguage(): Language {
   const stored = localStorage.getItem(STORAGE_KEY);
