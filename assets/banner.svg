@@ -1,36 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 150" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 110" fill="none">
   <defs>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe680"/>
+      <stop offset="25%" stop-color="#f0c030"/>
+      <stop offset="55%" stop-color="#d4a017"/>
+      <stop offset="100%" stop-color="#b8860b"/>
     </linearGradient>
-    <linearGradient id="boltL" x1="0.3" y1="0" x2="0.7" y2="1">
-      <stop offset="0%" stop-color="#fde68a"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
-    </linearGradient>
-    <linearGradient id="boltR" x1="0.7" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#fde68a"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
+    <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff4b8"/>
+      <stop offset="100%" stop-color="#8b6914"/>
     </linearGradient>
   </defs>
 
-  <!-- Logo icon -->
-  <g transform="translate(110, 18)">
-    <rect width="114" height="114" rx="26" fill="url(#accent)"/>
-    <!-- Two lightning bolts forming a V shape -->
-    <!-- Left bolt -->
-    <path d="M22,8 L38,44 L28,44 L50,100 L40,90 L24,52 L34,52 Z" fill="url(#boltL)"/>
-    <!-- Right bolt -->
-    <path d="M92,8 L76,44 L86,44 L64,100 L74,90 L90,52 L80,52 Z" fill="url(#boltR)"/>
+  <!-- "Fast" in black -->
+  <text x="118" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#111" letter-spacing="-1">Fast</text>
+
+  <!-- V-bolt character in gold metallic -->
+  <g transform="translate(237, 10) scale(0.60)">
+    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+          fill="url(#gold)" fill-rule="evenodd" stroke="url(#goldEdge)" stroke-width="1.5" stroke-linejoin="round"/>
   </g>
 
-  <!-- Title -->
-  <text x="244" y="78" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="52" font-weight="700" fill="#4f46e5" letter-spacing="-1">
-    FastVibe
-  </text>
+  <!-- "ibe" in black -->
+  <text x="298" y="68" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="54" font-weight="800" fill="#111" letter-spacing="-1">ibe</text>
 
-  <!-- Tagline -->
-  <text x="246" y="108" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#7c3aed" letter-spacing="0.5" opacity="0.85">
-    Claude Code Orchestration Hub
-  </text>
+  <!-- Subtitle -->
+  <text x="250" y="94" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#888" text-anchor="middle" letter-spacing="0.5">Claude Code Orchestration Hub</text>
 </svg>

@@ -1,20 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-    <linearGradient id="bL" x1="0.3" y1="0" x2="0.7" y2="1">
-      <stop offset="0%" stop-color="#fde68a"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
-    </linearGradient>
-    <linearGradient id="bR" x1="0.7" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#fde68a"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe680"/>
+      <stop offset="25%" stop-color="#f0c030"/>
+      <stop offset="55%" stop-color="#d4a017"/>
+      <stop offset="100%" stop-color="#b8860b"/>
     </linearGradient>
   </defs>
-  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <!-- V-shaped double lightning bolts -->
-  <path d="M35,12 L60,70 L44,70 L79,158 L63,142 L38,82 L54,82 Z" fill="url(#bL)"/>
-  <path d="M145,12 L120,70 L136,70 L101,158 L117,142 L142,82 L126,82 Z" fill="url(#bR)"/>
+  <rect width="180" height="180" rx="40" fill="#111"/>
+  <g transform="translate(18, 10) scale(1.47)">
+    <path d="M0,0 L44,98 L56,98 L84,42 L76,38 L98,0 Z M18,0 L64,0 L48,38 L56,42 L48,92 Z"
+          fill="url(#gold)" fill-rule="evenodd"/>
+  </g>
 </svg>
