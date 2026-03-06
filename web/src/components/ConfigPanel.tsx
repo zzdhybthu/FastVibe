@@ -17,6 +17,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const updateRepo = useAppStore((s) => s.updateRepo);
   const deleteRepo = useAppStore((s) => s.deleteRepo);
   const setToken = useAppStore((s) => s.setToken);
+  const agentDefaults = useAppStore((s) => s.agentDefaults);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggle);
   const confirm = useConfirm();
@@ -79,6 +80,15 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 <span className="hidden sm:inline">{theme === 'dark' ? t.config.darkMode : t.config.lightMode}</span>
               </button>
             </div>
+            {agentDefaults && (
+              <div className="card flex items-center gap-2 mt-2">
+                <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
+                <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
+                  {agentDefaults.defaultAgent === 'codex' ? 'Codex' : 'Claude Code'}
+                </span>
+                <span className="text-xs text-ink-faint ml-auto">{t.config.defaultAgentDesc}</span>
+              </div>
+            )}
           </section>
 
           {/* Repo management */}

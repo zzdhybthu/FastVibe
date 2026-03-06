@@ -34,7 +34,7 @@
 - **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
 - **Fault Recovery**: Automatic task state recovery after service restart
 
-> **Note**: Currently only [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is supported as the backend agent. To support other Code Agents (e.g. Codex), you can extend the agent integration layer yourself.
+> **Note**: Currently supports [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://github.com/openai/codex) as backend agents. Codex runs in full-auto mode and does **not** support user interaction (ask_user) — tasks using Codex will not prompt for confirmation during execution.
 
 ## Use Cases
 
@@ -145,6 +145,20 @@ Log in or configure user-level settings (`~/.claude/settings.json`):
 
 Make sure `claude --dangerously-skip-permissions` works.
 
+### 4. Configure Codex (Optional)
+
+If you want to use Codex as an agent, install the Codex CLI and set your OpenAI API key:
+
+```bash
+npm install -g @openai/codex
+```
+
+Set the `CODEX_API_KEY` (or `OPENAI_API_KEY`) environment variable:
+
+```bash
+export CODEX_API_KEY="sk-..."
+```
+
 ## Quick Start
 
 ```bash
@@ -196,12 +210,18 @@ server:
 global:
   maxTotalConcurrency: 5  # Max total concurrency
 
+defaultAgent: 'claude-code'  # Default agent type ('claude-code' or 'codex')
+
 claude:
   model:                  # Available models
     - 'claude-opus-4-6'
     - 'claude-sonnet-4-6'
   maxBudgetUsd: 1000.0    # Budget limit
   interactionTimeout: 86400  # User confirmation timeout (seconds)
+
+codex:
+  model:                  # Available Codex models
+    - 'o3'
 ```
 
 You can also specify the config file path via the `CONFIG_PATH` environment variable.

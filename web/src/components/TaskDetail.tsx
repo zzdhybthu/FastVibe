@@ -85,6 +85,9 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <StatusBadge status={taskDetail.status} />
+            <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
+              {taskDetail.agentType === 'codex' ? 'Codex' : 'Claude Code'}
+            </span>
             {taskDetail.thinkingEnabled && (
               <span className="badge border border-brand-400/20 bg-brand-400/10 text-brand-400">
                 {t.taskDetail.thinkingMode}
@@ -159,6 +162,10 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
         </button>
         {showConfig && (
           <div className="mt-2 grid grid-cols-2 gap-3 rounded-lg bg-th-input border border-th-border-strong p-3">
+            <div>
+              <span className="text-xs text-ink-hint">{t.taskDetail.configAgent}</span>
+              <p className="text-sm text-ink-3 font-mono">{taskDetail.agentType === 'codex' ? 'Codex' : 'Claude Code'}</p>
+            </div>
             <div>
               <span className="text-xs text-ink-hint">{t.taskDetail.configModel}</span>
               <p className="text-sm text-ink-3 font-mono">{taskDetail.model}</p>

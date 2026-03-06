@@ -5,7 +5,7 @@ import type {
   CreateTaskRequest,
   TaskStatus,
   AppConfig,
-  ClaudeDefaults,
+  AgentDefaults,
 } from '@fastvibe/shared';
 
 const TOKEN_KEY = 'fastvibe_token';
@@ -146,8 +146,8 @@ export function answerInteraction(interactionId: string, answer: string): Promis
 
 // --- Config ---
 
-export function fetchClaudeDefaults(): Promise<ClaudeDefaults> {
-  return request<ClaudeDefaults>('/api/config/claude-defaults');
+export function fetchAgentDefaults(): Promise<AgentDefaults> {
+  return request<AgentDefaults>('/api/config/agent-defaults');
 }
 
 export function fetchConfig(): Promise<AppConfig> {

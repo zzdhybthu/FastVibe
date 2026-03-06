@@ -9,8 +9,8 @@ export default function RestartDialog() {
   const restartingTask = useAppStore((s) => s.restartingTask);
   const setRestartingTask = useAppStore((s) => s.setRestartingTask);
   const restartTask = useAppStore((s) => s.restartTask);
-  const claudeDefaults = useAppStore((s) => s.claudeDefaults);
-  const fetchClaudeDefaults = useAppStore((s) => s.fetchClaudeDefaults);
+  const agentDefaults = useAppStore((s) => s.agentDefaults);
+  const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
   const t = useT();
 
@@ -44,10 +44,10 @@ export default function RestartDialog() {
   }, [isListening, prompt, startVoice, stopVoice]);
 
   useEffect(() => {
-    if (!claudeDefaults) {
-      fetchClaudeDefaults();
+    if (!agentDefaults) {
+      fetchAgentDefaults();
     }
-  }, [claudeDefaults, fetchClaudeDefaults]);
+  }, [agentDefaults, fetchAgentDefaults]);
 
   // Pre-fill with original task values when task changes
   useEffect(() => {
@@ -162,14 +162,26 @@ export default function RestartDialog() {
           {/* Model */}
           <div>
             <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.restartDialog.model}</label>
-            {claudeDefaults && claudeDefaults.models.length > 0 ? (
-              <CustomSelect
-                options={claudeDefaults.models.map((m) => ({ value: m, label: m }))}
-                value={model}
-                onChange={(val) => setModel(val)}
-                disabled={submitting}
-              />
-            ) : (
+            {agentDefaults && (() => {
+              const agentConfig = restartingTask.agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
+              return agentConfig.models.length > 0 ? (
+                <CustomSelect
+                  options={agentConfig.models.map((m) => ({ value: m, label: m }))}
+                  value={model}
+                  onChange={(val) => setModel(val)}
+                  disabled={submitting}
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="input"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  disabled={submitting}
+                />
+              );
+            })()}
+            {!agentDefaults && (
               <input
                 type="text"
                 className="input"

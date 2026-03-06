@@ -4,6 +4,7 @@ import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import CustomSelect from './CustomSelect';
+import type { AgentType } from '@fastvibe/shared';
 interface TaskFormProps {
   onClose: () => void;
 }
@@ -11,14 +12,15 @@ interface TaskFormProps {
 export default function TaskForm({ onClose }: TaskFormProps) {
   const createTask = useAppStore((s) => s.createTask);
   const tasks = useAppStore((s) => s.tasks);
-  const claudeDefaults = useAppStore((s) => s.claudeDefaults);
-  const fetchClaudeDefaults = useAppStore((s) => s.fetchClaudeDefaults);
+  const agentDefaults = useAppStore((s) => s.agentDefaults);
+  const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const uiLanguage = useLanguageStore((s) => s.language);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
   const t = useT();
 
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
+  const [agentType, setAgentType] = useState<AgentType>(agentDefaults?.defaultAgent ?? 'claude-code');
   const [thinkingEnabled, setThinkingEnabled] = useState(false);
   const [predecessorTaskId, setPredecessorTaskId] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -51,10 +53,16 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED');
 
   useEffect(() => {
-    if (!claudeDefaults) {
-      fetchClaudeDefaults();
+    if (!agentDefaults) {
+      fetchAgentDefaults();
     }
-  }, [claudeDefaults, fetchClaudeDefaults]);
+  }, [agentDefaults, fetchAgentDefaults]);
+
+  useEffect(() => {
+    if (agentDefaults) {
+      setAgentType(agentDefaults.defaultAgent);
+    }
+  }, [agentDefaults]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +78,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
       await createTask({
         prompt: prompt.trim(),
         title: title.trim() || undefined,
+        agentType,
         thinkingEnabled,
         predecessorTaskId: predecessorTaskId || undefined,
         model: model || undefined,
@@ -153,6 +162,37 @@ export default function TaskForm({ onClose }: TaskFormProps) {
             />
           </div>
 
+          {/* Agent type selector */}
+          <div>
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.agentType}</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setAgentType('claude-code'); setModel(''); }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  agentType === 'claude-code'
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                }`}
+                disabled={submitting}
+              >
+                {t.taskForm.agentClaudeCode}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAgentType('codex'); setModel(''); }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  agentType === 'codex'
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                }`}
+                disabled={submitting}
+              >
+                {t.taskForm.agentCodex}
+              </button>
+            </div>
+          </div>
+
           {/* Thinking mode toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -223,21 +263,34 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               {/* Model */}
               <div>
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
-                {claudeDefaults && claudeDefaults.models.length > 0 ? (
-                  <CustomSelect
-                    options={[
-                      { value: '', label: t.taskForm.modelDefault(claudeDefaults.defaultModel) },
-                      ...claudeDefaults.models.map((m) => ({ value: m, label: m })),
-                    ]}
-                    value={model}
-                    onChange={(val) => setModel(val)}
-                    disabled={submitting}
-                  />
-                ) : (
+                {agentDefaults && (() => {
+                  const agentConfig = agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
+                  return agentConfig.models.length > 0 ? (
+                    <CustomSelect
+                      options={[
+                        { value: '', label: t.taskForm.modelDefault(agentConfig.defaultModel) },
+                        ...agentConfig.models.map((m) => ({ value: m, label: m })),
+                      ]}
+                      value={model}
+                      onChange={(val) => setModel(val)}
+                      disabled={submitting}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder={agentConfig.defaultModel}
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      disabled={submitting}
+                    />
+                  );
+                })()}
+                {!agentDefaults && (
                   <input
                     type="text"
                     className="input"
-                    placeholder={claudeDefaults?.defaultModel ?? 'claude-sonnet-4-6'}
+                    placeholder={agentType === 'codex' ? 'o3' : 'claude-sonnet-4-6'}
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     disabled={submitting}
@@ -253,7 +306,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 <input
                   type="number"
                   className="input"
-                  placeholder={claudeDefaults ? String(claudeDefaults.maxBudgetUsd) : '5.0'}
+                  placeholder={agentDefaults ? String(agentDefaults.claude.maxBudgetUsd) : '5.0'}
                   value={maxBudgetUsd}
                   onChange={(e) => setMaxBudgetUsd(e.target.value)}
                   disabled={submitting}
@@ -270,7 +323,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 <input
                   type="number"
                   className="input"
-                  placeholder={claudeDefaults ? String(claudeDefaults.interactionTimeout) : '1800'}
+                  placeholder={agentDefaults ? String(agentDefaults.claude.interactionTimeout) : '1800'}
                   value={interactionTimeout}
                   onChange={(e) => setInteractionTimeout(e.target.value)}
                   disabled={submitting}

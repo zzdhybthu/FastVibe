@@ -12,6 +12,8 @@ export const zh: Translations = {
     theme: '主题',
     darkMode: '暗色模式',
     lightMode: '亮色模式',
+    defaultAgent: '默认 Agent',
+    defaultAgentDesc: '新建任务时的默认 Agent 类型',
     account: '账户',
     logout: '退出登录',
     confirmLogout: '确定退出登录？',
@@ -42,6 +44,9 @@ export const zh: Translations = {
     titleLabel: '任务标题',
     titleOptional: '(可选)',
     titlePlaceholder: '简短描述，用于列表展示',
+    agentType: 'Agent 类型',
+    agentClaudeCode: 'Claude Code',
+    agentCodex: 'Codex',
     thinkingMode: '思考模式',
     thinkingModeDesc: '启用后 Claude 会进行更深入的推理',
     predecessorTask: '前置任务',
@@ -105,6 +110,7 @@ export const zh: Translations = {
     minutes: '分',
     hours: '时',
     config: '任务配置',
+    configAgent: 'Agent 类型',
     configModel: '模型',
     configBudget: '预算上限',
     configTimeout: '交互超时',
@@ -208,6 +214,8 @@ export interface Translations {
     theme: string;
     darkMode: string;
     lightMode: string;
+    defaultAgent: string;
+    defaultAgentDesc: string;
     account: string;
     logout: string;
     confirmLogout: string;
@@ -238,6 +246,9 @@ export interface Translations {
     titleLabel: string;
     titleOptional: string;
     titlePlaceholder: string;
+    agentType: string;
+    agentClaudeCode: string;
+    agentCodex: string;
     thinkingMode: string;
     thinkingModeDesc: string;
     predecessorTask: string;
@@ -301,6 +312,7 @@ export interface Translations {
     minutes: string;
     hours: string;
     config: string;
+    configAgent: string;
     configModel: string;
     configBudget: string;
     configTimeout: string;

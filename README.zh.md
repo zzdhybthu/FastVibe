@@ -34,7 +34,7 @@
 - **语音输入**: Web UI 支持语音输入，适用手机场景
 - **容错恢复**: 服务重启后自动恢复任务状态
 
-> **注意**: 当前仅支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 作为后端 Agent。如需支持其他 Code Agent（如 Codex 等），可自行扩展 Agent 集成层。
+> **注意**: 当前支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [Codex](https://github.com/openai/codex) 作为后端 Agent。Codex 以全自动模式运行，**不支持**用户交互（ask_user）——使用 Codex 的任务在执行过程中不会向用户提问确认。
 
 ## 使用场景
 
@@ -145,6 +145,20 @@ claude --version
 
 确保 `claude --dangerously-skip-permissions` 可用。
 
+### 4. 配置 Codex（可选）
+
+如需使用 Codex 作为 Agent，请安装 Codex CLI 并设置 OpenAI API Key：
+
+```bash
+npm install -g @openai/codex
+```
+
+设置 `CODEX_API_KEY`（或 `OPENAI_API_KEY`）环境变量：
+
+```bash
+export CODEX_API_KEY="sk-..."
+```
+
 ## 快速开始
 
 ```bash
@@ -196,12 +210,18 @@ server:
 global:
   maxTotalConcurrency: 5  # 总并发上限
 
+defaultAgent: 'claude-code'  # 默认 Agent 类型 ('claude-code' 或 'codex')
+
 claude:
   model:                  # 可用模型列表
     - 'claude-opus-4-6'
     - 'claude-sonnet-4-6'
   maxBudgetUsd: 1000.0    # 预算上限
   interactionTimeout: 86400  # 用户确认超时(秒)
+
+codex:
+  model:                  # 可用 Codex 模型列表
+    - 'o3'
 ```
 
 也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。

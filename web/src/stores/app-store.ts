@@ -7,7 +7,7 @@ import type {
   TaskInteraction,
   CreateRepoRequest,
   CreateTaskRequest,
-  ClaudeDefaults,
+  AgentDefaults,
 } from '@fastvibe/shared';
 import * as api from '../lib/api';
 import type { TaskDetailResponse, RestartTaskOptions } from '../lib/api';
@@ -26,8 +26,8 @@ interface AppState {
   taskDetail: TaskDetailResponse | null;
   // Interactions
   pendingInteractions: TaskInteraction[];
-  // Claude defaults
-  claudeDefaults: ClaudeDefaults | null;
+  // Agent defaults
+  agentDefaults: AgentDefaults | null;
   // Restart
   restartingTask: Task | null;
   // UI
@@ -59,7 +59,7 @@ interface AppState {
   answerInteraction: (interactionId: string, answer: string) => Promise<void>;
 
   // Config actions
-  fetchClaudeDefaults: () => Promise<void>;
+  fetchAgentDefaults: () => Promise<void>;
 
   // WebSocket actions
   updateTaskFromWs: (task: Task) => void;
@@ -76,7 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedTaskId: null,
   taskDetail: null,
   pendingInteractions: [],
-  claudeDefaults: null,
+  agentDefaults: null,
   restartingTask: null,
   loading: false,
   error: null,
@@ -226,12 +226,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   // Config
-  fetchClaudeDefaults: async () => {
+  fetchAgentDefaults: async () => {
     try {
-      const defaults = await api.fetchClaudeDefaults();
-      set({ claudeDefaults: defaults });
+      const defaults = await api.fetchAgentDefaults();
+      set({ agentDefaults: defaults });
     } catch (err) {
-      console.error('Failed to fetch claude defaults:', err);
+      console.error('Failed to fetch agent defaults:', err);
     }
   },
 
