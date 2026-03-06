@@ -15,6 +15,7 @@ export const tasks = sqliteTable('tasks', {
   title: text('title'),
   prompt: text('prompt').notNull(),
   status: text('status').notNull().default('PENDING'),
+  agentType: text('agent_type').notNull().default('claude-code'),
   thinkingEnabled: integer('thinking_enabled', { mode: 'boolean' }).notNull().default(false),
   predecessorTaskId: text('predecessor_task_id'),
   model: text('model').notNull(),
