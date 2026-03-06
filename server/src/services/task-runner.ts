@@ -5,6 +5,7 @@ import { getDb, schema } from '../db/index.js';
 import { eventBus } from '../ws/event-bus.js';
 import { createUserInteractionServer } from './user-interaction.js';
 import { buildPrompt, buildBranchName, getSystemPromptAppend } from './prompt-builder.js';
+import { loadExternalMcpServers } from './mcp-loader.js';
 import type { Task, Repo, TaskStatus, LogLevel, WsServerEvent } from '@fastvibe/shared';
 
 // Map of taskId -> AbortController for cancellation
@@ -97,6 +98,13 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
     const cleanEnv: Record<string, string | undefined> = { ...process.env };
     delete cleanEnv.CLAUDECODE;
 
+    // Load external MCP servers from .mcp.json and settings files
+    const externalMcpServers = loadExternalMcpServers(repo.path);
+    const externalNames = Object.keys(externalMcpServers);
+    if (externalNames.length > 0) {
+      await logTask(task.id, 'info', `Loaded external MCP servers: ${externalNames.join(', ')}`);
+    }
+
     const conversation = sdkQuery({
       prompt,
       options: {
@@ -118,6 +126,7 @@ export async function runTask(task: Task, repo: Repo): Promise<void> {
         abortController,
         env: cleanEnv,
         mcpServers: {
+          ...externalMcpServers,
           'user-interaction': mcpServer,
         },
       },
