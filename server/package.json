@@ -17,6 +17,7 @@
     "@fastify/static": "^9.0.0",
     "@fastify/websocket": "^11.0.0",
     "@fastvibe/shared": "workspace:*",
+    "@openai/codex-sdk": "^0.111.0",
     "better-sqlite3": "^11.0.0",
     "drizzle-orm": "^0.39.0",
     "fastify": "^5.0.0",
