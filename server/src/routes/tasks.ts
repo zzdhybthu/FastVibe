@@ -54,6 +54,7 @@ const createTaskSchema = z.object({
   maxBudgetUsd: z.number().positive().optional(),
   interactionTimeout: z.number().int().positive().optional(),
   language: z.enum(['zh', 'en']).default('zh'),
+  agentType: z.enum(['claude-code', 'codex']).default('claude-code'),
 });
 
 const restartTaskSchema = z.object({
@@ -64,6 +65,7 @@ const restartTaskSchema = z.object({
   interactionTimeout: z.number().int().positive().optional(),
   thinkingEnabled: z.boolean().optional(),
   language: z.enum(['zh', 'en']).optional(),
+  agentType: z.enum(['claude-code', 'codex']).optional(),
 });
 
 export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
@@ -120,9 +122,14 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
         title,
         prompt: body.prompt,
         status: 'PENDING' as TaskStatus,
+        agentType: body.agentType ?? config.defaultAgent,
         thinkingEnabled: body.thinkingEnabled,
         predecessorTaskId: body.predecessorTaskId ?? null,
-        model: body.model ?? config.claude.model[0],
+        model: body.model ?? (
+          (body.agentType ?? config.defaultAgent) === 'codex'
+            ? config.codex.model[0]
+            : config.claude.model[0]
+        ),
         maxBudgetUsd: body.maxBudgetUsd ?? config.claude.maxBudgetUsd,
         interactionTimeout: body.interactionTimeout ?? config.claude.interactionTimeout,
         language: body.language,
@@ -263,6 +270,7 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
       title: overrides.title ?? task.title,
       prompt: overrides.prompt ?? task.prompt,
       status: 'PENDING' as TaskStatus,
+      agentType: (overrides as any).agentType ?? task.agentType ?? 'claude-code',
       thinkingEnabled: overrides.thinkingEnabled ?? task.thinkingEnabled,
       predecessorTaskId: null,
       model: overrides.model ?? task.model,
