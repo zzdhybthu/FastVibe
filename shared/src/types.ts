@@ -10,6 +10,7 @@ export type TaskStatus =
 
 export type InteractionStatus = 'pending' | 'answered' | 'timeout';
 export type LogLevel = 'info' | 'warn' | 'error' | 'debug';
+export type AgentType = 'claude-code' | 'codex';
 
 // --- DB row types ---
 
@@ -28,6 +29,7 @@ export interface Task {
   title: string | null;
   prompt: string;
   status: TaskStatus;
+  agentType: AgentType;
   thinkingEnabled: boolean;
   predecessorTaskId: string | null;
   model: string;
@@ -81,6 +83,7 @@ export interface CreateTaskRequest {
   maxBudgetUsd?: number;
   interactionTimeout?: number;
   language?: 'zh' | 'en';
+  agentType?: AgentType;
 }
 
 export interface AnswerInteractionRequest {
@@ -111,16 +114,27 @@ export interface AppConfig {
   global: {
     maxTotalConcurrency: number;
   };
+  defaultAgent: AgentType;
   claude: {
     model: string[];
     maxBudgetUsd: number;
     interactionTimeout: number;
   };
+  codex: {
+    model: string[];
+  };
 }
 
-export interface ClaudeDefaults {
-  models: string[];
-  defaultModel: string;
-  maxBudgetUsd: number;
-  interactionTimeout: number;
+export interface AgentDefaults {
+  defaultAgent: AgentType;
+  claude: {
+    models: string[];
+    defaultModel: string;
+    maxBudgetUsd: number;
+    interactionTimeout: number;
+  };
+  codex: {
+    models: string[];
+    defaultModel: string;
+  };
 }
