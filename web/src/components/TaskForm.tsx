@@ -285,7 +285,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                   <input
                     type="text"
                     className="input"
-                    placeholder={agentType === 'codex' ? 'o3' : 'claude-sonnet-4-6'}
+                    placeholder={agentType === 'codex' ? 'gpt-5.3-codex' : 'claude-sonnet-4-6'}
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     disabled={submitting}

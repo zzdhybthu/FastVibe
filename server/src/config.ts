@@ -19,8 +19,8 @@ const configSchema = z.object({
     interactionTimeout: z.number().default(1800),
   }),
   codex: z.object({
-    model: z.array(z.string()).min(1).default(['o3']),
-  }).default({ model: ['o3'] }),
+    model: z.array(z.string()).min(1).default(['gpt-5.3-codex']),
+  }).default({ model: ['gpt-5.3-codex'] }),
 });
 
 export function loadConfig(): AppConfig {
