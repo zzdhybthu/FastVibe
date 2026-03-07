@@ -84,7 +84,9 @@ export function createUserInteractionServer(taskId: string, repoId: string, inte
           }
 
           // 3. Wait for ALL answers via eventBus with timeout
-          const timeoutMs = (interactionTimeout || 1800) * 1000;
+          // Cap at 2^31-1 ms (~24.8 days) to avoid setTimeout overflow
+          const MAX_TIMEOUT_MS = 2_147_483_647;
+          const timeoutMs = Math.min((interactionTimeout || 1800) * 1000, MAX_TIMEOUT_MS);
           const interactionIds = new Set(interactions.map((i) => i.id));
           const answers = new Map<string, string>();
 
