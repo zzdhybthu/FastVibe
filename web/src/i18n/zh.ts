@@ -12,6 +12,7 @@ export const zh: Translations = {
     theme: '主题',
     darkMode: '暗色模式',
     lightMode: '亮色模式',
+    agentSettings: 'Agent 设置',
     defaultAgent: '默认 Agent',
     defaultAgentDesc: '新建任务时的默认 Agent 类型',
     account: '账户',
@@ -214,6 +215,7 @@ export interface Translations {
     theme: string;
     darkMode: string;
     lightMode: string;
+    agentSettings: string;
     defaultAgent: string;
     defaultAgentDesc: string;
     account: string;

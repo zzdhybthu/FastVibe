@@ -157,37 +157,6 @@ export default function TaskForm({ onClose }: TaskFormProps) {
             />
           </div>
 
-          {/* Agent type selector */}
-          <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.agentType}</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => { setAgentType('claude-code'); setModel(''); }}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                  agentType === 'claude-code'
-                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
-                }`}
-                disabled={submitting}
-              >
-                {t.taskForm.agentClaudeCode}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAgentType('codex'); setModel(''); }}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                  agentType === 'codex'
-                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
-                }`}
-                disabled={submitting}
-              >
-                {t.taskForm.agentCodex}
-              </button>
-            </div>
-          </div>
-
           {/* Thinking mode toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -255,16 +224,48 @@ export default function TaskForm({ onClose }: TaskFormProps) {
           {/* Advanced settings */}
           {showAdvanced && (
             <div className="space-y-3 rounded-lg border border-th-border bg-th-input p-4">
+              {/* Agent type selector */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.agentType}</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setAgentType('claude-code'); setModel(''); }}
+                    className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                      agentType === 'claude-code'
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                    disabled={submitting}
+                  >
+                    {t.taskForm.agentClaudeCode}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAgentType('codex'); setModel(''); }}
+                    className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                      agentType === 'codex'
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                    disabled={submitting}
+                  >
+                    {t.taskForm.agentCodex}
+                  </button>
+                </div>
+              </div>
+
               {/* Model */}
               <div>
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
                 {agentDefaults && (() => {
                   const agentConfig = agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
+                  const nonDefaultModels = agentConfig.models.filter((m) => m !== agentConfig.defaultModel);
                   return agentConfig.models.length > 0 ? (
                     <CustomSelect
                       options={[
                         { value: '', label: t.taskForm.modelDefault(agentConfig.defaultModel) },
-                        ...agentConfig.models.map((m) => ({ value: m, label: m })),
+                        ...nonDefaultModels.map((m) => ({ value: m, label: m })),
                       ]}
                       value={model}
                       onChange={(val) => setModel(val)}

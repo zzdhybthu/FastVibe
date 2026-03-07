@@ -14,6 +14,7 @@ export const en: Translations = {
     theme: 'Theme',
     darkMode: 'Dark Mode',
     lightMode: 'Light Mode',
+    agentSettings: 'Agent Settings',
     defaultAgent: 'Default Agent',
     defaultAgentDesc: 'Default agent type when creating new tasks',
     account: 'Account',
