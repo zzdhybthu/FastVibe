@@ -6,7 +6,7 @@ server:
 global:
   maxTotalConcurrency: 5
 
-defaultAgent: 'claude-code'
+defaultAgent: 'claude-code'  # 'claude-code' or 'codex'
 
 claude:
   model:
@@ -18,4 +18,5 @@ claude:
 
 codex:
   model:
-    - 'o3'
+    - 'gpt-5.3-codex'
+    - 'gpt-5.2-codex'
