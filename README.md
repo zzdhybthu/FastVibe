@@ -143,7 +143,7 @@ Log in or configure user-level settings (`~/.claude/settings.json`):
 }
 ```
 
-Make sure `claude --dangerously-skip-permissions` works.
+Make sure `claude --dangerously-skip-permissions` works. Install any necessary plugins.
 
 ### 4. Configure Codex (Optional)
 
@@ -153,10 +153,17 @@ If you want to use Codex as an agent, install the Codex CLI and set your OpenAI 
 npm install -g @openai/codex
 ```
 
-Set the `CODEX_API_KEY` (or `OPENAI_API_KEY`) environment variable:
+Add the following to your `~/.bashrc` (or `~/.zshrc`) so they persist across sessions:
 
 ```bash
 export CODEX_API_KEY="sk-..."
+# export OPENAI_BASE_URL="https://..."  # Optional: custom API endpoint
+```
+
+Then reload your shell config:
+
+```bash
+source ~/.bashrc  # or source ~/.zshrc
 ```
 
 ## Quick Start

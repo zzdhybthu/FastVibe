@@ -143,7 +143,7 @@ claude --version
 }
 ```
 
-确保 `claude --dangerously-skip-permissions` 可用。
+确保 `claude --dangerously-skip-permissions` 可用。安装好需要的插件。
 
 ### 4. 配置 Codex（可选）
 
@@ -153,10 +153,17 @@ claude --version
 npm install -g @openai/codex
 ```
 
-设置 `CODEX_API_KEY`（或 `OPENAI_API_KEY`）环境变量：
+将以下内容写入 `~/.bashrc`（或 `~/.zshrc`），使其在每次会话中自动生效：
 
 ```bash
 export CODEX_API_KEY="sk-..."
+# export OPENAI_BASE_URL="https://..."  # 可选：自定义 API 地址
+```
+
+重新加载 shell 配置：
+
+```bash
+source ~/.bashrc  # 或 source ~/.zshrc
 ```
 
 ## 快速开始
