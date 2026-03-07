@@ -14,7 +14,7 @@ claude:
     - 'claude-sonnet-4-6'
     - 'claude-haiku-4-5-20251001'
   maxBudgetUsd: 1000.0
-  interactionTimeout: 81728000
+  interactionTimeout: 86400
 
 codex:
   model:
