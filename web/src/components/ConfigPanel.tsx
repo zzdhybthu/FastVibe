@@ -176,23 +176,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             </div>
           </section>
 
-          {/* Voice settings */}
-          <section>
-            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
-              <CustomSelect
-                className="w-28 text-sm"
-                options={[
-                  { value: 'zh', label: t.common.zh },
-                  { value: 'en', label: t.common.en },
-                ]}
-                value={voiceLang}
-                onChange={(val) => setVoiceLang(val as 'zh' | 'en')}
-              />
-            </div>
-          </section>
-
           {/* Agent settings */}
           <section>
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.agentSettings}</h3>
@@ -220,6 +203,23 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   Codex
                 </button>
               </div>
+            </div>
+          </section>
+
+          {/* Voice settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
+              <CustomSelect
+                className="w-28 text-sm"
+                options={[
+                  { value: 'zh', label: t.common.zh },
+                  { value: 'en', label: t.common.en },
+                ]}
+                value={voiceLang}
+                onChange={(val) => setVoiceLang(val as 'zh' | 'en')}
+              />
             </div>
           </section>
 
