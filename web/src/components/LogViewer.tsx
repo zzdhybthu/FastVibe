@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import type { TaskLog } from '@fastvibe/shared';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import type { TaskLog, LogLevel } from '@fastvibe/shared';
 import { useT } from '../i18n';
+import { useLanguageStore } from '../stores/language-store';
 
 interface LogViewerProps {
   logs: TaskLog[];
@@ -25,17 +26,30 @@ function formatTimestamp(iso: string): string {
   return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+};
+
 export default function LogViewer({ logs }: LogViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldAutoScroll = useRef(true);
   const t = useT();
+  const logLevel = useLanguageStore((s) => s.logLevel);
+
+  const filteredLogs = useMemo(() => {
+    const minPriority = LOG_LEVEL_PRIORITY[logLevel];
+    return logs.filter((log) => (LOG_LEVEL_PRIORITY[log.level] ?? 0) >= minPriority);
+  }, [logs, logLevel]);
 
   // Auto-scroll to bottom when new logs arrive
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !shouldAutoScroll.current) return;
     el.scrollTop = el.scrollHeight;
-  }, [logs]);
+  }, [filteredLogs]);
 
   const handleScroll = () => {
     const el = containerRef.current;
@@ -48,7 +62,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyAll = async () => {
-    const text = logs
+    const text = filteredLogs
       .map((log) => `${formatTimestamp(log.timestamp)} ${LEVEL_LABELS[log.level] || 'INFO'} ${log.message}`)
       .join('\n');
     await navigator.clipboard.writeText(text);
@@ -56,7 +70,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (logs.length === 0) {
+  if (filteredLogs.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-sm text-ink-faint">
         {t.logViewer.noLogs}
@@ -85,7 +99,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
         onScroll={handleScroll}
         className="max-h-[400px] overflow-y-auto rounded-lg bg-th-page border border-th-border p-3 pr-9 font-mono text-xs leading-relaxed"
       >
-      {logs.map((log, i) => (
+      {filteredLogs.map((log, i) => (
         <div key={log.id || i} className="flex flex-wrap sm:flex-nowrap gap-x-2 hover:bg-th-surface px-1 py-0.5 rounded">
           <span className="shrink-0 text-ink-faint">{formatTimestamp(log.timestamp)}</span>
           <span className={`shrink-0 font-semibold ${LEVEL_STYLES[log.level] || LEVEL_STYLES.info}`}>

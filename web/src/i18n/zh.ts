@@ -15,6 +15,7 @@ export const zh: Translations = {
     agentSettings: 'Agent 设置',
     defaultAgent: '默认 Agent',
     defaultAgentDesc: '新建任务时的默认 Agent 类型',
+    logLevel: '日志级别',
     account: '账户',
     logout: '退出登录',
     confirmLogout: '确定退出登录？',
@@ -218,6 +219,7 @@ export interface Translations {
     agentSettings: string;
     defaultAgent: string;
     defaultAgentDesc: string;
+    logLevel: string;
     account: string;
     logout: string;
     confirmLogout: string;

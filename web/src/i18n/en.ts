@@ -17,6 +17,7 @@ export const en: Translations = {
     agentSettings: 'Agent Settings',
     defaultAgent: 'Default Agent',
     defaultAgentDesc: 'Default agent type when creating new tasks',
+    logLevel: 'Log Level',
     account: 'Account',
     logout: 'Log out',
     confirmLogout: 'Are you sure you want to log out?',

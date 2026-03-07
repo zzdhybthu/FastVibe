@@ -26,6 +26,8 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const setVoiceLang = useLanguageStore((s) => s.setVoiceLang);
   const defaultAgent = useLanguageStore((s) => s.defaultAgent);
   const setDefaultAgent = useLanguageStore((s) => s.setDefaultAgent);
+  const logLevel = useLanguageStore((s) => s.logLevel);
+  const setLogLevel = useLanguageStore((s) => s.setLogLevel);
   const t = useT();
 
   const [editingRepoId, setEditingRepoId] = useState<string | null>(null);
@@ -80,6 +82,24 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 )}
                 <span className="hidden sm:inline">{theme === 'dark' ? t.config.darkMode : t.config.lightMode}</span>
               </button>
+            </div>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.logLevel}</span>
+              <div className="flex gap-1.5 ml-auto">
+                {(['debug', 'info', 'warn', 'error'] as const).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setLogLevel(level)}
+                    className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      logLevel === level
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                  >
+                    {level.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
           </section>
 

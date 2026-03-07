@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { LogLevel } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
+import { useLanguageStore } from '../stores/language-store';
 import { StatusBadge, isTerminalStatus } from '../lib/status';
 import { useT } from '../i18n';
 import LogViewer from './LogViewer';
@@ -53,7 +55,15 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
   const tasks = useAppStore((s) => s.tasks);
   const fetchTaskDetail = useAppStore((s) => s.fetchTaskDetail);
   const t = useT();
+  const logLevel = useLanguageStore((s) => s.logLevel);
   const [showConfig, setShowConfig] = useState(false);
+
+  const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 };
+  const filteredLogCount = useMemo(() => {
+    if (!taskDetail) return 0;
+    const minPriority = LOG_LEVEL_PRIORITY[logLevel];
+    return taskDetail.logs.filter((log) => (LOG_LEVEL_PRIORITY[log.level] ?? 0) >= minPriority).length;
+  }, [taskDetail?.logs, logLevel]);
 
   useEffect(() => {
     if (selectedTaskId) {
@@ -240,7 +250,7 @@ export default function TaskDetail({ onClose }: TaskDetailProps) {
       {/* Logs */}
       <div>
         <h3 className="text-xs font-medium text-ink-hint uppercase tracking-wider mb-2">
-          {t.taskDetail.logs} ({taskDetail.logs.length})
+          {t.taskDetail.logs} ({filteredLogCount})
         </h3>
         <LogViewer logs={taskDetail.logs} />
       </div>
