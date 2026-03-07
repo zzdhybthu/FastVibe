@@ -83,53 +83,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             </div>
           </section>
 
-          {/* Voice settings */}
-          <section>
-            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
-              <CustomSelect
-                className="w-28 text-sm"
-                options={[
-                  { value: 'zh', label: t.common.zh },
-                  { value: 'en', label: t.common.en },
-                ]}
-                value={voiceLang}
-                onChange={(val) => setVoiceLang(val as 'zh' | 'en')}
-              />
-            </div>
-          </section>
-
-          {/* Agent settings */}
-          <section>
-            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.agentSettings}</h3>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
-              <div className="flex gap-1.5 ml-auto">
-                <button
-                  onClick={() => setDefaultAgent('claude-code')}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    defaultAgent === 'claude-code'
-                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
-                  }`}
-                >
-                  Claude Code
-                </button>
-                <button
-                  onClick={() => setDefaultAgent('codex')}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    defaultAgent === 'codex'
-                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
-                  }`}
-                >
-                  Codex
-                </button>
-              </div>
-            </div>
-          </section>
-
           {/* Repo management */}
           <section>
             <div className="flex items-center justify-between mb-3">
@@ -220,6 +173,53 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                   </div>
                 ))
               )}
+            </div>
+          </section>
+
+          {/* Voice settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.voiceSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.language}</span>
+              <CustomSelect
+                className="w-28 text-sm"
+                options={[
+                  { value: 'zh', label: t.common.zh },
+                  { value: 'en', label: t.common.en },
+                ]}
+                value={voiceLang}
+                onChange={(val) => setVoiceLang(val as 'zh' | 'en')}
+              />
+            </div>
+          </section>
+
+          {/* Agent settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.agentSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
+              <div className="flex gap-1.5 ml-auto">
+                <button
+                  onClick={() => setDefaultAgent('claude-code')}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    defaultAgent === 'claude-code'
+                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  }`}
+                >
+                  Claude Code
+                </button>
+                <button
+                  onClick={() => setDefaultAgent('codex')}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    defaultAgent === 'codex'
+                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  }`}
+                >
+                  Codex
+                </button>
+              </div>
             </div>
           </section>
 
