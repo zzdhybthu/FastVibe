@@ -213,7 +213,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.logSettings}</h3>
             <div className="card flex items-center gap-2">
               <span className="text-sm font-medium text-ink-3">{t.config.logLevel}</span>
-              <div className="flex gap-1.5 ml-auto">
+              <div className="grid grid-cols-2 sm:flex gap-1.5 ml-auto">
                 {(['debug', 'info', 'warn', 'error'] as const).map((level) => (
                   <button
                     key={level}
