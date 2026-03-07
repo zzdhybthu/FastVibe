@@ -83,24 +83,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 <span className="hidden sm:inline">{theme === 'dark' ? t.config.darkMode : t.config.lightMode}</span>
               </button>
             </div>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.logLevel}</span>
-              <div className="flex gap-1.5 ml-auto">
-                {(['debug', 'info', 'warn', 'error'] as const).map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setLogLevel(level)}
-                    className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                      logLevel === level
-                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
-                    }`}
-                  >
-                    {level.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
           </section>
 
           {/* Repo management */}
@@ -222,6 +204,29 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 >
                   Codex
                 </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Log settings */}
+          <section>
+            <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.logSettings}</h3>
+            <div className="card flex items-center gap-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.logLevel}</span>
+              <div className="flex gap-1.5 ml-auto">
+                {(['debug', 'info', 'warn', 'error'] as const).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setLogLevel(level)}
+                    className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      logLevel === level
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                  >
+                    {level.toUpperCase()}
+                  </button>
+                ))}
               </div>
             </div>
           </section>
