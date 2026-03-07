@@ -34,7 +34,7 @@
 - **语音输入**: Web UI 支持语音输入，适用手机场景
 - **容错恢复**: 服务重启后自动恢复任务状态
 
-> **注意**: 当前支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [Codex](https://github.com/openai/codex) 作为后端 Agent。Codex 以全自动模式运行，**不支持**用户交互（ask_user）——使用 Codex 的任务在执行过程中不会向用户提问确认。
+> **注意**: 当前支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [Codex](https://github.com/openai/codex) 作为后端 Agent。Codex 通过 prompt 约定（`[ASK_USER]...[/ASK_USER]` 标记）支持有限的用户交互
 
 ## 使用场景
 

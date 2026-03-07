@@ -32,14 +32,27 @@ export function buildPrompt(task: Task, repo: Repo): string {
   const worktreeDir = `.claude-worktrees/${branchName}`;
   const repoDir = repo.path;
   const lang = task.language ?? 'zh';
+  const isCodex = task.agentType === 'codex';
 
   if (lang === 'en') {
-    return buildPromptEn(task, repo, branchName, worktreeDir, repoDir);
+    return buildPromptEn(task, repo, branchName, worktreeDir, repoDir, isCodex);
   }
-  return buildPromptZh(task, repo, branchName, worktreeDir, repoDir);
+  return buildPromptZh(task, repo, branchName, worktreeDir, repoDir, isCodex);
 }
 
-function buildPromptZh(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string): string {
+function buildPromptZh(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string, isCodex: boolean): string {
+  const askUserInstruction = isCodex
+    ? `- 如果需要用户确认或选择，在消息末尾使用以下格式提问：
+  [ASK_USER]你的问题[/ASK_USER]
+  发送后等待用户回复，不要继续执行`
+    : '- 如果需要用户确认或选择，使用 ask_user MCP 工具';
+
+  const conflictInstruction = isCodex
+    ? `2. 如果无法自动解决，使用以下格式询问用户如何处理：
+   [ASK_USER]你的问题[/ASK_USER]
+   发送后等待用户回复`
+    : '2. 如果无法自动解决，使用 ask_user 工具询问用户如何处理';
+
   return `你是一个自动化编码助手，在 Git 仓库中执行指定任务。请严格按照以下步骤操作：
 
 ## 步骤 1: 创建 worktree
@@ -77,7 +90,7 @@ ${_task.prompt}
 ---
 
 请完成上述任务。在开发过程中:
-- 如果需要用户确认或选择，使用 ask_user MCP 工具
+${askUserInstruction}
 - 写高质量的代码，遵循仓库现有的代码风格
 - 确保代码可以正常编译/运行
 
@@ -109,7 +122,7 @@ git rebase ${repo.mainBranch}
 
 如果 rebase 有冲突:
 1. 逐个解决冲突文件
-2. 如果无法自动解决，使用 ask_user 工具询问用户如何处理
+${conflictInstruction}
 3. 解决后 \`git add <文件>\` 然后 \`git rebase --continue\`
 
 ## 步骤 8: 合并到主分支
@@ -134,7 +147,19 @@ git push origin ${repo.mainBranch}
 `;
 }
 
-function buildPromptEn(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string): string {
+function buildPromptEn(_task: Task, repo: Repo, branchName: string, worktreeDir: string, repoDir: string, isCodex: boolean): string {
+  const askUserInstruction = isCodex
+    ? `- If you need user confirmation or choices, use the following format at the end of your message:
+  [ASK_USER]Your question here[/ASK_USER]
+  After sending, wait for the user's reply — do not continue execution`
+    : '- If you need user confirmation or choices, use the ask_user MCP tool';
+
+  const conflictInstruction = isCodex
+    ? `2. If automatic resolution is not possible, ask the user using the following format:
+   [ASK_USER]Your question here[/ASK_USER]
+   After sending, wait for the user's reply`
+    : '2. If automatic resolution is not possible, use the ask_user tool to ask the user how to handle it';
+
   return `You are an automated coding assistant executing a specified task in a Git repository. Follow these steps strictly:
 
 ## Step 1: Create worktree
@@ -172,7 +197,7 @@ ${_task.prompt}
 ---
 
 Complete the task described above. During development:
-- If you need user confirmation or choices, use the ask_user MCP tool
+${askUserInstruction}
 - Write high-quality code following the existing code style of the repository
 - Ensure the code compiles/runs correctly
 
@@ -204,7 +229,7 @@ git rebase ${repo.mainBranch}
 
 If rebase has conflicts:
 1. Resolve conflict files one by one
-2. If automatic resolution is not possible, use the ask_user tool to ask the user how to handle it
+${conflictInstruction}
 3. After resolving, \`git add <file>\` then \`git rebase --continue\`
 
 ## Step 8: Merge into main branch

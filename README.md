@@ -34,7 +34,7 @@
 - **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
 - **Fault Recovery**: Automatic task state recovery after service restart
 
-> **Note**: Currently supports [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://github.com/openai/codex) as backend agents. Codex runs in full-auto mode and does **not** support user interaction (ask_user) — tasks using Codex will not prompt for confirmation during execution.
+> **Note**: Currently supports [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://github.com/openai/codex) as backend agents. Codex supports limited user interaction via prompt conventions (`[ASK_USER]...[/ASK_USER]` tags)
 
 ## Use Cases
 
