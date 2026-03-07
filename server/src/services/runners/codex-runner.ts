@@ -1,6 +1,8 @@
 import { Codex } from '@openai/codex-sdk';
-import { buildPrompt } from '../prompt-builder.js';
+import { eq } from 'drizzle-orm';
+import { buildPrompt, buildContinuePrompt } from '../prompt-builder.js';
 import { createAndWaitForInteraction } from '../user-interaction.js';
+import { getDb, schema } from '../../db/index.js';
 import type { AgentRunner, RunContext } from './types.js';
 
 const ASK_USER_RE = /\[ASK_USER\]([\s\S]*?)\[\/ASK_USER\]/;
@@ -10,6 +12,21 @@ export const codexRunner: AgentRunner = {
     const { task, repo, abortController } = ctx;
 
     await ctx.logTask('info', `Starting Codex agent. Model: ${task.model}, Thinking: ${task.thinkingEnabled}`);
+
+    // Check if we should continue a predecessor session
+    let predecessorSessionId: string | undefined;
+    if (task.continueSession && task.predecessorTaskId) {
+      const db = getDb();
+      const predecessorRows = await db.select({ sessionId: schema.tasks.sessionId, agentType: schema.tasks.agentType })
+        .from(schema.tasks).where(eq(schema.tasks.id, task.predecessorTaskId));
+      const pred = predecessorRows[0];
+      if (pred?.agentType !== task.agentType) {
+        await ctx.logTask('warn', `Predecessor agent type (${pred?.agentType}) differs from current (${task.agentType}), skipping session continuation`);
+      } else if (pred?.sessionId) {
+        predecessorSessionId = pred.sessionId;
+        await ctx.logTask('info', `Continuing predecessor thread: ${predecessorSessionId}`);
+      }
+    }
 
     // Clean environment variables (aligned with Claude runner)
     const cleanEnv: Record<string, string> = {};
@@ -27,13 +44,17 @@ export const codexRunner: AgentRunner = {
       },
     });
 
-    const thread = codex.startThread({
+    const threadOptions = {
       workingDirectory: repo.path,
-      modelReasoningEffort: task.thinkingEnabled ? 'high' : undefined,
-      sandboxMode: 'danger-full-access',
-    });
+      modelReasoningEffort: task.thinkingEnabled ? 'high' as const : undefined,
+      sandboxMode: 'danger-full-access' as const,
+    };
 
-    let input = buildPrompt(task, repo);
+    const thread = predecessorSessionId
+      ? codex.resumeThread(predecessorSessionId, threadOptions)
+      : codex.startThread(threadOptions);
+
+    let input = predecessorSessionId ? buildContinuePrompt(task) : buildPrompt(task, repo);
     let finalResponse: string | undefined;
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
@@ -51,7 +72,15 @@ export const codexRunner: AgentRunner = {
 
         switch (event.type) {
           case 'thread.started': {
+            const ev = event as any;
             await ctx.logTask('debug', 'Thread started');
+            // Capture thread ID for future continuation
+            if (ev.thread?.id) {
+              const db = getDb();
+              await db.update(schema.tasks)
+                .set({ sessionId: ev.thread.id })
+                .where(eq(schema.tasks.id, task.id));
+            }
             break;
           }
           case 'turn.started': {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CreateRepoRequest } from '@fastvibe/shared';
 import { useAppStore } from '../stores/app-store';
 import { useThemeStore } from '../stores/theme-store';
@@ -17,6 +17,8 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const updateRepo = useAppStore((s) => s.updateRepo);
   const deleteRepo = useAppStore((s) => s.deleteRepo);
   const setToken = useAppStore((s) => s.setToken);
+  const agentDefaults = useAppStore((s) => s.agentDefaults);
+  const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggle);
   const confirm = useConfirm();
@@ -26,12 +28,35 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const setVoiceLang = useLanguageStore((s) => s.setVoiceLang);
   const defaultAgent = useLanguageStore((s) => s.defaultAgent);
   const setDefaultAgent = useLanguageStore((s) => s.setDefaultAgent);
+  const defaultThinking = useLanguageStore((s) => s.defaultThinking);
+  const setDefaultThinking = useLanguageStore((s) => s.setDefaultThinking);
+  const defaultContinueSession = useLanguageStore((s) => s.defaultContinueSession);
+  const setDefaultContinueSession = useLanguageStore((s) => s.setDefaultContinueSession);
+  const defaultClaudeModel = useLanguageStore((s) => s.defaultClaudeModel);
+  const setDefaultClaudeModel = useLanguageStore((s) => s.setDefaultClaudeModel);
+  const defaultCodexModel = useLanguageStore((s) => s.defaultCodexModel);
+  const setDefaultCodexModel = useLanguageStore((s) => s.setDefaultCodexModel);
   const logLevel = useLanguageStore((s) => s.logLevel);
   const setLogLevel = useLanguageStore((s) => s.setLogLevel);
   const t = useT();
 
   const [editingRepoId, setEditingRepoId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  useEffect(() => {
+    if (!agentDefaults) fetchAgentDefaults();
+  }, [agentDefaults, fetchAgentDefaults]);
+
+  // Validate default models against available models; reset if invalid
+  useEffect(() => {
+    if (!agentDefaults) return;
+    if (defaultClaudeModel && !agentDefaults.claude.models.includes(defaultClaudeModel)) {
+      setDefaultClaudeModel('');
+    }
+    if (defaultCodexModel && !agentDefaults.codex.models.includes(defaultCodexModel)) {
+      setDefaultCodexModel('');
+    }
+  }, [agentDefaults, defaultClaudeModel, defaultCodexModel, setDefaultClaudeModel, setDefaultCodexModel]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -181,28 +206,96 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           {/* Agent settings */}
           <section>
             <h3 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-3">{t.config.agentSettings}</h3>
-            <div className="card flex items-center gap-2">
-              <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
-              <div className="flex gap-1.5 ml-auto">
+            <div className="card space-y-4">
+              {/* Default agent */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
+                <div className="flex gap-1.5 ml-auto">
+                  <button
+                    onClick={() => setDefaultAgent('claude-code')}
+                    className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      defaultAgent === 'claude-code'
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                  >
+                    Claude Code
+                  </button>
+                  <button
+                    onClick={() => setDefaultAgent('codex')}
+                    className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      defaultAgent === 'codex'
+                        ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                        : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                    }`}
+                  >
+                    Codex
+                  </button>
+                </div>
+              </div>
+              {/* Default model */}
+              {agentDefaults && (agentDefaults.claude.models.length > 0 || agentDefaults.codex.models.length > 0) && (
+                <div>
+                  <span className="text-sm font-medium text-ink-3 block mb-1.5">{t.config.defaultModel}</span>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    {agentDefaults.claude.models.length > 0 && (
+                      <CustomSelect
+                        className="flex-1 text-sm"
+                        options={agentDefaults.claude.models.map((m) => ({ value: m, label: m }))}
+                        value={defaultClaudeModel || agentDefaults.claude.defaultModel}
+                        onChange={(val) => setDefaultClaudeModel(val === agentDefaults.claude.defaultModel ? '' : val)}
+                      />
+                    )}
+                    {agentDefaults.claude.models.length > 0 && agentDefaults.codex.models.length > 0 && (
+                      <span className="text-xs text-ink-hint text-center shrink-0">+</span>
+                    )}
+                    {agentDefaults.codex.models.length > 0 && (
+                      <CustomSelect
+                        className="flex-1 text-sm"
+                        options={agentDefaults.codex.models.map((m) => ({ value: m, label: m }))}
+                        value={defaultCodexModel || agentDefaults.codex.defaultModel}
+                        onChange={(val) => setDefaultCodexModel(val === agentDefaults.codex.defaultModel ? '' : val)}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Default thinking */}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-sm font-medium text-ink-3">{t.config.defaultThinking}</span>
+                  <p className="text-xs text-ink-hint">{t.config.defaultThinkingDesc}</p>
+                </div>
                 <button
-                  onClick={() => setDefaultAgent('claude-code')}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    defaultAgent === 'claude-code'
-                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  onClick={() => setDefaultThinking(!defaultThinking)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                    defaultThinking ? 'bg-brand-600' : 'bg-th-muted'
                   }`}
                 >
-                  Claude Code
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transition-transform ${
+                      defaultThinking ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
                 </button>
+              </div>
+              {/* Default continue session */}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-sm font-medium text-ink-3">{t.config.defaultContinueSession}</span>
+                  <p className="text-xs text-ink-hint">{t.config.defaultContinueSessionDesc}</p>
+                </div>
                 <button
-                  onClick={() => setDefaultAgent('codex')}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    defaultAgent === 'codex'
-                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  onClick={() => setDefaultContinueSession(!defaultContinueSession)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                    defaultContinueSession ? 'bg-brand-600' : 'bg-th-muted'
                   }`}
                 >
-                  Codex
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transition-transform ${
+                      defaultContinueSession ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
                 </button>
               </div>
             </div>

@@ -21,7 +21,7 @@ const CANCELLABLE_STATUSES: TaskStatus[] = ['PENDING', 'QUEUED', 'RUNNING', 'AWA
 async function cleanupTaskGitResources(repoPath: string, branchName: string | null) {
   if (!branchName) return;
 
-  const worktreeDir = `.claude-worktrees/${branchName}`;
+  const worktreeDir = `.worktrees/${branchName}`;
 
   // Force remove worktree (if exists)
   try {
@@ -49,6 +49,7 @@ const createTaskSchema = z.object({
   prompt: z.string().min(1),
   title: z.string().optional(),
   thinkingEnabled: z.boolean().default(false),
+  continueSession: z.boolean().default(false),
   predecessorTaskId: z.string().optional(),
   model: z.string().optional(),
   maxBudgetUsd: z.number().positive().optional(),
@@ -64,6 +65,8 @@ const restartTaskSchema = z.object({
   maxBudgetUsd: z.number().positive().optional(),
   interactionTimeout: z.number().int().positive().optional(),
   thinkingEnabled: z.boolean().optional(),
+  continueSession: z.boolean().optional(),
+  predecessorTaskId: z.string().optional(),
   language: z.enum(['zh', 'en']).optional(),
   agentType: z.enum(['claude-code', 'codex']).optional(),
 });
@@ -124,6 +127,7 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
         status: 'PENDING' as TaskStatus,
         agentType: body.agentType ?? 'claude-code',
         thinkingEnabled: body.thinkingEnabled,
+        continueSession: body.continueSession,
         predecessorTaskId: body.predecessorTaskId ?? null,
         model: body.model ?? (
           (body.agentType ?? 'claude-code') === 'codex'
@@ -272,7 +276,8 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
       status: 'PENDING' as TaskStatus,
       agentType: (overrides as any).agentType ?? task.agentType ?? 'claude-code',
       thinkingEnabled: overrides.thinkingEnabled ?? task.thinkingEnabled,
-      predecessorTaskId: null,
+      continueSession: overrides.continueSession ?? task.continueSession,
+      predecessorTaskId: overrides.predecessorTaskId ?? null,
       model: overrides.model ?? task.model,
       maxBudgetUsd: overrides.maxBudgetUsd ?? task.maxBudgetUsd,
       interactionTimeout: overrides.interactionTimeout ?? task.interactionTimeout,

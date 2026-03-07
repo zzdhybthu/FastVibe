@@ -26,7 +26,7 @@
 ## 功能特性
 
 - **多仓库管理**: 注册多个开发仓库，独立配置和隔离
-- **任务队列**: 优先级排队、并发控制、前序任务依赖
+- **任务队列**: 前序任务依赖、继续会话
 - **任务并行**: 多个原子任务同时执行，互不干扰
 - **Git Worktree**: 自动创建 worktree、分支、合并、push
 - **实时监控**: WebSocket 推送任务状态和日志
@@ -34,7 +34,7 @@
 - **语音输入**: Web UI 支持语音输入，适用手机场景
 - **容错恢复**: 服务重启后自动恢复任务状态
 
-> **注意**: 当前支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [Codex](https://github.com/openai/codex) 作为后端 Agent。Codex 通过 prompt 约定（`[ASK_USER]...[/ASK_USER]` 标记）支持有限的用户交互
+> **注意**: 当前支持 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [Codex](https://github.com/openai/codex) 作为后端 Agent。Codex 通过 prompt 约定（`[ASK_USER]...[/ASK_USER]` 标记）支持用户交互
 
 ## 使用场景
 
@@ -254,6 +254,9 @@ codex:
 | 界面语言 | 浏览器 | 中文 / English |
 | 主题 | 浏览器 | 暗色 / 亮色模式 |
 | 默认 Agent | 浏览器 | 新建任务时的默认 Agent 类型 |
+| 默认模型 | 浏览器 | 各 Agent 的默认模型（Claude Code / Codex 分别设置） |
+| 默认思考模式 | 浏览器 | 新建任务时默认启用思考模式 |
+| 默认继续会话 | 浏览器 | 新建任务时默认启用继续会话 |
 | 日志级别 | 浏览器 | 过滤显示的日志级别（debug/info/warn/error） |
 | 语音语言 | 浏览器 | 语音识别语言 |
 
@@ -270,6 +273,7 @@ codex:
 | 交互超时 | 用户确认超时时间（秒） |
 | 任务语言 | Agent 执行任务时使用的语言 |
 | 前置任务 | 任务依赖链 |
+| 继续会话 | 在前置任务的 session 基础上继续执行 |
 
 ## 浏览器访问
 

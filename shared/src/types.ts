@@ -31,6 +31,7 @@ export interface Task {
   status: TaskStatus;
   agentType: AgentType;
   thinkingEnabled: boolean;
+  continueSession: boolean;
   predecessorTaskId: string | null;
   model: string;
   maxBudgetUsd: number;
@@ -78,6 +79,7 @@ export interface CreateTaskRequest {
   prompt: string;
   title?: string;
   thinkingEnabled?: boolean;
+  continueSession?: boolean;
   predecessorTaskId?: string;
   model?: string;
   maxBudgetUsd?: number;

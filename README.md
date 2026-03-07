@@ -26,7 +26,7 @@
 ## Features
 
 - **Multi-Repo Management**: Register multiple development repositories with independent configuration and isolation
-- **Task Queue**: Priority queuing, concurrency control, and predecessor task dependencies
+- **Task Queue**: Concurrency control, predecessor task dependencies and session continuation
 - **Parallel Execution**: Multiple atomic tasks run simultaneously without interference
 - **Git Worktree**: Automatic worktree creation, branching, merging, and pushing
 - **Real-Time Monitoring**: WebSocket-based task status and log streaming
@@ -34,7 +34,7 @@
 - **Voice Input**: Web UI supports voice input, ideal for mobile scenarios
 - **Fault Recovery**: Automatic task state recovery after service restart
 
-> **Note**: Currently supports [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://github.com/openai/codex) as backend agents. Codex supports limited user interaction via prompt conventions (`[ASK_USER]...[/ASK_USER]` tags)
+> **Note**: Currently supports [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://github.com/openai/codex) as backend agents. Codex supports user interaction via prompt conventions (`[ASK_USER]...[/ASK_USER]` tags)
 
 ## Use Cases
 
@@ -254,6 +254,9 @@ For personal preferences and less frequently changed options, configured via the
 | UI language | Browser | Chinese / English |
 | Theme | Browser | Dark / Light mode |
 | Default Agent | Browser | Default agent type for new tasks |
+| Default model | Browser | Default model per agent (Claude Code / Codex) |
+| Default thinking mode | Browser | Enable thinking mode by default for new tasks |
+| Default continue session | Browser | Enable session continuation by default for new tasks |
 | Log level | Browser | Filter displayed log level (debug/info/warn/error) |
 | Voice language | Browser | Speech recognition language |
 
@@ -270,6 +273,7 @@ For settings that may vary between tasks, configured when creating or restarting
 | Interaction timeout | Timeout for user confirmation (seconds) |
 | Task language | Language used by the Agent during execution |
 | Predecessor task | Task dependency chain |
+| Continue session | Continue execution in the predecessor task's session |
 
 ## Browser Access
 

@@ -172,8 +172,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   restartTask: async (taskId, overrides) => {
     const newTask = await api.restartTask(taskId, overrides);
     set((s) => ({
-      // Remove old task, add new one
-      tasks: [newTask, ...s.tasks.filter((t) => t.id !== taskId)],
+      // Remove old task and any WS-added duplicate of the new task
+      tasks: [newTask, ...s.tasks.filter((t) => t.id !== taskId && t.id !== newTask.id)],
       selectedTaskId: s.selectedTaskId === taskId ? newTask.id : s.selectedTaskId,
       taskDetail: s.taskDetail?.id === taskId ? null : s.taskDetail,
       restartingTask: null,

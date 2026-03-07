@@ -17,12 +17,17 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const uiLanguage = useLanguageStore((s) => s.language);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
   const defaultAgent = useLanguageStore((s) => s.defaultAgent);
+  const defaultThinking = useLanguageStore((s) => s.defaultThinking);
+  const defaultContinueSession = useLanguageStore((s) => s.defaultContinueSession);
+  const defaultClaudeModel = useLanguageStore((s) => s.defaultClaudeModel);
+  const defaultCodexModel = useLanguageStore((s) => s.defaultCodexModel);
   const t = useT();
 
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
   const [agentType, setAgentType] = useState<AgentType>(defaultAgent);
-  const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const [thinkingEnabled, setThinkingEnabled] = useState(defaultThinking);
+  const [continueSession, setContinueSession] = useState(defaultContinueSession);
   const [predecessorTaskId, setPredecessorTaskId] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [model, setModel] = useState('');
@@ -72,7 +77,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
     }
   }, [isTitleListening, title, startTitleVoice, stopTitleVoice, stopVoice]);
 
-  const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED' && t.status !== 'COMPLETED').reverse();
+  const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED').reverse();
 
   useEffect(() => {
     if (!agentDefaults) {
@@ -96,8 +101,9 @@ export default function TaskForm({ onClose }: TaskFormProps) {
         title: title.trim() || undefined,
         agentType,
         thinkingEnabled,
+        continueSession,
         predecessorTaskId: predecessorTaskId || undefined,
-        model: model || undefined,
+        model: model || (agentType === 'codex' ? defaultCodexModel : defaultClaudeModel) || undefined,
         maxBudgetUsd: maxBudgetUsd ? parseFloat(maxBudgetUsd) : undefined,
         interactionTimeout: interactionTimeout ? parseInt(interactionTimeout, 10) : undefined,
         language: taskLanguage,
@@ -240,6 +246,37 @@ export default function TaskForm({ onClose }: TaskFormProps) {
               <p className="mt-1 text-xs text-ink-hint">
                 {t.taskForm.predecessorDesc}
               </p>
+              {predecessorTaskId && (() => {
+                const predecessorTask = tasks.find((t) => t.id === predecessorTaskId);
+                const agentMismatch = continueSession && predecessorTask && predecessorTask.agentType !== agentType;
+                return (
+                  <>
+                    <div className="flex items-center justify-between mt-2">
+                      <div>
+                        <span className="text-sm font-medium text-ink-3">{t.taskForm.continueSession}</span>
+                        <p className="text-xs text-ink-hint">{t.taskForm.continueSessionDesc}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setContinueSession(!continueSession)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                          continueSession ? 'bg-brand-600' : 'bg-th-muted'
+                        }`}
+                        disabled={submitting}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transition-transform ${
+                            continueSession ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    {agentMismatch && (
+                      <p className="mt-1 text-xs text-amber-400">{t.taskForm.continueSessionAgentMismatch}</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
 
@@ -300,11 +337,13 @@ export default function TaskForm({ onClose }: TaskFormProps) {
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
                 {agentDefaults && (() => {
                   const agentConfig = agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
-                  const nonDefaultModels = agentConfig.models.filter((m) => m !== agentConfig.defaultModel);
+                  const agentDefaultModel = agentType === 'codex' ? defaultCodexModel : defaultClaudeModel;
+                  const resolvedDefault = agentDefaultModel && agentConfig.models.includes(agentDefaultModel) ? agentDefaultModel : agentConfig.defaultModel;
+                  const nonDefaultModels = agentConfig.models.filter((m) => m !== resolvedDefault);
                   return agentConfig.models.length > 0 ? (
                     <CustomSelect
                       options={[
-                        { value: '', label: t.taskForm.modelDefault(agentConfig.defaultModel) },
+                        { value: '', label: t.taskForm.modelDefault(resolvedDefault) },
                         ...nonDefaultModels.map((m) => ({ value: m, label: m })),
                       ]}
                       value={model}

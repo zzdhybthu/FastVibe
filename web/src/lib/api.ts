@@ -119,6 +119,8 @@ export interface RestartTaskOptions {
   maxBudgetUsd?: number;
   interactionTimeout?: number;
   thinkingEnabled?: boolean;
+  continueSession?: boolean;
+  predecessorTaskId?: string;
   language?: 'zh' | 'en';
   agentType?: import('@fastvibe/shared').AgentType;
 }

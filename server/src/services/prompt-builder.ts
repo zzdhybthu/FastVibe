@@ -29,7 +29,7 @@ export function buildBranchName(task: Task): string {
  */
 export function buildPrompt(task: Task, repo: Repo): string {
   const branchName = buildBranchName(task);
-  const worktreeDir = `.claude-worktrees/${branchName}`;
+  const worktreeDir = `.worktrees/${branchName}`;
   const repoDir = repo.path;
   const lang = task.language ?? 'zh';
   const isCodex = task.agentType === 'codex';
@@ -251,6 +251,41 @@ If the task cannot be completed, clearly explain the reason for failure, includi
 - Specific error messages
 - Solutions attempted
 - Suggested next steps
+`;
+}
+
+/**
+ * Build a simplified prompt for session continuation.
+ * When continuing a predecessor's session, we skip the full worktree template
+ * and only send the new task instructions.
+ */
+export function buildContinuePrompt(task: Task): string {
+  const lang = task.language ?? 'zh';
+
+  if (lang === 'en') {
+    return `You are continuing a previous session. A new task has been assigned to you.
+
+## New Task
+${task.prompt}
+
+## Instructions
+- Continue working in the same worktree/environment from the previous session
+- Do NOT create a new worktree — you are already in one
+- Follow the same code quality and commit conventions as before
+- After completing the task, commit, rebase, merge, clean up, and push as usual
+`;
+  }
+
+  return `你正在继续上一个 session。现在有一个新任务分配给你。
+
+## 新任务
+${task.prompt}
+
+## 注意事项
+- 继续在上一个 session 的 worktree/环境中工作
+- 不要创建新的 worktree —— 你已经在一个 worktree 中了
+- 遵循与之前相同的代码质量和 commit 规范
+- 完成任务后，照常 commit、rebase、merge、清理并 push
 `;
 }
 

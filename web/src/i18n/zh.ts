@@ -15,6 +15,12 @@ export const zh: Translations = {
     agentSettings: 'Agent 设置',
     defaultAgent: '默认 Agent',
     defaultAgentDesc: '新建任务时的默认 Agent 类型',
+    defaultThinking: '默认思考模式',
+    defaultThinkingDesc: '新建任务时默认启用思考模式',
+    defaultContinueSession: '默认继续会话',
+    defaultContinueSessionDesc: '新建任务时默认启用继续会话',
+    defaultModel: '默认模型',
+    defaultModelDefault: '默认',
     logLevel: '日志级别',
     logSettings: '日志管理',
     account: '账户',
@@ -55,6 +61,9 @@ export const zh: Translations = {
     predecessorTask: '前置任务',
     noPredecessor: '无前置任务',
     predecessorDesc: '新任务将在前置任务完成后才开始执行',
+    continueSession: '继续会话',
+    continueSessionDesc: '在前置任务的 session 基础上继续执行',
+    continueSessionAgentMismatch: '前置任务使用了不同的 Agent，继续会话将自动回退为普通模式',
     advancedSettings: '高级设置',
     model: '模型',
     modelDefault: (m: string) => `默认 (${m})`,
@@ -220,6 +229,12 @@ export interface Translations {
     agentSettings: string;
     defaultAgent: string;
     defaultAgentDesc: string;
+    defaultThinking: string;
+    defaultThinkingDesc: string;
+    defaultContinueSession: string;
+    defaultContinueSessionDesc: string;
+    defaultModel: string;
+    defaultModelDefault: string;
     logLevel: string;
     logSettings: string;
     account: string;
@@ -260,6 +275,9 @@ export interface Translations {
     predecessorTask: string;
     noPredecessor: string;
     predecessorDesc: string;
+    continueSession: string;
+    continueSessionDesc: string;
+    continueSessionAgentMismatch: string;
     advancedSettings: string;
     model: string;
     modelDefault: (m: string) => string;

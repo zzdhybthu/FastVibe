@@ -15,6 +15,13 @@
       "when": 1772807751086,
       "tag": "0001_useful_richard_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1772876242655,
+      "tag": "0002_striped_hannibal_king",
+      "breakpoints": true
     }
   ]
 }

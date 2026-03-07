@@ -1,8 +1,10 @@
 import { query as sdkQuery } from '@anthropic-ai/claude-agent-sdk';
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
+import { eq } from 'drizzle-orm';
 import { createUserInteractionServer } from '../user-interaction.js';
-import { buildPrompt, getSystemPromptAppend } from '../prompt-builder.js';
+import { buildPrompt, buildContinuePrompt, getSystemPromptAppend } from '../prompt-builder.js';
 import { loadEnabledPlugins } from '../plugin-loader.js';
+import { getDb, schema } from '../../db/index.js';
 import type { AgentRunner, RunContext } from './types.js';
 
 export const claudeRunner: AgentRunner = {
@@ -14,7 +16,22 @@ export const claudeRunner: AgentRunner = {
       task.id, repo.id, task.interactionTimeout, taskLanguage, abortController.signal,
     );
 
-    const prompt = buildPrompt(task, repo);
+    // Check if we should continue a predecessor session
+    let predecessorSessionId: string | undefined;
+    if (task.continueSession && task.predecessorTaskId) {
+      const db = getDb();
+      const predecessorRows = await db.select({ sessionId: schema.tasks.sessionId, agentType: schema.tasks.agentType })
+        .from(schema.tasks).where(eq(schema.tasks.id, task.predecessorTaskId));
+      const pred = predecessorRows[0];
+      if (pred?.agentType !== task.agentType) {
+        await ctx.logTask('warn', `Predecessor agent type (${pred?.agentType}) differs from current (${task.agentType}), skipping session continuation`);
+      } else if (pred?.sessionId) {
+        predecessorSessionId = pred.sessionId;
+        await ctx.logTask('info', `Continuing predecessor session: ${predecessorSessionId}`);
+      }
+    }
+
+    const prompt = predecessorSessionId ? buildContinuePrompt(task) : buildPrompt(task, repo);
 
     const cleanEnv: Record<string, string | undefined> = { ...process.env };
     delete cleanEnv.CLAUDECODE;
@@ -48,6 +65,7 @@ export const claudeRunner: AgentRunner = {
         mcpServers: {
           'user-interaction': mcpServer,
         },
+        ...(predecessorSessionId ? { resume: predecessorSessionId } : {}),
       },
     });
 
@@ -104,6 +122,13 @@ async function processClaudeMessage(
       switch (msg.subtype) {
         case 'init':
           await ctx.logTask('debug', `SDK initialized. Model: ${msg.model}, Tools: ${msg.tools.length}, MCP: ${msg.mcp_servers?.map((s: any) => s.name).join(', ') || 'none'}`);
+          // Capture session_id for future continuation
+          if (msg.session_id) {
+            const db = getDb();
+            await db.update(schema.tasks)
+              .set({ sessionId: msg.session_id })
+              .where(eq(schema.tasks.id, ctx.task.id));
+          }
           break;
         case 'task_started':
           await ctx.logTask('debug', `Sub-agent started: ${msg.description}`);

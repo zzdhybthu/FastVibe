@@ -14,12 +14,16 @@ export default function RestartDialog() {
   const agentDefaults = useAppStore((s) => s.agentDefaults);
   const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
+  const defaultContinueSession = useLanguageStore((s) => s.defaultContinueSession);
+  const defaultClaudeModel = useLanguageStore((s) => s.defaultClaudeModel);
+  const defaultCodexModel = useLanguageStore((s) => s.defaultCodexModel);
   const t = useT();
 
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
   const [agentType, setAgentType] = useState<AgentType>('claude-code');
   const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const [continueSession, setContinueSession] = useState(defaultContinueSession);
   const [predecessorTaskId, setPredecessorTaskId] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [model, setModel] = useState('');
@@ -69,7 +73,7 @@ export default function RestartDialog() {
     }
   }, [isTitleListening, title, startTitleVoice, stopTitleVoice, stopVoice]);
 
-  const eligiblePredecessors = tasks.filter((tk) => tk.status !== 'FAILED' && tk.status !== 'CANCELLED' && tk.status !== 'COMPLETED' && tk.id !== restartingTask?.id).reverse();
+  const eligiblePredecessors = tasks.filter((tk) => tk.id !== restartingTask?.id && tk.status !== 'FAILED' && tk.status !== 'CANCELLED').reverse();
 
   useEffect(() => {
     if (!agentDefaults) {
@@ -82,11 +86,29 @@ export default function RestartDialog() {
     if (restartingTask) {
       setPrompt(restartingTask.prompt);
       setTitle(restartingTask.title || '');
-      setAgentType(restartingTask.agentType ?? 'claude-code');
+      const agent = restartingTask.agentType ?? 'claude-code';
+      setAgentType(agent);
       setThinkingEnabled(restartingTask.thinkingEnabled);
-      setPredecessorTaskId('');
+      setContinueSession(restartingTask.continueSession ?? defaultContinueSession);
+
+      // Preserve predecessor if still eligible (not failed/cancelled/deleted)
+      const predId = restartingTask.predecessorTaskId || '';
+      const predTask = predId ? tasks.find((tk) => tk.id === predId) : undefined;
+      const predValid = predTask && predTask.status !== 'FAILED' && predTask.status !== 'CANCELLED';
+      setPredecessorTaskId(predValid ? predId : '');
+
       setShowAdvanced(false);
-      setModel(restartingTask.model);
+
+      // Model: if it matches the resolved default, use '' (meaning "default")
+      if (agentDefaults) {
+        const agentConfig = agent === 'codex' ? agentDefaults.codex : agentDefaults.claude;
+        const agentDefaultModel = agent === 'codex' ? defaultCodexModel : defaultClaudeModel;
+        const resolvedDefault = agentDefaultModel && agentConfig.models.includes(agentDefaultModel) ? agentDefaultModel : agentConfig.defaultModel;
+        setModel(restartingTask.model === resolvedDefault ? '' : restartingTask.model);
+      } else {
+        setModel(restartingTask.model);
+      }
+
       setMaxBudgetUsd(String(restartingTask.maxBudgetUsd));
       setInteractionTimeout(String(restartingTask.interactionTimeout));
       setTaskLanguage((restartingTask.language as 'zh' | 'en') ?? 'zh');
@@ -113,7 +135,9 @@ export default function RestartDialog() {
         title: title.trim() || undefined,
         agentType,
         thinkingEnabled,
-        model: model || undefined,
+        continueSession,
+        predecessorTaskId: predecessorTaskId || undefined,
+        model: model || (agentType === 'codex' ? defaultCodexModel : defaultClaudeModel) || undefined,
         maxBudgetUsd: maxBudgetUsd ? parseFloat(maxBudgetUsd) : undefined,
         interactionTimeout: interactionTimeout ? parseInt(interactionTimeout, 10) : undefined,
         language: taskLanguage,
@@ -255,6 +279,37 @@ export default function RestartDialog() {
               <p className="mt-1 text-xs text-ink-hint">
                 {t.taskForm.predecessorDesc}
               </p>
+              {predecessorTaskId && (() => {
+                const predecessorTask = tasks.find((tk) => tk.id === predecessorTaskId);
+                const agentMismatch = continueSession && predecessorTask && predecessorTask.agentType !== agentType;
+                return (
+                  <>
+                    <div className="flex items-center justify-between mt-2">
+                      <div>
+                        <span className="text-sm font-medium text-ink-3">{t.taskForm.continueSession}</span>
+                        <p className="text-xs text-ink-hint">{t.taskForm.continueSessionDesc}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setContinueSession(!continueSession)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                          continueSession ? 'bg-brand-600' : 'bg-th-muted'
+                        }`}
+                        disabled={submitting}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transition-transform ${
+                            continueSession ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    {agentMismatch && (
+                      <p className="mt-1 text-xs text-amber-400">{t.taskForm.continueSessionAgentMismatch}</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
 
@@ -315,11 +370,13 @@ export default function RestartDialog() {
                 <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
                 {agentDefaults && (() => {
                   const agentConfig = agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
-                  const nonDefaultModels = agentConfig.models.filter((m) => m !== agentConfig.defaultModel);
+                  const agentDefaultModel = agentType === 'codex' ? defaultCodexModel : defaultClaudeModel;
+                  const resolvedDefault = agentDefaultModel && agentConfig.models.includes(agentDefaultModel) ? agentDefaultModel : agentConfig.defaultModel;
+                  const nonDefaultModels = agentConfig.models.filter((m) => m !== resolvedDefault);
                   return agentConfig.models.length > 0 ? (
                     <CustomSelect
                       options={[
-                        { value: '', label: t.taskForm.modelDefault(agentConfig.defaultModel) },
+                        { value: '', label: t.taskForm.modelDefault(resolvedDefault) },
                         ...nonDefaultModels.map((m) => ({ value: m, label: m })),
                       ]}
                       value={model}

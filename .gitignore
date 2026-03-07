@@ -28,4 +28,4 @@ __pycache__/
 logs/
 
 # Code Agent worktrees
-.claude-worktrees/
+.worktrees/
