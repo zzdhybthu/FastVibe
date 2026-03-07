@@ -147,23 +147,29 @@ Make sure `claude --dangerously-skip-permissions` works. Install any necessary p
 
 ### 4. Configure Codex (Optional)
 
-If you want to use Codex as an agent, install the Codex CLI and set your OpenAI API key:
+If you want to use Codex as an agent, install the Codex CLI:
 
 ```bash
 npm install -g @openai/codex
 ```
 
-Add the following to your `~/.bashrc` (or `~/.zshrc`) so they persist across sessions:
+Configure API key in `~/.codex/auth.json`:
 
-```bash
-export CODEX_API_KEY="sk-..."
-# export OPENAI_BASE_URL="https://..."  # Optional: custom API endpoint
+```json
+{
+  "OPENAI_API_KEY": "sk-..."
+}
 ```
 
-Then reload your shell config:
+Configure model and provider in `~/.codex/config.toml`:
 
-```bash
-source ~/.bashrc  # or source ~/.zshrc
+```toml
+model = "gpt-5.3-codex"
+
+[model_providers.custom]
+name = "custom"
+base_url = "https://api.openai.com/v1"
+wire_api = "responses"
 ```
 
 ## Quick Start

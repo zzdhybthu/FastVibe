@@ -147,23 +147,29 @@ claude --version
 
 ### 4. 配置 Codex（可选）
 
-如需使用 Codex 作为 Agent，请安装 Codex CLI 并设置 OpenAI API Key：
+如需使用 Codex 作为 Agent，请安装 Codex CLI：
 
 ```bash
 npm install -g @openai/codex
 ```
 
-将以下内容写入 `~/.bashrc`（或 `~/.zshrc`），使其在每次会话中自动生效：
+在 `~/.codex/auth.json` 中配置 API Key：
 
-```bash
-export CODEX_API_KEY="sk-..."
-# export OPENAI_BASE_URL="https://..."  # 可选：自定义 API 地址
+```json
+{
+  "OPENAI_API_KEY": "sk-..."
+}
 ```
 
-重新加载 shell 配置：
+在 `~/.codex/config.toml` 中配置模型和服务商：
 
-```bash
-source ~/.bashrc  # 或 source ~/.zshrc
+```toml
+model = "gpt-5.3-codex"
+
+[model_providers.custom]
+name = "custom"
+base_url = "https://api.openai.com/v1"
+wire_api = "responses"
 ```
 
 ## 快速开始
