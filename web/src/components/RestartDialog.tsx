@@ -29,7 +29,7 @@ export default function RestartDialog() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Speech recognition
+  // Speech recognition - prompt
   const promptBeforeVoiceRef = useRef('');
   const handleVoiceResult = useCallback((text: string) => {
     const base = promptBeforeVoiceRef.current;
@@ -43,10 +43,31 @@ export default function RestartDialog() {
     if (isListening) {
       stopVoice();
     } else {
+      stopTitleVoice();
       promptBeforeVoiceRef.current = prompt;
       startVoice();
     }
   }, [isListening, prompt, startVoice, stopVoice]);
+
+  // Speech recognition - title
+  const titleBeforeVoiceRef = useRef('');
+  const handleTitleVoiceResult = useCallback((text: string) => {
+    const base = titleBeforeVoiceRef.current;
+    setTitle(base ? base + ' ' + text : text);
+  }, []);
+  const { isListening: isTitleListening, start: startTitleVoice, stop: stopTitleVoice } = useSpeechRecognition({
+    lang: voiceLang,
+    onResult: handleTitleVoiceResult,
+  });
+  const toggleTitleVoice = useCallback(() => {
+    if (isTitleListening) {
+      stopTitleVoice();
+    } else {
+      stopVoice();
+      titleBeforeVoiceRef.current = title;
+      startTitleVoice();
+    }
+  }, [isTitleListening, title, startTitleVoice, stopTitleVoice, stopVoice]);
 
   const eligiblePredecessors = tasks.filter((tk) => tk.status !== 'FAILED' && tk.status !== 'CANCELLED' && tk.id !== restartingTask?.id);
 
@@ -159,9 +180,28 @@ export default function RestartDialog() {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              {t.taskForm.titleLabel} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-ink-3">
+                {t.taskForm.titleLabel} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
+              </label>
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={toggleTitleVoice}
+                  className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                    isTitleListening
+                      ? 'bg-red-500/15 text-red-400'
+                      : 'text-ink-muted hover:text-ink-2 hover:bg-th-elevated'
+                  }`}
+                  title={isTitleListening ? t.taskForm.voiceListening : t.taskForm.voiceInput}
+                  disabled={submitting}
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <input
               type="text"
               className="input"
