@@ -2,7 +2,7 @@ import { query as sdkQuery } from '@anthropic-ai/claude-agent-sdk';
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
 import { createUserInteractionServer } from '../user-interaction.js';
 import { buildPrompt, getSystemPromptAppend } from '../prompt-builder.js';
-import { loadExternalMcpServers } from '../mcp-loader.js';
+import { loadExternalMcpServers, loadEnabledPlugins } from '../mcp-loader.js';
 import type { AgentRunner, RunContext } from './types.js';
 
 export const claudeRunner: AgentRunner = {
@@ -25,6 +25,11 @@ export const claudeRunner: AgentRunner = {
       await ctx.logTask('info', `Loaded external MCP servers: ${externalNames.join(', ')}`);
     }
 
+    const plugins = loadEnabledPlugins();
+    if (plugins.length > 0) {
+      await ctx.logTask('info', `Loaded plugins: ${plugins.map(p => p.path.split('/').slice(-2).join('/')).join(', ')}`);
+    }
+
     const conversation = sdkQuery({
       prompt,
       options: {
@@ -45,6 +50,7 @@ export const claudeRunner: AgentRunner = {
         maxBudgetUsd: task.maxBudgetUsd,
         abortController,
         env: cleanEnv,
+        plugins,
         mcpServers: {
           ...externalMcpServers,
           'user-interaction': mcpServer,
