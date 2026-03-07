@@ -17,7 +17,6 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const updateRepo = useAppStore((s) => s.updateRepo);
   const deleteRepo = useAppStore((s) => s.deleteRepo);
   const setToken = useAppStore((s) => s.setToken);
-  const agentDefaults = useAppStore((s) => s.agentDefaults);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggle);
   const confirm = useConfirm();
@@ -25,6 +24,8 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   const setLanguage = useLanguageStore((s) => s.setLanguage);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
   const setVoiceLang = useLanguageStore((s) => s.setVoiceLang);
+  const defaultAgent = useLanguageStore((s) => s.defaultAgent);
+  const setDefaultAgent = useLanguageStore((s) => s.setDefaultAgent);
   const t = useT();
 
   const [editingRepoId, setEditingRepoId] = useState<string | null>(null);
@@ -80,15 +81,31 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
                 <span className="hidden sm:inline">{theme === 'dark' ? t.config.darkMode : t.config.lightMode}</span>
               </button>
             </div>
-            {agentDefaults && (
-              <div className="card flex items-center gap-2 mt-2">
-                <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
-                <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint">
-                  {agentDefaults.defaultAgent === 'codex' ? 'Codex' : 'Claude Code'}
-                </span>
-                <span className="text-xs text-ink-faint ml-auto">{t.config.defaultAgentDesc}</span>
+            <div className="card flex items-center gap-2 mt-2">
+              <span className="text-sm font-medium text-ink-3">{t.config.defaultAgent}</span>
+              <div className="flex gap-1.5 ml-auto">
+                <button
+                  onClick={() => setDefaultAgent('claude-code')}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    defaultAgent === 'claude-code'
+                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  }`}
+                >
+                  Claude Code
+                </button>
+                <button
+                  onClick={() => setDefaultAgent('codex')}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    defaultAgent === 'codex'
+                      ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                      : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                  }`}
+                >
+                  Codex
+                </button>
               </div>
-            )}
+            </div>
           </section>
 
           {/* Repo management */}

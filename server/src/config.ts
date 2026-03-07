@@ -13,7 +13,6 @@ const configSchema = z.object({
   global: z.object({
     maxTotalConcurrency: z.number().default(5),
   }),
-  defaultAgent: z.enum(['claude-code', 'codex']).default('claude-code'),
   claude: z.object({
     model: z.array(z.string()).min(1).default(['claude-sonnet-4-6']),
     maxBudgetUsd: z.number().default(5.0),

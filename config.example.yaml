@@ -6,8 +6,6 @@ server:
 global:
   maxTotalConcurrency: 5
 
-defaultAgent: 'claude-code'  # 'claude-code' or 'codex'
-
 claude:
   model:
     - 'claude-opus-4-6'

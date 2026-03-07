@@ -114,7 +114,6 @@ export interface AppConfig {
   global: {
     maxTotalConcurrency: number;
   };
-  defaultAgent: AgentType;
   claude: {
     model: string[];
     maxBudgetUsd: number;
@@ -126,7 +125,6 @@ export interface AppConfig {
 }
 
 export interface AgentDefaults {
-  defaultAgent: AgentType;
   claude: {
     models: string[];
     defaultModel: string;

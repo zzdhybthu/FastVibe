@@ -122,11 +122,11 @@ export async function taskRoutes(app: FastifyInstance, config: AppConfig) {
         title,
         prompt: body.prompt,
         status: 'PENDING' as TaskStatus,
-        agentType: body.agentType ?? config.defaultAgent,
+        agentType: body.agentType ?? 'claude-code',
         thinkingEnabled: body.thinkingEnabled,
         predecessorTaskId: body.predecessorTaskId ?? null,
         model: body.model ?? (
-          (body.agentType ?? config.defaultAgent) === 'codex'
+          (body.agentType ?? 'claude-code') === 'codex'
             ? config.codex.model[0]
             : config.claude.model[0]
         ),

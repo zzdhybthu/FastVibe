@@ -210,8 +210,6 @@ server:
 global:
   maxTotalConcurrency: 5  # Max total concurrency
 
-defaultAgent: 'claude-code'  # Default agent type ('claude-code' or 'codex')
-
 claude:
   model:                  # Available models
     - 'claude-opus-4-6'

@@ -210,8 +210,6 @@ server:
 global:
   maxTotalConcurrency: 5  # 总并发上限
 
-defaultAgent: 'claude-code'  # 默认 Agent 类型 ('claude-code' 或 'codex')
-
 claude:
   model:                  # 可用模型列表
     - 'claude-opus-4-6'

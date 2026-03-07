@@ -16,11 +16,12 @@ export default function TaskForm({ onClose }: TaskFormProps) {
   const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const uiLanguage = useLanguageStore((s) => s.language);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
+  const defaultAgent = useLanguageStore((s) => s.defaultAgent);
   const t = useT();
 
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
-  const [agentType, setAgentType] = useState<AgentType>(agentDefaults?.defaultAgent ?? 'claude-code');
+  const [agentType, setAgentType] = useState<AgentType>(defaultAgent);
   const [thinkingEnabled, setThinkingEnabled] = useState(false);
   const [predecessorTaskId, setPredecessorTaskId] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -57,12 +58,6 @@ export default function TaskForm({ onClose }: TaskFormProps) {
       fetchAgentDefaults();
     }
   }, [agentDefaults, fetchAgentDefaults]);
-
-  useEffect(() => {
-    if (agentDefaults) {
-      setAgentType(agentDefaults.defaultAgent);
-    }
-  }, [agentDefaults]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
