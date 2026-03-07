@@ -214,6 +214,12 @@ pnpm clean:all      # Clean build artifacts + dependencies (dist/ + node_modules
 
 ## Configuration
 
+FastVibe uses a three-tier configuration system, each tier serving a different purpose:
+
+### Tier 1: Config File (`config.yaml`)
+
+For system-level, rarely changed, or sensitive settings. Requires a server restart to take effect.
+
 ```yaml
 server:
   port: 8420              # Server port
@@ -237,6 +243,33 @@ codex:
 ```
 
 You can also specify the config file path via the `CONFIG_PATH` environment variable.
+
+### Tier 2: Web UI Settings
+
+For personal preferences and less frequently changed options, configured via the Settings panel and persisted in the browser (localStorage) or database.
+
+| Setting | Storage | Description |
+|---------|---------|-------------|
+| Repository management | Database | Add/edit/delete repos, set main branch & concurrency |
+| UI language | Browser | Chinese / English |
+| Theme | Browser | Dark / Light mode |
+| Default Agent | Browser | Default agent type for new tasks |
+| Log level | Browser | Filter displayed log level (debug/info/warn/error) |
+| Voice language | Browser | Speech recognition language |
+
+### Tier 3: Per-Task Configuration
+
+For settings that may vary between tasks, configured when creating or restarting a task.
+
+| Setting | Description |
+|---------|-------------|
+| Agent type | Claude Code / Codex |
+| Model | Select from models defined in config.yaml |
+| Thinking mode | Enable deeper reasoning |
+| Max budget | Per-task budget limit (USD) |
+| Interaction timeout | Timeout for user confirmation (seconds) |
+| Task language | Language used by the Agent during execution |
+| Predecessor task | Task dependency chain |
 
 ## Browser Access
 
