@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { realpathSync, existsSync, statSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { getDb, schema } from '../db/index.js';
@@ -123,6 +123,15 @@ export async function repoRoutes(app: FastifyInstance) {
     const existing = await db.select().from(schema.repos).where(eq(schema.repos.id, id));
     if (existing.length === 0) {
       return reply.code(404).send({ error: 'Repo not found' });
+    }
+
+    // Cascade delete: logs & interactions → tasks → repo
+    const taskRows = await db.select({ id: schema.tasks.id }).from(schema.tasks).where(eq(schema.tasks.repoId, id));
+    if (taskRows.length > 0) {
+      const taskIds = taskRows.map((t) => t.id);
+      await db.delete(schema.taskLogs).where(inArray(schema.taskLogs.taskId, taskIds));
+      await db.delete(schema.taskInteractions).where(inArray(schema.taskInteractions.taskId, taskIds));
+      await db.delete(schema.tasks).where(eq(schema.tasks.repoId, id));
     }
 
     await db.delete(schema.repos).where(eq(schema.repos.id, id));
