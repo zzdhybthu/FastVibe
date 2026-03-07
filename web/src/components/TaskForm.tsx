@@ -72,7 +72,7 @@ export default function TaskForm({ onClose }: TaskFormProps) {
     }
   }, [isTitleListening, title, startTitleVoice, stopTitleVoice, stopVoice]);
 
-  const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED');
+  const eligiblePredecessors = tasks.filter((t) => t.status !== 'FAILED' && t.status !== 'CANCELLED' && t.status !== 'COMPLETED').reverse();
 
   useEffect(() => {
     if (!agentDefaults) {

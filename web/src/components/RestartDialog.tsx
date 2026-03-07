@@ -69,7 +69,7 @@ export default function RestartDialog() {
     }
   }, [isTitleListening, title, startTitleVoice, stopTitleVoice, stopVoice]);
 
-  const eligiblePredecessors = tasks.filter((tk) => tk.status !== 'FAILED' && tk.status !== 'CANCELLED' && tk.id !== restartingTask?.id);
+  const eligiblePredecessors = tasks.filter((tk) => tk.status !== 'FAILED' && tk.status !== 'CANCELLED' && tk.status !== 'COMPLETED' && tk.id !== restartingTask?.id).reverse();
 
   useEffect(() => {
     if (!agentDefaults) {
