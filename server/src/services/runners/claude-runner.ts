@@ -75,13 +75,15 @@ async function processClaudeMessage(
 
   switch (message.type) {
     case 'assistant': {
-      const textBlocks = message.message.content
-        .filter((block: any) => block.type === 'text')
-        .map((block: any) => block.text);
-      if (textBlocks.length > 0) {
-        const text = textBlocks.join('\n');
-        const logText = text.length > 2000 ? text.slice(0, 2000) + '... (truncated)' : text;
-        await ctx.logTask('info', logText);
+      for (const block of message.message.content as any[]) {
+        if (block.type === 'text') {
+          const logText = block.text.length > 2000 ? block.text.slice(0, 2000) + '... (truncated)' : block.text;
+          await ctx.logTask('info', logText);
+        } else if (block.type === 'tool_use') {
+          const inputStr = JSON.stringify(block.input);
+          const truncInput = inputStr.length > 500 ? inputStr.slice(0, 500) + '...' : inputStr;
+          await ctx.logTask('debug', `Tool: ${block.name} ${truncInput}`);
+        }
       }
       return null;
     }
@@ -98,7 +100,15 @@ async function processClaudeMessage(
     case 'system': {
       if (message.subtype === 'init') {
         await ctx.logTask('debug', `SDK initialized. Model: ${message.model}, Tools: ${message.tools.length}`);
+      } else if (message.subtype === 'task_started') {
+        await ctx.logTask('debug', `Sub-agent started: ${message.description}`);
+      } else if (message.subtype === 'task_notification') {
+        await ctx.logTask('debug', `Sub-agent ${message.status}: ${message.summary}`);
       }
+      return null;
+    }
+    case 'tool_use_summary': {
+      await ctx.logTask('debug', message.summary);
       return null;
     }
     default:
