@@ -41,6 +41,23 @@
 - **桌面端**: 用于看板协作，监控 Agent 进度
 - **手机端**: 用于灵活开发，随时随地通知 Agent
 
+## 界面预览
+
+### 桌面端
+
+<p align="center">
+  <img src="assets/desktop-board-zh.png" alt="桌面端看板" width="800" />
+</p>
+
+### 移动端
+
+<p align="center">
+  <img src="assets/mobile-board-zh.jpg" alt="任务看板" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-awating-zh.jpg" alt="待确认交互" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-startup-zh.jpg" alt="重启任务" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-setting-zh.jpg" alt="设置" width="180" />
+</p>
+
 ## 设计理念
 
 > 指令原子化 · 任务并行化 · 流程自动化 · 干预最小化 · 开发灵活化。

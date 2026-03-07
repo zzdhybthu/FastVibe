@@ -41,6 +41,23 @@
 - **Desktop**: Kanban-style collaboration, monitoring Agent progress
 - **Mobile**: Flexible development, notify your Agent anytime, anywhere
 
+## Screenshots
+
+### Desktop
+
+<p align="center">
+  <img src="assets/desktop-board-en.png" alt="Desktop Board" width="800" />
+</p>
+
+### Mobile
+
+<p align="center">
+  <img src="assets/mobile-board-en.jpg" alt="Task Board" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-awating-en.jpg" alt="Awaiting Input" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-startup-en.jpg" alt="Restart Task" width="180" />&nbsp;&nbsp;
+  <img src="assets/mobile-setting-en.jpg" alt="Settings" width="180" />
+</p>
+
 ## Design Philosophy
 
 > Atomize instructions · parallelize tasks · automate workflows · minimize intervention · maximize flexibility.
