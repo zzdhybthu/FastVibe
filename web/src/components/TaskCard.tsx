@@ -77,11 +77,6 @@ export default function TaskCard({ task, tinted }: TaskCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <StatusBadge status={task.status} />
-            {task.agentType === 'codex' && (
-              <span className="badge border border-th-border-strong bg-th-elevated text-ink-hint text-[10px]">
-                Codex
-              </span>
-            )}
             <span className="text-xs text-ink-hint">{formatTime(task.createdAt)}</span>
           </div>
           <h3 className="text-sm font-medium text-ink-2 truncate">
