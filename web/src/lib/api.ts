@@ -120,6 +120,7 @@ export interface RestartTaskOptions {
   interactionTimeout?: number;
   thinkingEnabled?: boolean;
   language?: 'zh' | 'en';
+  agentType?: import('@fastvibe/shared').AgentType;
 }
 
 export function restartTask(taskId: string, overrides?: RestartTaskOptions): Promise<Task> {

@@ -4,11 +4,13 @@ import { useLanguageStore } from '../stores/language-store';
 import { useT } from '../i18n';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import CustomSelect from './CustomSelect';
+import type { AgentType } from '@fastvibe/shared';
 
 export default function RestartDialog() {
   const restartingTask = useAppStore((s) => s.restartingTask);
   const setRestartingTask = useAppStore((s) => s.setRestartingTask);
   const restartTask = useAppStore((s) => s.restartTask);
+  const tasks = useAppStore((s) => s.tasks);
   const agentDefaults = useAppStore((s) => s.agentDefaults);
   const fetchAgentDefaults = useAppStore((s) => s.fetchAgentDefaults);
   const voiceLang = useLanguageStore((s) => s.voiceLang);
@@ -16,10 +18,13 @@ export default function RestartDialog() {
 
   const [prompt, setPrompt] = useState('');
   const [title, setTitle] = useState('');
+  const [agentType, setAgentType] = useState<AgentType>('claude-code');
+  const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const [predecessorTaskId, setPredecessorTaskId] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [model, setModel] = useState('');
   const [maxBudgetUsd, setMaxBudgetUsd] = useState('');
   const [interactionTimeout, setInteractionTimeout] = useState('');
-  const [thinkingEnabled, setThinkingEnabled] = useState(false);
   const [taskLanguage, setTaskLanguage] = useState<'zh' | 'en'>('zh');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -43,6 +48,8 @@ export default function RestartDialog() {
     }
   }, [isListening, prompt, startVoice, stopVoice]);
 
+  const eligiblePredecessors = tasks.filter((tk) => tk.status !== 'FAILED' && tk.status !== 'CANCELLED' && tk.id !== restartingTask?.id);
+
   useEffect(() => {
     if (!agentDefaults) {
       fetchAgentDefaults();
@@ -54,10 +61,13 @@ export default function RestartDialog() {
     if (restartingTask) {
       setPrompt(restartingTask.prompt);
       setTitle(restartingTask.title || '');
+      setAgentType(restartingTask.agentType ?? 'claude-code');
+      setThinkingEnabled(restartingTask.thinkingEnabled);
+      setPredecessorTaskId('');
+      setShowAdvanced(false);
       setModel(restartingTask.model);
       setMaxBudgetUsd(String(restartingTask.maxBudgetUsd));
       setInteractionTimeout(String(restartingTask.interactionTimeout));
-      setThinkingEnabled(restartingTask.thinkingEnabled);
       setTaskLanguage((restartingTask.language as 'zh' | 'en') ?? 'zh');
       setError('');
     }
@@ -70,7 +80,7 @@ export default function RestartDialog() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) {
-      setError(t.restartDialog.promptRequired);
+      setError(t.taskForm.promptRequired);
       return;
     }
     setSubmitting(true);
@@ -80,10 +90,11 @@ export default function RestartDialog() {
       await restartTask(restartingTask.id, {
         prompt: prompt.trim(),
         title: title.trim() || undefined,
+        agentType,
+        thinkingEnabled,
         model: model || undefined,
         maxBudgetUsd: maxBudgetUsd ? parseFloat(maxBudgetUsd) : undefined,
         interactionTimeout: interactionTimeout ? parseInt(interactionTimeout, 10) : undefined,
-        thinkingEnabled,
         language: taskLanguage,
       });
     } catch (err) {
@@ -116,7 +127,7 @@ export default function RestartDialog() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-sm font-medium text-ink-3">
-                {t.restartDialog.promptLabel} <span className="text-red-400">*</span>
+                {t.taskForm.promptLabel} <span className="text-red-400">*</span>
               </label>
               {isSupported && (
                 <button
@@ -137,9 +148,11 @@ export default function RestartDialog() {
               )}
             </div>
             <textarea
-              className="input min-h-[100px] resize-y font-mono text-sm"
+              className="input min-h-[120px] resize-y font-mono text-sm"
+              placeholder={t.taskForm.promptPlaceholder}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
+              autoFocus
               disabled={submitting}
             />
           </div>
@@ -147,104 +160,54 @@ export default function RestartDialog() {
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              {t.restartDialog.titleLabel} <span className="text-ink-hint">{t.restartDialog.titleOptional}</span>
+              {t.taskForm.titleLabel} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
             </label>
             <input
               type="text"
               className="input"
-              placeholder={t.restartDialog.titlePlaceholder}
+              placeholder={t.taskForm.titlePlaceholder}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={submitting}
             />
           </div>
 
-          {/* Model */}
+          {/* Agent type selector */}
           <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.restartDialog.model}</label>
-            {agentDefaults && (() => {
-              const agentConfig = restartingTask.agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
-              return agentConfig.models.length > 0 ? (
-                <CustomSelect
-                  options={agentConfig.models.map((m) => ({ value: m, label: m }))}
-                  value={model}
-                  onChange={(val) => setModel(val)}
-                  disabled={submitting}
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="input"
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  disabled={submitting}
-                />
-              );
-            })()}
-            {!agentDefaults && (
-              <input
-                type="text"
-                className="input"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
+            <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.agentType}</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setAgentType('claude-code'); setModel(''); }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  agentType === 'claude-code'
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                }`}
                 disabled={submitting}
-              />
-            )}
-          </div>
-
-          {/* Max budget */}
-          <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              {t.restartDialog.maxBudget}
-            </label>
-            <input
-              type="number"
-              className="input"
-              value={maxBudgetUsd}
-              onChange={(e) => setMaxBudgetUsd(e.target.value)}
-              disabled={submitting}
-              min="0.01"
-              step="any"
-            />
-          </div>
-
-          {/* Interaction timeout */}
-          <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              {t.restartDialog.interactionTimeout}
-            </label>
-            <input
-              type="number"
-              className="input"
-              value={interactionTimeout}
-              onChange={(e) => setInteractionTimeout(e.target.value)}
-              disabled={submitting}
-              min="60"
-              step="60"
-            />
-          </div>
-
-          {/* Task language */}
-          <div>
-            <label className="block text-sm font-medium text-ink-3 mb-1.5">
-              {t.restartDialog.taskLanguage}
-            </label>
-            <CustomSelect
-              options={[
-                { value: 'zh', label: t.restartDialog.langZh },
-                { value: 'en', label: t.restartDialog.langEn },
-              ]}
-              value={taskLanguage}
-              onChange={(val) => setTaskLanguage(val as 'zh' | 'en')}
-              disabled={submitting}
-            />
+              >
+                {t.taskForm.agentClaudeCode}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAgentType('codex'); setModel(''); }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  agentType === 'codex'
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-th-border bg-th-input text-ink-muted hover:border-th-border-strong'
+                }`}
+                disabled={submitting}
+              >
+                {t.taskForm.agentCodex}
+              </button>
+            </div>
           </div>
 
           {/* Thinking mode toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium text-ink-3">{t.restartDialog.thinkingMode}</span>
-              <p className="text-xs text-ink-hint">{t.restartDialog.thinkingModeDesc}</p>
+              <span className="text-sm font-medium text-ink-3">{t.taskForm.thinkingMode}</span>
+              <p className="text-xs text-ink-hint">{t.taskForm.thinkingModeDesc}</p>
             </div>
             <button
               type="button"
@@ -261,6 +224,142 @@ export default function RestartDialog() {
               />
             </button>
           </div>
+
+          {/* Predecessor task */}
+          {eligiblePredecessors.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-ink-3 mb-1.5">
+                {t.taskForm.predecessorTask} <span className="text-ink-hint">{t.taskForm.titleOptional}</span>
+              </label>
+              <CustomSelect
+                options={[
+                  { value: '', label: t.taskForm.noPredecessor },
+                  ...eligiblePredecessors.map((task) => ({
+                    value: task.id,
+                    label: `${task.title || task.prompt.slice(0, 60)} (${task.status})`,
+                  })),
+                ]}
+                value={predecessorTaskId}
+                onChange={(val) => setPredecessorTaskId(val)}
+                disabled={submitting}
+              />
+              <p className="mt-1 text-xs text-ink-hint">
+                {t.taskForm.predecessorDesc}
+              </p>
+            </div>
+          )}
+
+          {/* Advanced settings toggle */}
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink-2 transition-colors"
+          >
+            <svg
+              className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-90' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+            {t.taskForm.advancedSettings}
+          </button>
+
+          {/* Advanced settings */}
+          {showAdvanced && (
+            <div className="space-y-3 rounded-lg border border-th-border bg-th-input p-4">
+              {/* Model */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">{t.taskForm.model}</label>
+                {agentDefaults && (() => {
+                  const agentConfig = agentType === 'codex' ? agentDefaults.codex : agentDefaults.claude;
+                  return agentConfig.models.length > 0 ? (
+                    <CustomSelect
+                      options={[
+                        { value: '', label: t.taskForm.modelDefault(agentConfig.defaultModel) },
+                        ...agentConfig.models.map((m) => ({ value: m, label: m })),
+                      ]}
+                      value={model}
+                      onChange={(val) => setModel(val)}
+                      disabled={submitting}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder={agentConfig.defaultModel}
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      disabled={submitting}
+                    />
+                  );
+                })()}
+                {!agentDefaults && (
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder={agentType === 'codex' ? 'o3' : 'claude-sonnet-4-6'}
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    disabled={submitting}
+                  />
+                )}
+              </div>
+
+              {/* Max budget */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">
+                  {t.taskForm.maxBudget}
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  placeholder={agentDefaults ? String(agentDefaults.claude.maxBudgetUsd) : '5.0'}
+                  value={maxBudgetUsd}
+                  onChange={(e) => setMaxBudgetUsd(e.target.value)}
+                  disabled={submitting}
+                  min="0.01"
+                  step="any"
+                />
+              </div>
+
+              {/* Interaction timeout */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">
+                  {t.taskForm.interactionTimeout}
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  placeholder={agentDefaults ? String(agentDefaults.claude.interactionTimeout) : '1800'}
+                  value={interactionTimeout}
+                  onChange={(e) => setInteractionTimeout(e.target.value)}
+                  disabled={submitting}
+                  min="60"
+                  step="60"
+                />
+              </div>
+
+              {/* Task language */}
+              <div>
+                <label className="block text-sm font-medium text-ink-3 mb-1.5">
+                  {t.taskForm.taskLanguage}
+                </label>
+                <CustomSelect
+                  options={[
+                    { value: 'zh', label: t.taskForm.langZh },
+                    { value: 'en', label: t.taskForm.langEn },
+                  ]}
+                  value={taskLanguage}
+                  onChange={(val) => setTaskLanguage(val as 'zh' | 'en')}
+                  disabled={submitting}
+                />
+                <p className="mt-1 text-xs text-ink-hint">{t.taskForm.taskLanguageDesc}</p>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-400">
