@@ -88,27 +88,64 @@ async function processClaudeMessage(
       return null;
     }
     case 'result': {
-      if (message.subtype === 'success') {
-        return { result: message.result, costUsd: message.total_cost_usd };
+      const msg = message as any;
+      if (msg.subtype === 'success') {
+        await ctx.logTask('info', `Completed. Cost: $${msg.total_cost_usd?.toFixed(4) ?? '?'}, Turns: ${msg.num_turns}, Duration: ${(msg.duration_ms / 1000).toFixed(1)}s`);
+        return { result: msg.result, costUsd: msg.total_cost_usd };
       } else {
-        const errorMsg = 'errors' in message && Array.isArray(message.errors)
-          ? message.errors.join('; ')
-          : `SDK error: ${message.subtype}`;
+        const errorMsg = 'errors' in msg && Array.isArray(msg.errors)
+          ? msg.errors.join('; ')
+          : `SDK error: ${msg.subtype}`;
         throw new Error(errorMsg);
       }
     }
     case 'system': {
-      if (message.subtype === 'init') {
-        await ctx.logTask('debug', `SDK initialized. Model: ${message.model}, Tools: ${message.tools.length}`);
-      } else if (message.subtype === 'task_started') {
-        await ctx.logTask('debug', `Sub-agent started: ${message.description}`);
-      } else if (message.subtype === 'task_notification') {
-        await ctx.logTask('debug', `Sub-agent ${message.status}: ${message.summary}`);
+      const msg = message as any;
+      switch (msg.subtype) {
+        case 'init':
+          await ctx.logTask('debug', `SDK initialized. Model: ${msg.model}, Tools: ${msg.tools.length}, MCP: ${msg.mcp_servers?.map((s: any) => s.name).join(', ') || 'none'}`);
+          break;
+        case 'task_started':
+          await ctx.logTask('debug', `Sub-agent started: ${msg.description}`);
+          break;
+        case 'task_progress':
+          await ctx.logTask('debug', `Sub-agent progress: ${msg.description} (tokens: ${msg.usage?.total_tokens}, tools: ${msg.usage?.tool_uses})`);
+          break;
+        case 'task_notification':
+          await ctx.logTask('debug', `Sub-agent ${msg.status}: ${msg.summary}`);
+          break;
+        case 'status':
+          if (msg.status) await ctx.logTask('debug', `Status: ${msg.status}`);
+          break;
       }
       return null;
     }
+    case 'tool_progress': {
+      const msg = message as any;
+      await ctx.logTask('debug', `Tool progress: ${msg.tool_name} (${msg.elapsed_time_seconds}s)`);
+      return null;
+    }
     case 'tool_use_summary': {
-      await ctx.logTask('debug', message.summary);
+      const msg = message as any;
+      await ctx.logTask('debug', msg.summary);
+      return null;
+    }
+    case 'auth_status': {
+      const msg = message as any;
+      if (msg.error) {
+        await ctx.logTask('warn', `Auth error: ${msg.error}`);
+      }
+      return null;
+    }
+    case 'rate_limit_event': {
+      const msg = message as any;
+      const info = msg.rate_limit_info;
+      if (info?.status === 'rejected') {
+        const resetsIn = info.resetsAt ? `resets in ${Math.ceil((info.resetsAt - Date.now() / 1000) / 60)}min` : '';
+        await ctx.logTask('warn', `Rate limited (${info.rateLimitType}). ${resetsIn}`);
+      } else if (info?.status === 'allowed_warning') {
+        await ctx.logTask('warn', `Rate limit warning: ${Math.round((info.utilization ?? 0) * 100)}% used (${info.rateLimitType})`);
+      }
       return null;
     }
     default:

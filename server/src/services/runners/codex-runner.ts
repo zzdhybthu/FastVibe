@@ -44,8 +44,27 @@ export const codexRunner: AgentRunner = {
       if (abortController.signal.aborted) break;
 
       switch (event.type) {
+        case 'thread.started': {
+          await ctx.logTask('debug', 'Thread started');
+          break;
+        }
+        case 'turn.started': {
+          await ctx.logTask('debug', 'Turn started');
+          break;
+        }
+        case 'item.started': {
+          const item = (event as any).item;
+          if (item.type === 'command_execution') {
+            await ctx.logTask('debug', `Running: $ ${item.command || ''}`);
+          } else if (item.type === 'mcp_tool_call') {
+            await ctx.logTask('debug', `MCP calling: ${item.server}/${item.tool}`);
+          } else if (item.type === 'web_search') {
+            await ctx.logTask('debug', `Web search: ${item.query || ''}`);
+          }
+          break;
+        }
         case 'item.completed': {
-          const item = event.item;
+          const item = (event as any).item;
           if (item.type === 'agent_message') {
             const text = item.text;
             if (text) {
@@ -58,28 +77,36 @@ export const codexRunner: AgentRunner = {
             const output = item.aggregated_output || '';
             await ctx.logTask('debug', `$ ${cmd}\n${output.length > 1000 ? output.slice(0, 1000) + '...' : output}`);
           } else if (item.type === 'file_change') {
-            const paths = item.changes.map(c => c.path).join(', ');
+            const paths = item.changes?.map((c: any) => c.path).join(', ');
             await ctx.logTask('debug', `File changed: ${paths || 'unknown'}`);
           } else if (item.type === 'reasoning') {
-            await ctx.logTask('debug', `Reasoning: ${item.text.length > 500 ? item.text.slice(0, 500) + '...' : item.text}`);
+            await ctx.logTask('debug', `Reasoning: ${item.text?.length > 500 ? item.text.slice(0, 500) + '...' : item.text}`);
           } else if (item.type === 'mcp_tool_call') {
             await ctx.logTask('debug', `MCP: ${item.server}/${item.tool} → ${item.status}`);
+          } else if (item.type === 'web_search') {
+            await ctx.logTask('debug', `Web search completed: ${item.query || ''}`);
+          } else if (item.type === 'todo_list') {
+            const todos = item.items?.map((t: any) => `[${t.completed ? 'x' : ' '}] ${t.text}`).join('\n') || '';
+            await ctx.logTask('debug', `Todo list:\n${todos}`);
+          } else if (item.type === 'error') {
+            await ctx.logTask('warn', `Item error: ${item.message || JSON.stringify(item)}`);
           }
           break;
         }
         case 'turn.completed': {
-          if (event.usage) {
-            totalInputTokens += event.usage.input_tokens || 0;
-            totalOutputTokens += event.usage.output_tokens || 0;
-            await ctx.logTask('info', `Turn completed. Tokens: ${event.usage.input_tokens} in / ${event.usage.output_tokens} out`);
+          const ev = event as any;
+          if (ev.usage) {
+            totalInputTokens += ev.usage.input_tokens || 0;
+            totalOutputTokens += ev.usage.output_tokens || 0;
+            await ctx.logTask('info', `Turn completed. Tokens: ${ev.usage.input_tokens} in / ${ev.usage.output_tokens} out`);
           }
           break;
         }
         case 'turn.failed': {
-          throw new Error(event.error.message);
+          throw new Error((event as any).error?.message || 'Turn failed');
         }
         case 'error': {
-          throw new Error(event.message);
+          throw new Error((event as any).message || 'Unknown error');
         }
       }
     }
