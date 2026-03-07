@@ -221,7 +221,8 @@ claude:
 
 codex:
   model:                  # Available Codex models
-    - 'o3'
+    - 'gpt-5.3-codex'
+    - 'gpt-5.2-codex'
 ```
 
 You can also specify the config file path via the `CONFIG_PATH` environment variable.
@@ -255,7 +256,7 @@ Mobile devices can also use SSH port forwarding. For example, with [Termux](http
 
 ### Voice Input
 
-The Web UI supports voice input. On first use, the browser will request microphone permission — please allow it.
+The Web UI supports voice input. On first use, the browser will request microphone permission — please allow it. Some browsers (e.g. Chrome) rely on Google services for speech recognition — make sure your network can reach Google.
 
 ## Security Recommendations
 

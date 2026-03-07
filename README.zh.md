@@ -221,7 +221,8 @@ claude:
 
 codex:
   model:                  # 可用 Codex 模型列表
-    - 'o3'
+    - 'gpt-5.3-codex'
+    - 'gpt-5.2-codex'
 ```
 
 也可通过环境变量 `CONFIG_PATH` 指定配置文件路径。
@@ -255,7 +256,7 @@ ssh -Nfn -L 8420:localhost:8420 user@your-server-ip
 
 ### 语音输入
 
-Web UI 支持语音输入功能。首次使用时，浏览器会请求麦克风权限，请点击允许。
+Web UI 支持语音输入功能。首次使用时，浏览器会请求麦克风权限，请点击允许。部分浏览器（如 Chrome）的语音识别依赖 Google 服务，请确保网络可正常访问 Google。
 
 ## 安全建议
 
