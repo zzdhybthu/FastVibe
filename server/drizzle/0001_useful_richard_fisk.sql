@@ -1,1 +1,0 @@
-ALTER TABLE `tasks` ADD `agent_type` text DEFAULT 'claude-code' NOT NULL;

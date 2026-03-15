@@ -1,1 +1,0 @@
-ALTER TABLE `tasks` ADD `continue_session` integer DEFAULT false NOT NULL;

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "cd1e9a65-d776-4768-ba00-cc95e972a773",
+  "id": "df48037a-b324-4f3c-8abf-f7c0e2df9df8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "repos": {
@@ -239,8 +239,24 @@
           "autoincrement": false,
           "default": "'PENDING'"
         },
+        "agent_type": {
+          "name": "agent_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'claude-code'"
+        },
         "thinking_enabled": {
           "name": "thinking_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "continue_session": {
+          "name": "continue_session",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
