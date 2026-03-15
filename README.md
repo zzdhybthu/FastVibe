@@ -331,6 +331,16 @@ This project runs Code Agent in dangerous mode by default — the Agent has full
 - Avoid running as root
 - Regularly back up important data not managed by git
 
+## FAQ
+
+**Q: Task fails immediately with "Claude Code process exited with code 1"**
+
+A: Verify that `claude --dangerously-skip-permissions` (or `codex --dangerously-bypass-approvals-and-sandbox` for Codex) runs correctly in your terminal. Some environments (e.g. running as root) may restrict these commands.
+
+**Q: Voice Input not responding on mobile**
+
+A: Make sure the browser has microphone permission enabled, and that your network can reach Google (Chrome's speech recognition relies on Google services).
+
 ## References
 
 - [胡渊鸣 | 我给 10 个 Claude Code 打工](https://mp.weixin.qq.com/s/9qPD3gXj3HLmrKC64Q6fbQ)
